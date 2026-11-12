@@ -1,6 +1,6 @@
 // Service worker: permite instalar la app y usarla sin internet.
 // Los datos (Supabase) siempre van directo a la red; aquí solo se guarda la "carcasa" de la app.
-const VERSION = 'bosquejos-2026.11.12.0254';   // el script de compilación pone aquí la versión real
+const VERSION = 'bosquejos-2026.11.12.0258';   // el script de compilación pone aquí la versión real
 const APP_SHELL = [
     './',
     './index.html',
