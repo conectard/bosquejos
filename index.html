@@ -725,8 +725,18 @@
         z-index: 5500;
         align-items: center;
         box-shadow: 0 10px 25px rgba(0,0,0,0.35);
-        transform: translateY(-130%);
         pointer-events: auto !important;
+        width: max-content;
+        max-width: calc(100vw - 16px);
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    #imageCropToolbar .btn-eliminar-imagen {
+        color: #fca5a5;
+    }
+    #imageCropToolbar .btn-eliminar-imagen:hover {
+        background: rgba(239, 68, 68, 0.25);
+        color: #fff;
     }
     #imageCropToolbar button {
         background: transparent;
@@ -887,21 +897,46 @@
     }
 
     /* ENLACES DE REFERENCIA */
+    /* Texto con referencia: se abre al tocar el propio texto */
     .inline-reference {
-        color: var(--reference-blue) !important;
+        color: inherit;
         cursor: pointer;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 2px;
-        padding: 2px 6px;
-        background: #eff6ff;
-        border-radius: 4px;
-        transition: all 0.15s;
+        font-weight: inherit;
+        display: inline;
+        padding: 1px 2px;
+        background: #f1f5f9;
+        border-bottom: 2px solid #94a3b8;
+        border-radius: 3px;
+        transition: background 0.15s, border-color 0.15s;
         position: relative;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
     }
     .inline-reference:hover {
-        background: #dbeafe;
+        background: #e2e8f0;
+        border-bottom-color: #0f172a;
+    }
+    .inline-reference.ref-activa-texto {
+        background: #e2e8f0;
+        border-bottom-color: #0f172a;
+    }
+    /* El ícono de "ver" ya no hace falta */
+    .inline-reference .material-symbols-outlined {
+        display: none;
+    }
+
+    /* Panel de referencias: solo se ve una a la vez */
+    #activeDevelopmentView .reference-item-card:not(.ref-activa),
+    #qaActiveDevelopmentView .reference-item-card:not(.ref-activa) {
+        display: none;
+    }
+    #activeDevelopmentView:not(:has(.reference-item-card))::before,
+    #qaActiveDevelopmentView:not(:has(.reference-item-card))::before {
+        content: 'Selecciona un texto y pulsa “Ref” para crear una referencia.';
+        display: block;
+        font-size: 0.85rem;
+        color: var(--text-sub);
+        padding: 8px 0;
     }
 
     /* SECCIÓN DE REFERENCIA */
@@ -929,7 +964,7 @@
     .reference-item-source {
         font-size: calc(var(--font-size-ref) + 0.05rem);
         font-weight: 700;
-        color: var(--theme-purple);
+        color: var(--text-main);
         outline: none;
         flex: 1;
         background: transparent;
@@ -988,10 +1023,30 @@
         background: #fee2e2;
     }
 
+    /* Misma letra en el discurso y en las referencias (también en texto pegado de otras páginas) */
+    .editable-area *:not(.material-symbols-outlined),
+    .reference-body-text *:not(.material-symbols-outlined),
+    .reader-note *:not(.material-symbols-outlined),
+    .qa-answer-input *:not(.material-symbols-outlined) {
+        font-family: inherit !important;
+    }
+    .reference-body-text span,
+    .reference-body-text font,
+    .reference-body-text div,
+    .reference-body-text p,
+    .reference-body-text li {
+        font-size: inherit !important;
+        line-height: inherit !important;
+    }
+    .reference-body-text p {
+        margin-bottom: 12px;
+    }
+
     .reference-body-text {
         font-size: var(--font-size-ref) !important;
         color: var(--text-main);
-        line-height: 1.6;
+        font-weight: 400;
+        line-height: 1.7;
         outline: none;
         padding: 2px 0;
         background: transparent;
@@ -1098,9 +1153,9 @@
         gap: 6px;
         z-index: 5000;
         box-shadow: 0 10px 25px rgba(0,0,0,0.35);
-        transform: translateY(-130%);
         align-items: center;
-        max-width: 96vw;
+        width: max-content;
+        max-width: calc(100vw - 16px);
         flex-wrap: wrap;
         justify-content: center;
         pointer-events: auto !important;
@@ -1187,6 +1242,11 @@
     }
     .dropdown-panel.show {
         display: flex;
+    }
+    /* Si no hay espacio arriba, el menú se abre hacia abajo */
+    .dropdown-panel.abajo {
+        bottom: auto;
+        top: 42px;
     }
 
     .color-row {
@@ -1679,6 +1739,7 @@
     <button onclick="recortarImagenAccion('cuadrado')"><span class="material-symbols-outlined" style="font-size: 14px;">aspect_ratio</span> Cuadrada</button>
     <button onclick="recortarImagenAccion('horizontal')"><span class="material-symbols-outlined" style="font-size: 14px;">panorama</span> Horizontal</button>
     <button onclick="recortarImagenAccion('reset')"><span class="material-symbols-outlined" style="font-size: 14px;">restart_alt</span> Restaurar</button>
+    <button class="btn-eliminar-imagen" onclick="eliminarImagenSeleccionada()"><span class="material-symbols-outlined" style="font-size: 14px;">delete</span> Eliminar</button>
 </div>
 
 
@@ -1717,7 +1778,7 @@
 
     <div class="dropdown-container">
         <button class="dropdown-toggle-btn" onclick="toggleDropdownPanel('highlightPanel', event)">
-            <span class="material-symbols-outlined" style="font-size: 14px;">highlighter</span> Resaltar <span class="material-symbols-outlined" style="font-size: 12px;">arrow_drop_down</span>
+            <span class="material-symbols-outlined" style="font-size: 14px;">ink_highlighter</span> Resaltar <span class="material-symbols-outlined" style="font-size: 12px;">arrow_drop_down</span>
         </button>
         <div class="dropdown-panel" id="highlightPanel">
             <div class="color-row">
@@ -2139,7 +2200,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.12.0234';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.12.0241';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
@@ -2900,12 +2961,46 @@
         document.removeEventListener('touchend', detenerRedimensionadoTacto);
     }
 
+    // Coloca una barra flotante encima de un elemento; si no cabe arriba, la pone debajo.
+    // Siempre queda completa dentro de la pantalla. Devuelve true si quedó arriba.
+    function posicionarBarraFlotante(barra, rect) {
+        barra.style.display = 'flex';
+        barra.style.left = '0px';
+        barra.style.top = '0px';
+        const margen = 8, separacion = 10;
+        const ancho = barra.offsetWidth, alto = barra.offsetHeight;
+        const vw = document.documentElement.clientWidth, vh = window.innerHeight;
+
+        let top;
+        const caeArriba = rect.top - alto - separacion >= margen;
+        if (caeArriba) {
+            top = rect.top - alto - separacion;
+        } else if (rect.bottom + separacion + alto <= vh - margen) {
+            top = rect.bottom + separacion;
+        } else {
+            top = margen;   // elemento muy alto: arriba de la pantalla
+        }
+        let left = rect.left + rect.width / 2 - ancho / 2;
+        left = Math.max(margen, Math.min(vw - ancho - margen, left));
+
+        barra.style.top = (top + window.scrollY) + 'px';
+        barra.style.left = (left + window.scrollX) + 'px';
+        return caeArriba;
+    }
+
     function mostrarBarraRecorte(wrapper, e) {
         const toolbar = document.getElementById('imageCropToolbar');
-        const rect = wrapper.getBoundingClientRect();
-        toolbar.style.display = 'flex';
-        toolbar.style.top = Math.max(10, rect.top + window.scrollY - 55) + 'px';
-        toolbar.style.left = Math.max(10, rect.left + window.scrollX + (rect.width / 2) - 80) + 'px';
+        posicionarBarraFlotante(toolbar, wrapper.getBoundingClientRect());
+    }
+
+    function eliminarImagenSeleccionada() {
+        if (!imagenSeleccionadaActual) return;
+        const wrapper = imagenSeleccionadaActual;
+        deseleccionarImagenActiva();
+        wrapper.remove();
+        document.getElementById('imageCropToolbar').style.display = 'none';
+        guardarEstadoActual();
+        mostrarAlerta('Imagen eliminada');
     }
 
     function recortarImagenAccion(modo) {
@@ -2965,7 +3060,20 @@
             if (p.id !== panelId) p.classList.remove('show');
         });
         const panel = document.getElementById(panelId);
-        if (panel) panel.classList.toggle('show');
+        if (!panel) return;
+        panel.classList.toggle('show');
+        if (panel.classList.contains('show')) {
+            // Abre hacia arriba si hay espacio; si no, hacia abajo (para que siempre se vea completo)
+            panel.classList.remove('abajo');
+            const r = panel.getBoundingClientRect();
+            if (r.top < 8) panel.classList.add('abajo');
+            // Que tampoco se salga por los lados
+            panel.style.marginLeft = '0px';
+            const r2 = panel.getBoundingClientRect();
+            const vw = document.documentElement.clientWidth;
+            if (r2.left < 8) panel.style.marginLeft = (8 - r2.left) + 'px';
+            else if (r2.right > vw - 8) panel.style.marginLeft = (vw - 8 - r2.right) + 'px';
+        }
     }
 
     function eliminarTarjetaReferencia(btn) {
@@ -2985,6 +3093,8 @@
                 });
             }
             card.remove();
+            asegurarRefActiva();
+            guardarEstadoActual();
             mostrarAlerta('Referencia eliminada y desmarcada del texto');
         }
     }
@@ -3037,6 +3147,7 @@
             document.getElementById('bosquejoEditorContent').innerHTML = b.contenido;
             document.getElementById('activeDevelopmentView').innerHTML = b.panelContenido || '';
             cambiarVista('vistaDetalleBosquejo', null);
+            asegurarRefActiva();
         }
     }
 
@@ -3106,6 +3217,7 @@
             document.getElementById('qaEditorMainContent').innerHTML = q.contenido;
             document.getElementById('qaActiveDevelopmentView').innerHTML = q.panelContenido || '';
             cambiarVista('vistaDetalleQA', null);
+            asegurarRefActiva();
         }
     }
 
@@ -3157,6 +3269,69 @@
         }
     }
 
+    /* REFERENCIAS: solo una visible a la vez */
+    function contenedorReferencias() {
+        return document.getElementById(vistaActivaActual === 'vistaDetalleQA' ? 'qaActiveDevelopmentView' : 'activeDevelopmentView');
+    }
+    function editorPrincipal() {
+        return document.getElementById(vistaActivaActual === 'vistaDetalleQA' ? 'qaEditorMainContent' : 'bosquejoEditorContent');
+    }
+    function idDeTarjeta(card) {
+        return card.getAttribute('data-ref-id') || card.id;
+    }
+
+    function activarReferencia(id) {
+        const cont = contenedorReferencias();
+        if (!cont) return;
+        const tarjetas = [...cont.querySelectorAll('.reference-item-card')];
+        let elegida = tarjetas.find(c => idDeTarjeta(c) === id);
+        if (!elegida) elegida = tarjetas[0];
+        tarjetas.forEach(c => c.classList.toggle('ref-activa', c === elegida));
+        const editor = editorPrincipal();
+        if (editor) {
+            editor.querySelectorAll('.inline-reference').forEach(s => {
+                s.classList.toggle('ref-activa-texto', !!elegida && s.getAttribute('data-refid') === idDeTarjeta(elegida));
+            });
+        }
+        const titulo = document.getElementById(vistaActivaActual === 'vistaDetalleQA' ? 'qaPanelHeaderTitle' : 'panelHeaderTitle');
+        if (titulo && tarjetas.length > 1) {
+            titulo.dataset.base = titulo.dataset.base || titulo.innerText;
+            titulo.innerText = `${titulo.dataset.base} (${tarjetas.indexOf(elegida) + 1} de ${tarjetas.length})`;
+        } else if (titulo && titulo.dataset.base) {
+            titulo.innerText = titulo.dataset.base;
+        }
+    }
+
+    // Deja exactamente una referencia activa (la que ya lo estaba o la primera)
+    function asegurarRefActiva() {
+        const cont = contenedorReferencias();
+        if (!cont) return;
+        const activa = cont.querySelector('.reference-item-card.ref-activa');
+        activarReferencia(activa ? idDeTarjeta(activa) : null);
+    }
+
+    // Al pegar texto de otras páginas se pega limpio, con la misma letra de la app
+    document.addEventListener('paste', (e) => {
+        const destino = e.target.closest && e.target.closest('[contenteditable="true"]');
+        if (!destino || !e.clipboardData) return;
+        const tieneImagen = [...e.clipboardData.items].some(i => i.kind === 'file' && i.type.startsWith('image/'));
+        if (tieneImagen) return;
+        const texto = e.clipboardData.getData('text/plain');
+        if (!texto) return;
+        e.preventDefault();
+        document.execCommand('insertText', false, texto);
+    });
+
+    // Tocar el texto referido abre su referencia
+    document.addEventListener('click', (e) => {
+        const ref = e.target.closest('.inline-reference');
+        if (!ref) return;
+        const seleccion = window.getSelection();
+        if (seleccion && !seleccion.isCollapsed && seleccion.toString().trim()) return;   // está seleccionando texto
+        e.preventDefault();
+        mostrarPuntoPanel(ref.getAttribute('data-refid'));
+    });
+
     function mostrarPuntoPanel(id) {
         const panelWrapper = document.getElementById(vistaActivaActual === 'vistaDetalleBosquejo' ? 'panelWrapper' : 'qaPanelWrapper');
         const readerLayout = document.getElementById(vistaActivaActual === 'vistaDetalleBosquejo' ? 'readerLayout' : 'qaLayout');
@@ -3174,13 +3349,12 @@
             }
         }
 
+        activarReferencia(id);
         const tarjeta = document.getElementById(id);
         if (tarjeta) {
-            tarjeta.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            tarjeta.style.background = '#eff6ff';
-            setTimeout(() => { tarjeta.style.background = 'transparent'; }, 1200);
+            const caja = tarjeta.closest('.reference-box');
+            if (caja) caja.scrollTop = 0;
         }
-        mostrarAlerta('Mostrando referencia en el panel');
     }
 
     let contadorPreguntasQA = 1;
@@ -3245,13 +3419,8 @@
         if (!seleccion.isCollapsed && seleccion.toString().trim().length > 0) {
             rangoSeleccionado = seleccion.getRangeAt(0);
             const rect = rangoSeleccionado.getBoundingClientRect();
-            
-            toolbar.style.display = 'flex';
-            const topPos = Math.max(10, rect.top + window.scrollY - 55);
-            const leftPos = Math.max(10, Math.min(window.innerWidth - toolbar.offsetWidth - 10, rect.left + window.scrollX + (rect.width / 2) - (toolbar.offsetWidth / 2)));
-            
-            toolbar.style.top = topPos + 'px';
-            toolbar.style.left = leftPos + 'px';
+            document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('show'));
+            posicionarBarraFlotante(toolbar, rect);
 
             let nodoPadre = rangoSeleccionado.commonAncestorContainer;
             if (nodoPadre.nodeType === 3) nodoPadre = nodoPadre.parentNode;
@@ -3337,15 +3506,14 @@
         const nuevaId = 'ref-' + Date.now();
         const tituloRef = textoSeleccionado.length > 30 ? textoSeleccionado.substring(0, 30) + '...' : textoSeleccionado;
 
+        // El texto seleccionado se conserva completo; al tocarlo se abre su referencia
         const spanEnlace = document.createElement('span');
         spanEnlace.className = 'inline-reference';
         spanEnlace.setAttribute('contenteditable', 'false');
         spanEnlace.setAttribute('data-refid', nuevaId);
-        spanEnlace.setAttribute('onclick', `mostrarPuntoPanel('${nuevaId}')`);
-        spanEnlace.innerHTML = `${tituloRef} <span class="material-symbols-outlined" style="font-size: 14px;">visibility</span>`;
-
-        rangoSeleccionado.deleteContents();
+        spanEnlace.appendChild(rangoSeleccionado.extractContents());
         rangoSeleccionado.insertNode(spanEnlace);
+        window.getSelection().removeAllRanges();
 
         const panelContenido = document.getElementById(vistaActivaActual === 'vistaDetalleBosquejo' ? 'activeDevelopmentView' : 'qaActiveDevelopmentView');
         if (panelContenido) {
@@ -3355,7 +3523,7 @@
             nuevaTarjeta.setAttribute('data-ref-id', nuevaId);
             nuevaTarjeta.innerHTML = `
                 <div class="reference-card-header">
-                    <div class="reference-item-source editable-area" contenteditable="true">${tituloRef}</div>
+                    <div class="reference-item-source editable-area" contenteditable="true">${escaparHTML(tituloRef)}</div>
                     <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
                         <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
                     </button>
@@ -3365,7 +3533,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="reference-body-text editable-area" contenteditable="true">${textoSeleccionado}</div>
+                <div class="reference-body-text editable-area" contenteditable="true">Escribe o pega aquí la información de la referencia...</div>
             `;
             panelContenido.prepend(nuevaTarjeta);
         }
