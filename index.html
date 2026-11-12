@@ -1383,7 +1383,7 @@
         /* Escala general un poco mayor: la tableta se lee a más distancia.
            El ajuste A+/A- de Configuración sigue funcionando encima de esto. */
         html {
-            font-size: 18.5px;
+            font-size: 20px;
         }
 
         .view {
@@ -1483,7 +1483,7 @@
     @media (max-width: 600px) {
         /* Letra base un poco más grande en el celular (A+/A- de Configuración sigue funcionando encima) */
         html {
-            font-size: 17.5px;
+            font-size: 18.5px;
         }
 
         .view {
@@ -1722,13 +1722,13 @@
     }
     @media (min-width: 1100px) and (max-width: 1366px) and (pointer: coarse) {
         html {
-            font-size: 18.5px;
+            font-size: 19.5px;
         }
     }
     /* Tabletas en horizontal cuyo navegador no reporta el toque como puntero principal */
     @media (min-width: 1100px) and (max-width: 1366px) and (any-pointer: coarse) and (hover: none) {
         html {
-            font-size: 18.5px;
+            font-size: 19.5px;
         }
     }
 
@@ -2266,7 +2266,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.12.0321';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.12.0328';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
@@ -3517,6 +3517,17 @@
         document.execCommand('insertText', false, texto);
     });
 
+    // Tocar una referencia NO debe abrir el teclado: se evita que el editor reciba el foco
+    function evitarFocoEnReferencia(e) {
+        const ref = e.target && e.target.closest && e.target.closest('.inline-reference');
+        if (!ref) return;
+        e.preventDefault();
+        const activo = document.activeElement;
+        if (activo && activo.isContentEditable && activo.blur) activo.blur();
+    }
+    document.addEventListener('pointerdown', evitarFocoEnReferencia, true);
+    document.addEventListener('mousedown', evitarFocoEnReferencia, true);
+
     // Tocar el texto referido abre su referencia
     document.addEventListener('click', (e) => {
         const ref = e.target.closest('.inline-reference');
@@ -3528,6 +3539,12 @@
     });
 
     function mostrarPuntoPanel(id) {
+        // En celular y tableta: al abrir una referencia se cierra el teclado (solo se quiere leer)
+        if (window.innerWidth < DESKTOP_BREAKPOINT || window.matchMedia('(hover: none)').matches) {
+            const activo = document.activeElement;
+            if (activo && activo.isContentEditable && activo.blur) activo.blur();
+            window.getSelection().removeAllRanges();
+        }
         const panelWrapper = document.getElementById(vistaActivaActual === 'vistaDetalleBosquejo' ? 'panelWrapper' : 'qaPanelWrapper');
         const readerLayout = document.getElementById(vistaActivaActual === 'vistaDetalleBosquejo' ? 'readerLayout' : 'qaLayout');
         const backdrop = document.getElementById('panelBackdrop');
