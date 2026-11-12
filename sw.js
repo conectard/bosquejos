@@ -1,10 +1,13 @@
-// Service worker: permite instalar la app y abrirla aunque no haya internet.
+// Service worker: permite instalar la app y usarla sin internet.
 // Los datos (Supabase) siempre van directo a la red; aquí solo se guarda la "carcasa" de la app.
-const VERSION = 'bosquejos-v1';
+const VERSION = 'bosquejos-2026.11.12.0234';   // el script de compilación pone aquí la versión real
 const APP_SHELL = [
     './',
     './index.html',
     './manifest.webmanifest',
+    './fonts/material-symbols-outlined.woff2',
+    './fonts/inter-latin.woff2',
+    './fonts/inter-latin-ext.woff2',
     './icons/icon-192.png',
     './icons/icon-512.png',
     './icons/icon-maskable-512.png',
@@ -29,16 +32,19 @@ self.addEventListener('fetch', (event) => {
     if (req.method !== 'GET') return;
     const url = new URL(req.url);
 
-    // Datos de Supabase: nunca desde caché
+    // Datos de Supabase y archivos de actualización: nunca desde caché
     if (url.hostname.endsWith('supabase.co')) return;
+    if (url.pathname.endsWith('/version.json') || url.pathname.endsWith('.zip')) return;
 
     // Página de la app: primero la red (para recibir actualizaciones), si falla, la copia guardada
     if (req.mode === 'navigate') {
         event.respondWith(
             fetch(req)
                 .then((resp) => {
-                    const copia = resp.clone();
-                    caches.open(VERSION).then((c) => c.put('./index.html', copia));
+                    if (resp.ok) {
+                        const copia = resp.clone();
+                        caches.open(VERSION).then((c) => c.put('./index.html', copia));
+                    }
                     return resp;
                 })
                 .catch(() => caches.match('./index.html'))
@@ -46,20 +52,14 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Fuentes, íconos y demás: copia guardada al instante y se actualiza en segundo plano
-    const esFuente = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
-    if (url.origin === self.location.origin || esFuente) {
+    // Fuentes, íconos y demás archivos de la app: desde la copia guardada (rápido y sin internet)
+    if (url.origin === self.location.origin) {
         event.respondWith(
             caches.open(VERSION).then((cache) =>
-                cache.match(req).then((guardada) => {
-                    const red = fetch(req)
-                        .then((resp) => {
-                            if (resp && (resp.ok || resp.type === 'opaque')) cache.put(req, resp.clone());
-                            return resp;
-                        })
-                        .catch(() => guardada);
-                    return guardada || red;
-                })
+                cache.match(req).then((guardada) => guardada || fetch(req).then((resp) => {
+                    if (resp.ok) cache.put(req, resp.clone());
+                    return resp;
+                }))
             )
         );
     }
