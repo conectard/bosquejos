@@ -2241,7 +2241,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.12.0258';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.12.0303';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
@@ -2461,6 +2461,7 @@
     function htmlParaGuardar(el) {
         const copia = el.cloneNode(true);
         copia.querySelectorAll('.image-wrapper.selected').forEach(w => w.classList.remove('selected'));
+        copia.querySelectorAll('.resize-handle').forEach(h => h.remove());   // se recrean al seleccionar la imagen
         // Qué referencia se está mirando es algo de cada pantalla, no del documento
         copia.querySelectorAll('.ref-activa').forEach(e => e.classList.remove('ref-activa'));
         copia.querySelectorAll('.ref-activa-texto').forEach(e => e.classList.remove('ref-activa-texto'));
@@ -3021,17 +3022,26 @@
         }
     });
 
+    // Los controles de tamaño son <span> (no <div>): un <div> dentro de un párrafo lo partía en dos
+    // al guardar/recargar. Además no se guardan: se crean al seleccionar la imagen.
+    function ponerControlesTamanio(wrapper) {
+        wrapper.querySelectorAll('.resize-handle').forEach(h => { if (!handlesActivos.has(h)) h.remove(); });
+        if (wrapper.querySelectorAll('.resize-handle').length === 4) return;
+        wrapper.querySelectorAll('.resize-handle').forEach(h => h.remove());
+        ['tl', 'tr', 'bl', 'br'].forEach(pos => {
+            const handle = document.createElement('span');
+            handle.className = `resize-handle handle-${pos}`;
+            handle.addEventListener('mousedown', (e) => iniciarRedimensionado(e, wrapper, pos));
+            handle.addEventListener('touchstart', (e) => iniciarRedimensionadoTacto(e, wrapper, pos));
+            handlesActivos.add(handle);
+            wrapper.insertBefore(handle, wrapper.firstChild);
+        });
+    }
+
     function envolverImagen(img) {
         if (img.parentElement.classList.contains('image-wrapper')) {
             const wrapperExistente = img.parentElement;
-            // Reactiva los controles de tamaño de imágenes cargadas desde la nube
-            wrapperExistente.querySelectorAll('.resize-handle').forEach(handle => {
-                if (handlesActivos.has(handle)) return;
-                const pos = ['tl', 'tr', 'bl', 'br'].find(p => handle.classList.contains('handle-' + p)) || 'br';
-                handle.addEventListener('mousedown', (e) => iniciarRedimensionado(e, wrapperExistente, pos));
-                handle.addEventListener('touchstart', (e) => iniciarRedimensionadoTacto(e, wrapperExistente, pos));
-                handlesActivos.add(handle);
-            });
+            ponerControlesTamanio(wrapperExistente);
             seleccionarImagenWrapper(wrapperExistente);
             return;
         }
@@ -3039,18 +3049,9 @@
         const wrapper = document.createElement('span');
         wrapper.className = 'image-wrapper';
         wrapper.contentEditable = 'false';
-
-        ['tl', 'tr', 'bl', 'br'].forEach(pos => {
-            const handle = document.createElement('div');
-            handle.className = `resize-handle handle-${pos}`;
-            handle.addEventListener('mousedown', (e) => iniciarRedimensionado(e, wrapper, pos));
-            handle.addEventListener('touchstart', (e) => iniciarRedimensionadoTacto(e, wrapper, pos));
-            handlesActivos.add(handle);
-            wrapper.appendChild(handle);
-        });
-
         img.parentNode.insertBefore(wrapper, img);
         wrapper.appendChild(img);
+        ponerControlesTamanio(wrapper);
         seleccionarImagenWrapper(wrapper);
     }
 
@@ -3190,6 +3191,12 @@
         if (editableTarget) {
             e.preventDefault();
             targetEditableElement = editableTarget;
+            // Dónde irá la imagen: el cursor actual si está en este cuadro; si no, el punto donde hiciste clic derecho
+            const sel = window.getSelection();
+            const rCursor = sel.rangeCount ? sel.getRangeAt(0) : null;
+            puntoInsercionImagen = (rCursor && editableTarget.contains(rCursor.startContainer))
+                ? rCursor.cloneRange()
+                : rangoEnPunto(e.clientX, e.clientY);
 
             const menu = document.getElementById('cardContextMenu');
             menu.style.top = Math.min(e.clientY, window.innerHeight - 70) + 'px';
@@ -3552,26 +3559,137 @@
         document.getElementById('globalImageInput').click();
     }
 
-    function handleGlobalImageUpload(event) {
-        const file = event.target.files[0];
-        if (file && targetEditableElement) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                targetEditableElement.appendChild(img);
-                envolverImagen(img);
+    /* ---------- IMÁGENES: insertar donde está el cursor y mover sin duplicar ---------- */
+    let puntoInsercionImagen = null;
+    let imagenArrastrada = null;
 
-                const p = document.createElement('p');
-                p.innerHTML = '<br>';
-                targetEditableElement.appendChild(p);
-
-                mostrarAlerta('¡Imagen insertada con éxito!');
-            };
-            reader.readAsDataURL(file);
+    function rangoEnPunto(x, y) {
+        if (document.caretRangeFromPoint) return document.caretRangeFromPoint(x, y);
+        if (document.caretPositionFromPoint) {
+            const pos = document.caretPositionFromPoint(x, y);
+            if (!pos) return null;
+            const r = document.createRange();
+            r.setStart(pos.offsetNode, pos.offset);
+            r.collapse(true);
+            return r;
         }
-        event.target.value = '';
+        return null;
     }
+
+    // Devuelve un punto válido para insertar (dentro de un cuadro editable, nunca dentro de una etiqueta o de otra imagen)
+    function puntoValido(rango) {
+        if (!rango) return null;
+        const r = rango.cloneRange();
+        r.collapse(true);
+        let nodo = r.startContainer.nodeType === 3 ? r.startContainer.parentNode : r.startContainer;
+        const bloqueado = nodo.closest && nodo.closest('.inline-reference, .image-wrapper');
+        if (bloqueado) r.setStartAfter(bloqueado), r.collapse(true);
+        nodo = r.startContainer.nodeType === 3 ? r.startContainer.parentNode : r.startContainer;
+        const editable = nodo.closest && nodo.closest('[contenteditable="true"]');
+        if (!editable) return null;
+        const editor = editorPrincipal(), panel = contenedorReferencias();
+        if (!((editor && editor.contains(editable)) || (panel && panel.contains(editable)))) return null;
+        return r;
+    }
+
+    function insertarImagenEn(src, rango, respaldo) {
+        const img = document.createElement('img');
+        img.src = src;
+        const r = puntoValido(rango);
+        if (r) {
+            r.insertNode(img);
+        } else if (respaldo) {
+            respaldo.appendChild(img);
+        } else {
+            return null;
+        }
+        envolverImagen(img);
+        // Cursor justo después de la imagen, para seguir escribiendo
+        const wrapper = img.closest('.image-wrapper') || img;
+        const despues = document.createRange();
+        despues.setStartAfter(wrapper);
+        despues.collapse(true);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(despues);
+        guardarEstadoActual();
+        return wrapper;
+    }
+
+    function leerArchivoComoDataURL(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function handleGlobalImageUpload(event) {
+        const file = event.target.files[0];
+        event.target.value = '';
+        if (!file || !targetEditableElement) return;
+        const src = await leerArchivoComoDataURL(file);
+        insertarImagenEn(src, puntoInsercionImagen, targetEditableElement);
+        puntoInsercionImagen = null;
+        mostrarAlerta('¡Imagen insertada con éxito!');
+    }
+
+    // Pegar una imagen (Ctrl+V): se coloca donde está el cursor
+    document.addEventListener('paste', async (e) => {
+        if (!estaEditando() || !e.clipboardData) return;
+        const archivo = [...e.clipboardData.items].find(i => i.kind === 'file' && i.type.startsWith('image/'));
+        if (!archivo) return;
+        const sel = window.getSelection();
+        const rango = sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+        if (!puntoValido(rango)) return;
+        e.preventDefault();
+        const src = await leerArchivoComoDataURL(archivo.getAsFile());
+        insertarImagenEn(src, rango);
+    });
+
+    // Arrastrar una imagen: se MUEVE al punto donde la sueltas (sin crear copias)
+    document.addEventListener('dragstart', (e) => {
+        const img = e.target && e.target.closest && e.target.closest('img');
+        if (!img || !estaEditando()) return;
+        const editor = editorPrincipal(), panel = contenedorReferencias();
+        if (!((editor && editor.contains(img)) || (panel && panel.contains(img)))) return;
+        imagenArrastrada = img.closest('.image-wrapper') || img;
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', ''); } catch (err) {}
+        deseleccionarImagenActiva();
+    });
+    document.addEventListener('dragover', (e) => {
+        if (!estaEditando()) return;
+        if (imagenArrastrada || (e.dataTransfer && [...e.dataTransfer.types].includes('Files'))) {
+            if (puntoValido(rangoEnPunto(e.clientX, e.clientY))) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = imagenArrastrada ? 'move' : 'copy';
+            }
+        }
+    });
+    document.addEventListener('drop', async (e) => {
+        if (!estaEditando()) return;
+        const destino = puntoValido(rangoEnPunto(e.clientX, e.clientY));
+        if (imagenArrastrada) {
+            e.preventDefault();   // evita que el navegador pegue una copia
+            const img = imagenArrastrada;
+            imagenArrastrada = null;
+            if (!destino || img.contains(destino.startContainer)) return;
+            registrarCambio();
+            destino.insertNode(img);
+            seleccionarImagenWrapper(img.classList.contains('image-wrapper') ? img : (envolverImagen(img), img.closest('.image-wrapper')));
+            guardarEstadoActual();
+            return;
+        }
+        const archivos = e.dataTransfer ? [...e.dataTransfer.files].filter(f => f.type.startsWith('image/')) : [];
+        if (archivos.length && destino) {
+            e.preventDefault();
+            registrarCambio();
+            for (const f of archivos) insertarImagenEn(await leerArchivoComoDataURL(f), destino);
+        }
+    });
+    document.addEventListener('dragend', () => { imagenArrastrada = null; });
 
     let rangoSeleccionado = null;
     const toolbar = document.getElementById('floatingTextToolbar');
