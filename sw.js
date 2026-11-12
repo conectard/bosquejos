@@ -1,6 +1,6 @@
 // Service worker: permite instalar la app y usarla sin internet.
 // Los datos (Supabase) siempre van directo a la red; aquí solo se guarda la "carcasa" de la app.
-const VERSION = 'bosquejos-2026.11.12.0241';   // el script de compilación pone aquí la versión real
+const VERSION = 'bosquejos-2026.11.12.0246';   // el script de compilación pone aquí la versión real
 const APP_SHELL = [
     './',
     './index.html',
@@ -15,7 +15,10 @@ const APP_SHELL = [
 ];
 
 self.addEventListener('install', (event) => {
-    event.waitUntil(caches.open(VERSION).then((cache) => cache.addAll(APP_SHELL)));
+    // cache: 'reload' evita copiar archivos viejos guardados por el navegador o por GitHub
+    event.waitUntil(caches.open(VERSION).then((cache) =>
+        cache.addAll(APP_SHELL.map((u) => new Request(u, { cache: 'reload' })))
+    ));
     self.skipWaiting();
 });
 
@@ -39,7 +42,8 @@ self.addEventListener('fetch', (event) => {
     // Página de la app: primero la red (para recibir actualizaciones), si falla, la copia guardada
     if (req.mode === 'navigate') {
         event.respondWith(
-            fetch(req)
+            // 'no-cache': siempre pregunta al servidor si hay versión nueva (GitHub guarda copias 10 min)
+            fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
                 .then((resp) => {
                     if (resp.ok) {
                         const copia = resp.clone();
