@@ -1714,6 +1714,39 @@
         }
         .main-content { margin-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
     }
+    /* INTERLINEADO UNIFORME: discurso y referencias se escriben igual.
+       Cada Enter pasa a la línea siguiente (sin dejar una fila vacía) y el texto respira con 1.7. */
+    .editable-area p,
+    .reference-body-text p,
+    .reference-item-source p {
+        line-height: 1.7;
+        margin: 0 0 0.25em 0;
+    }
+    .editable-area div:not([class]),
+    .reference-body-text div:not([class]),
+    .reference-item-source div:not([class]) {
+        line-height: 1.7;
+        margin: 0 0 0.25em 0;
+    }
+    .reference-body-text,
+    .reference-item-source,
+    .reader-note,
+    .qa-answer-input {
+        line-height: 1.7;
+    }
+    .reference-item-source span,
+    .reference-item-source font,
+    .reference-item-source div,
+    .reference-item-source p {
+        font-size: inherit !important;
+    }
+    .reference-item-source {
+        margin-bottom: 4px;
+    }
+    .editable-area h1 + p, .editable-area h2 + p, .editable-area h3 + p {
+        margin-top: 0;
+    }
+
     @media (display-mode: standalone) {
         body { -webkit-user-select: auto; overscroll-behavior-y: none; }
     }
@@ -2200,7 +2233,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.12.0241';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.12.0246';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
@@ -3309,6 +3342,9 @@
         const activa = cont.querySelector('.reference-item-card.ref-activa');
         activarReferencia(activa ? idDeTarjeta(activa) : null);
     }
+
+    // Al pulsar Enter se crean párrafos (<p>) en el discurso y en las referencias, con el mismo interlineado
+    try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch (e) {}
 
     // Al pegar texto de otras páginas se pega limpio, con la misma letra de la app
     document.addEventListener('paste', (e) => {
