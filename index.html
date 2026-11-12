@@ -2241,7 +2241,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.12.0254';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.12.0258';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
@@ -2660,6 +2660,7 @@
                 const y = window.scrollY;
                 if (cambioContenido && editor) editor.innerHTML = nuevo.contenido;
                 if (cambioPanel && panel) panel.innerHTML = nuevo.panelContenido || '';
+                reiniciarHistorial();   // el documento cambió desde otro dispositivo
                 activarReferencia(idActiva);
                 window.scrollTo({ top: y, behavior: 'instant' });
             }
@@ -3662,9 +3663,48 @@
         mostrarAlerta('¡Nota creada con éxito!');
     }
 
+    // Quita espacios al inicio y al final de la selección (para no etiquetar espacios ni letras de más)
+    function recortarEspaciosRango(r) {
+        while (r.startContainer.nodeType === 3 && r.startOffset < r.startContainer.length && /\s/.test(r.startContainer.data[r.startOffset]) && !r.collapsed) {
+            r.setStart(r.startContainer, r.startOffset + 1);
+        }
+        while (r.endContainer.nodeType === 3 && r.endOffset > 0 && /\s/.test(r.endContainer.data[r.endOffset - 1]) && !r.collapsed) {
+            r.setEnd(r.endContainer, r.endOffset - 1);
+        }
+        return r;
+    }
+
+    function bloqueDe(nodo, raiz) {
+        let n = nodo.nodeType === 3 ? nodo.parentNode : nodo;
+        while (n && n !== raiz) {
+            if (/^(P|H1|H2|H3|LI|DIV)$/.test(n.tagName)) return n;
+            n = n.parentNode;
+        }
+        return raiz;
+    }
+
+    // Usa la selección que hay AHORA en pantalla (no una vieja) y la valida
+    function obtenerRangoParaReferencia() {
+        const sel = window.getSelection();
+        // Si al pulsar el botón el navegador soltó la selección, se usa la última (se borra en cuanto escribes)
+        let r = (sel.rangeCount && !sel.isCollapsed) ? sel.getRangeAt(0) : (rangoSeleccionado && !rangoSeleccionado.collapsed ? rangoSeleccionado : null);
+        if (!r) return { error: 'Selecciona primero el texto que quieres referenciar' };
+        r = recortarEspaciosRango(r.cloneRange());
+        if (r.collapsed || !r.toString().trim()) return { error: 'Selecciona primero el texto que quieres referenciar' };
+        const editor = editorPrincipal();
+        if (!editor || !editor.contains(r.commonAncestorContainer)) return { error: 'Las referencias se crean sobre el texto del discurso' };
+        const dentroDeRef = (n) => (n.nodeType === 3 ? n.parentNode : n).closest('.inline-reference');
+        const yaTiene = dentroDeRef(r.startContainer) || dentroDeRef(r.endContainer) ||
+            [...editor.querySelectorAll('.inline-reference')].some(el => r.intersectsNode(el));
+        if (yaTiene) return { error: 'Ese texto ya tiene una referencia' };
+        if (bloqueDe(r.startContainer, editor) !== bloqueDe(r.endContainer, editor)) return { error: 'Selecciona texto dentro de un mismo párrafo' };
+        return { rango: r };
+    }
+
     function crearReferenciaDesdeSeleccion() {
-        if (!rangoSeleccionado) return;
-        const textoSeleccionado = rangoSeleccionado.toString().trim();
+        const { rango, error } = obtenerRangoParaReferencia();
+        if (error) { mostrarAlerta(error); return; }
+        const textoSeleccionado = rango.toString().trim();
         const nuevaId = 'ref-' + Date.now();
         const tituloRef = textoSeleccionado.length > 30 ? textoSeleccionado.substring(0, 30) + '...' : textoSeleccionado;
 
@@ -3673,14 +3713,17 @@
         spanEnlace.className = 'inline-reference';
         spanEnlace.setAttribute('contenteditable', 'false');
         spanEnlace.setAttribute('data-refid', nuevaId);
-        spanEnlace.appendChild(rangoSeleccionado.extractContents());
+        spanEnlace.appendChild(rango.extractContents());
         const ojo = document.createElement('span');
         ojo.className = 'material-symbols-outlined';
         ojo.style.fontSize = '14px';
         ojo.textContent = 'visibility';
         spanEnlace.appendChild(ojo);
-        rangoSeleccionado.insertNode(spanEnlace);
+        rango.insertNode(spanEnlace);
+        // Limpia nodos de texto vacíos que quedan al cortar
+        spanEnlace.parentNode && spanEnlace.parentNode.normalize();
         window.getSelection().removeAllRanges();
+        rangoSeleccionado = null;
 
         const panelContenido = document.getElementById(vistaActivaActual === 'vistaDetalleBosquejo' ? 'activeDevelopmentView' : 'qaActiveDevelopmentView');
         if (panelContenido) {
@@ -3709,6 +3752,181 @@
         mostrarAlerta('¡Referencia creada con éxito!');
         mostrarPuntoPanel(nuevaId);
     }
+
+    /* =========================================================
+       DESHACER / REHACER PROPIO (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z)
+       El deshacer del navegador no conoce las referencias, notas e imágenes que crea la app
+       y al usarlo duplicaba o rompía etiquetas. Este historial guarda el estado completo
+       del discurso y de sus referencias, así que deshacer siempre deja todo coherente.
+       ========================================================= */
+    const historial = { atras: [], adelante: [], ultimoTipo: '', ultimoMomento: 0 };
+    const MAX_HISTORIAL = 150;
+
+    function reiniciarHistorial() {
+        historial.atras = [];
+        historial.adelante = [];
+        historial.ultimoTipo = '';
+        historial.ultimoMomento = 0;
+    }
+
+    // Posición del cursor como número de caracteres desde el inicio (sobrevive a reemplazar el HTML)
+    function offsetEnRaiz(raiz, nodo, offset) {
+        const r = document.createRange();
+        r.setStart(raiz, 0);
+        r.setEnd(nodo, offset);
+        return r.toString().length;
+    }
+    function puntoDesdeOffset(raiz, objetivo) {
+        const walker = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
+        let acumulado = 0, nodo, ultimo = null;
+        while ((nodo = walker.nextNode())) {
+            ultimo = nodo;
+            if (acumulado + nodo.length >= objetivo) return [nodo, objetivo - acumulado];
+            acumulado += nodo.length;
+        }
+        return ultimo ? [ultimo, ultimo.length] : [raiz, raiz.childNodes.length];
+    }
+
+    function guardarSeleccionHistorial() {
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return null;
+        const r = sel.getRangeAt(0);
+        const raices = [editorPrincipal(), contenedorReferencias()];
+        const i = raices.findIndex(x => x && x.contains(r.startContainer) && x.contains(r.endContainer));
+        if (i < 0) return null;
+        try {
+            return { raiz: i, ini: offsetEnRaiz(raices[i], r.startContainer, r.startOffset), fin: offsetEnRaiz(raices[i], r.endContainer, r.endOffset) };
+        } catch (e) { return null; }
+    }
+
+    function restaurarSeleccionHistorial(s) {
+        if (!s) return;
+        const raiz = [editorPrincipal(), contenedorReferencias()][s.raiz];
+        if (!raiz) return;
+        try {
+            const [n1, o1] = puntoDesdeOffset(raiz, s.ini);
+            const [n2, o2] = puntoDesdeOffset(raiz, s.fin);
+            const r = document.createRange();
+            r.setStart(n1, o1);
+            r.setEnd(n2, o2);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(r);
+            const editable = (n1.nodeType === 3 ? n1.parentNode : n1).closest('[contenteditable="true"]');
+            if (editable) editable.focus({ preventScroll: true });
+        } catch (e) {}
+    }
+
+    function fotoActual() {
+        const editor = editorPrincipal(), panel = contenedorReferencias();
+        if (!editor || !panel) return null;
+        const activa = panel.querySelector('.reference-item-card.ref-activa');
+        return {
+            editor: htmlParaGuardar(editor),
+            panel: htmlParaGuardar(panel),
+            refActiva: activa ? idDeTarjeta(activa) : null,
+            seleccion: guardarSeleccionHistorial()
+        };
+    }
+
+    // Guarda el estado ANTES de un cambio
+    function registrarCambio() {
+        if (!estaEditando()) return;
+        const foto = fotoActual();
+        if (!foto) return;
+        const previa = historial.atras[historial.atras.length - 1];
+        if (previa && previa.editor === foto.editor && previa.panel === foto.panel) return;
+        historial.atras.push(foto);
+        if (historial.atras.length > MAX_HISTORIAL) historial.atras.shift();
+        historial.adelante = [];
+    }
+
+    function aplicarFoto(foto) {
+        const editor = editorPrincipal(), panel = contenedorReferencias();
+        const y = window.scrollY;
+        editor.innerHTML = foto.editor;
+        panel.innerHTML = foto.panel;
+        deseleccionarImagenActiva();
+        activarReferencia(foto.refActiva);
+        restaurarSeleccionHistorial(foto.seleccion);
+        window.scrollTo({ top: y, behavior: 'instant' });
+        document.getElementById('floatingTextToolbar').style.display = 'none';
+        rangoSeleccionado = null;
+        historial.ultimoTipo = '';
+        guardarEstadoActual();
+    }
+
+    function deshacer() {
+        if (!historial.atras.length) { mostrarAlerta('No hay nada más que deshacer'); return; }
+        const actual = fotoActual();
+        let foto = historial.atras.pop();
+        // Salta estados idénticos al actual
+        while (foto && actual && foto.editor === actual.editor && foto.panel === actual.panel) foto = historial.atras.pop();
+        if (!foto) { mostrarAlerta('No hay nada más que deshacer'); return; }
+        if (actual) historial.adelante.push(actual);
+        aplicarFoto(foto);
+    }
+
+    function rehacer() {
+        if (!historial.adelante.length) return;
+        const actual = fotoActual();
+        if (actual) historial.atras.push(actual);
+        aplicarFoto(historial.adelante.pop());
+    }
+
+    // Al escribir: un punto de deshacer por cada "tanda" (pausa de 1 s, o cambio entre escribir/borrar/Enter)
+    document.addEventListener('beforeinput', (e) => {
+        if (!estaEditando()) return;
+        const dentro = e.target && e.target.closest && e.target.closest('#bosquejoEditorContent, #activeDevelopmentView, #qaEditorMainContent, #qaActiveDevelopmentView');
+        if (!dentro) return;
+        if (e.inputType === 'historyUndo') { e.preventDefault(); deshacer(); return; }
+        if (e.inputType === 'historyRedo') { e.preventDefault(); rehacer(); return; }
+        const tipo = e.inputType.startsWith('delete') ? 'borrar' : (e.inputType === 'insertParagraph' || e.inputType === 'insertLineBreak') ? 'enter' : e.inputType.startsWith('format') ? 'formato' : 'escribir';
+        const ahora = Date.now();
+        if (tipo !== historial.ultimoTipo || ahora - historial.ultimoMomento > 1000 || tipo === 'enter' || tipo === 'formato') {
+            registrarCambio();
+        }
+        historial.ultimoTipo = tipo;
+        historial.ultimoMomento = ahora;
+        // Al escribir, la selección guardada para la barra ya no es válida
+        rangoSeleccionado = null;
+        document.getElementById('floatingTextToolbar').style.display = 'none';
+    }, true);
+
+    document.addEventListener('keydown', (e) => {
+        if (!estaEditando() || !(e.ctrlKey || e.metaKey) || e.altKey) return;
+        const k = e.key.toLowerCase();
+        if (k === 'z' && !e.shiftKey) { e.preventDefault(); deshacer(); }
+        else if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); rehacer(); }
+    }, true);
+
+    // Las acciones de la app (referencias, notas, formato, imágenes, temas...) también se pueden deshacer
+    [
+        'crearReferenciaDesdeSeleccion', 'eliminarTarjetaReferencia', 'toggleNotaDesdeSeleccion',
+        'aplicarFormatoSeleccion', 'cambiarTipoTexto', 'aplicarColorTexto', 'aplicarResaltado',
+        'eliminarImagenSeleccionada', 'recortarImagenAccion', 'handleGlobalImageUpload',
+        'agregarNuevoTemaQA', 'agregarNuevaPreguntaQA', 'iniciarRedimensionado', 'iniciarRedimensionadoTacto'
+    ].forEach(nombre => {
+        const original = window[nombre];
+        if (typeof original !== 'function') return;
+        window[nombre] = function (...args) {
+            registrarCambio();
+            historial.ultimoTipo = '';
+            return original.apply(this, args);
+        };
+    });
+    // El texto pegado también es un paso que se puede deshacer
+    document.addEventListener('paste', () => { registrarCambio(); historial.ultimoTipo = ''; }, true);
+
+    // Al abrir otro documento, el historial empieza de cero
+    ['abrirBosquejo', 'abrirQA'].forEach(nombre => {
+        const original = window[nombre];
+        window[nombre] = function (...args) {
+            const r = original.apply(this, args);
+            reiniciarHistorial();
+            return r;
+        };
+    });
 
     /* ACTUALIZACIÓN AUTOMÁTICA DE LA APP
        Si hay una versión nueva, se instala sola. Si estás dentro de un documento, espera a que vuelvas a la lista
