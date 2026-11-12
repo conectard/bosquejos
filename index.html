@@ -14,12 +14,35 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Bosquejos">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://awgnkfosohvdsreipgje.supabase.co" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+<link rel="preload" href="fonts/material-symbols-outlined.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+    /* Fuentes incluidas en la app (funcionan sin internet) */
+    @font-face {
+        font-family: 'Material Symbols Outlined';
+        font-style: normal;
+        font-weight: 400;
+        font-display: block;
+        src: url(fonts/material-symbols-outlined.woff2) format('woff2');
+    }
+    @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(fonts/inter-latin-ext.woff2) format('woff2');
+        unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(fonts/inter-latin.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
     :root {
         --bg-body: #ffffff;
         --text-main: #0f172a;
@@ -258,6 +281,168 @@
         align-items: center;
         justify-content: center;
         color: #64748b;
+    }
+
+    /* SECCIÓN CONFIGURACIÓN */
+    .settings-item {
+        border-bottom: 1px solid var(--border-light);
+    }
+    .settings-item:last-child {
+        border-bottom: none;
+    }
+    .settings-head {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 20px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        color: var(--text-main);
+        transition: background 0.15s;
+    }
+    .settings-head:hover {
+        background: #f8fafc;
+    }
+    .settings-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .settings-icon .material-symbols-outlined {
+        font-size: 20px;
+    }
+    .settings-text {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+    .settings-title {
+        font-size: 0.92rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .settings-desc {
+        font-size: 0.75rem;
+        color: var(--text-sub);
+    }
+    .settings-pill {
+        background: #059669;
+        color: #fff;
+        font-size: 0.62rem;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 10px;
+        letter-spacing: 0.3px;
+    }
+    .settings-chevron {
+        color: #94a3b8;
+        font-size: 22px;
+        transition: transform 0.2s ease;
+    }
+    .settings-item.open .settings-chevron {
+        transform: rotate(180deg);
+    }
+    .settings-body {
+        display: none;
+        flex-direction: column;
+        gap: 14px;
+        padding: 4px 20px 20px 72px;
+    }
+    .settings-item.open .settings-body {
+        display: flex;
+    }
+    .settings-info-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 0.82rem;
+        color: var(--text-sub);
+        border-bottom: 1px dashed #e2e8f0;
+        padding-bottom: 8px;
+    }
+    .settings-info-row strong {
+        color: var(--text-main);
+        font-weight: 600;
+        text-align: right;
+    }
+    .settings-status {
+        font-size: 0.8rem;
+        color: var(--text-sub);
+        line-height: 1.5;
+    }
+    .settings-status:empty {
+        display: none;
+    }
+    .settings-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .settings-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 14px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: var(--text-main);
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .settings-btn .material-symbols-outlined {
+        font-size: 18px;
+    }
+    .settings-btn:hover {
+        background: #f8fafc;
+        border-color: #94a3b8;
+    }
+    .settings-btn.primary {
+        background: var(--theme-purple);
+        border-color: var(--theme-purple);
+        color: #ffffff;
+    }
+    .settings-btn.primary:hover {
+        background: #6d28d9;
+    }
+    .settings-btn:disabled {
+        opacity: 0.6;
+        cursor: wait;
+    }
+    .settings-btn[hidden] {
+        display: none;
+    }
+    .nav-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #059669;
+        border: 2px solid #ffffff;
+        display: none;
+    }
+    .nav-badge.show {
+        display: block;
+    }
+    @media (max-width: 600px) {
+        .settings-head { padding: 12px 14px; gap: 12px; }
+        .settings-body { padding: 4px 14px 16px 14px; }
+        .settings-icon { width: 34px; height: 34px; }
     }
 
     /* PESTAÑAS BOSQUEJOS / DISCURSOS */
@@ -1496,33 +1681,6 @@
     <button onclick="recortarImagenAccion('reset')"><span class="material-symbols-outlined" style="font-size: 14px;">restart_alt</span> Restaurar</button>
 </div>
 
-<!-- MODAL DE CONFIGURACIÓN DE TAMAÑO DE LETRA -->
-<div class="config-modal-backdrop" id="configModalBackdrop" onclick="toggleConfigModal()">
-    <div class="config-modal" onclick="event.stopPropagation()">
-        <div class="config-modal-header">
-            <span>Configuración de Texto</span>
-            <span class="material-symbols-outlined" style="cursor: pointer; color: var(--text-sub);" onclick="toggleConfigModal()">close</span>
-        </div>
-
-        <div class="config-group">
-            <span class="config-label">Tamaño de letra: Discursos y Referencias</span>
-            <div class="config-controls-row">
-                <button class="config-btn-action" onclick="cambiarTamanioFuente('ref', -0.05)">A-</button>
-                <span id="refSizeIndicator" style="font-weight: 600; font-size: 0.9rem;">90%</span>
-                <button class="config-btn-action" onclick="cambiarTamanioFuente('ref', 0.05)">A+</button>
-            </div>
-        </div>
-
-        <div class="config-group">
-            <span class="config-label">Tamaño de letra: Preguntas y Respuestas</span>
-            <div class="config-controls-row">
-                <button class="config-btn-action" onclick="cambiarTamanioFuente('qa', -0.05)">A-</button>
-                <span id="qaSizeIndicator" style="font-weight: 600; font-size: 0.9rem;">95%</span>
-                <button class="config-btn-action" onclick="cambiarTamanioFuente('qa', 0.05)">A+</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- BARRA FLOTANTE DE HERRAMIENTAS DE TEXTO -->
 <div id="floatingTextToolbar" onmousedown="event.stopPropagation()">
@@ -1591,8 +1749,9 @@
     <div class="nav-item" data-tooltip="Preguntas y Respuestas" onclick="cambiarVista('vistaQAList', this)">
         <span class="material-symbols-outlined">favorite</span>
     </div>
-    <div class="nav-item" data-tooltip="Configuración de texto" onclick="toggleConfigModal()">
+    <div class="nav-item" id="navConfiguracion" data-tooltip="Configuración" onclick="cambiarVista('vistaConfiguracion', this)">
         <span class="material-symbols-outlined">settings</span>
+        <span class="nav-badge" id="navBadgeActualizacion"></span>
     </div>
 </nav>
 
@@ -1632,6 +1791,134 @@
         </div>
 
         <div class="discourse-list-container" id="listaQAsContainer"></div>
+    </div>
+
+    <!-- VISTA: CONFIGURACIÓN -->
+    <div id="vistaConfiguracion" class="view">
+        <div class="list-header-row">
+            <div>
+                <div class="section-header-small">Ajustes</div>
+                <div class="section-title" style="margin-bottom: 0;">Configuración</div>
+            </div>
+        </div>
+
+        <div class="discourse-list-container settings-list">
+
+            <!-- Tamaño de letra -->
+            <div class="settings-item" id="ajusteTexto">
+                <button class="settings-head" onclick="toggleAjuste('ajusteTexto')">
+                    <span class="settings-icon" style="background: #f5f3ff; color: #7c3aed;"><span class="material-symbols-outlined">text_fields</span></span>
+                    <span class="settings-text">
+                        <span class="settings-title">Tamaño de letra</span>
+                        <span class="settings-desc">Discursos, referencias y cuestionarios</span>
+                    </span>
+                    <span class="material-symbols-outlined settings-chevron">expand_more</span>
+                </button>
+                <div class="settings-body">
+                    <div class="config-group">
+                        <span class="config-label">Discursos y Referencias</span>
+                        <div class="config-controls-row">
+                            <button class="config-btn-action" onclick="cambiarTamanioFuente('ref', -0.05)">A-</button>
+                            <span id="refSizeIndicator" style="font-weight: 600; font-size: 0.9rem;">90%</span>
+                            <button class="config-btn-action" onclick="cambiarTamanioFuente('ref', 0.05)">A+</button>
+                        </div>
+                    </div>
+                    <div class="config-group">
+                        <span class="config-label">Preguntas y Respuestas</span>
+                        <div class="config-controls-row">
+                            <button class="config-btn-action" onclick="cambiarTamanioFuente('qa', -0.05)">A-</button>
+                            <span id="qaSizeIndicator" style="font-weight: 600; font-size: 0.9rem;">95%</span>
+                            <button class="config-btn-action" onclick="cambiarTamanioFuente('qa', 0.05)">A+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actualizar -->
+            <div class="settings-item" id="ajusteActualizar">
+                <button class="settings-head" onclick="toggleAjuste('ajusteActualizar')">
+                    <span class="settings-icon" style="background: #ecfdf5; color: #059669;"><span class="material-symbols-outlined">system_update</span></span>
+                    <span class="settings-text">
+                        <span class="settings-title">Actualizar aplicación <span class="settings-pill" id="pillActualizacion" hidden>Nueva</span></span>
+                        <span class="settings-desc" id="descActualizacion">Buscar e instalar la última versión</span>
+                    </span>
+                    <span class="material-symbols-outlined settings-chevron">expand_more</span>
+                </button>
+                <div class="settings-body">
+                    <div class="settings-info-row"><span>Versión instalada</span><strong id="versionInstalada">—</strong></div>
+                    <div class="settings-info-row"><span>Última versión</span><strong id="versionPublicada">—</strong></div>
+                    <div class="settings-status" id="estadoActualizacion">Pulsa “Buscar actualización” para comprobar.</div>
+                    <div class="settings-actions">
+                        <button class="settings-btn" onclick="buscarActualizacion(true)">
+                            <span class="material-symbols-outlined">refresh</span> Buscar actualización
+                        </button>
+                        <button class="settings-btn primary" id="btnAplicarActualizacion" onclick="aplicarActualizacion()" hidden>
+                            <span class="material-symbols-outlined">download</span> Actualizar ahora
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sincronización -->
+            <div class="settings-item" id="ajusteSync">
+                <button class="settings-head" onclick="toggleAjuste('ajusteSync')">
+                    <span class="settings-icon" style="background: #eff6ff; color: #2563eb;"><span class="material-symbols-outlined" id="iconoSync">cloud_done</span></span>
+                    <span class="settings-text">
+                        <span class="settings-title">Sincronización y datos</span>
+                        <span class="settings-desc" id="descSync">Tus datos se guardan en el dispositivo y en la nube</span>
+                    </span>
+                    <span class="material-symbols-outlined settings-chevron">expand_more</span>
+                </button>
+                <div class="settings-body">
+                    <div class="settings-info-row"><span>Conexión</span><strong id="syncConexion">—</strong></div>
+                    <div class="settings-info-row"><span>Cambios por subir</span><strong id="syncPendientes">0</strong></div>
+                    <div class="settings-info-row"><span>Última sincronización</span><strong id="syncUltima">—</strong></div>
+                    <div class="settings-info-row"><span>Documentos</span><strong id="syncTotal">0</strong></div>
+                    <div class="settings-actions">
+                        <button class="settings-btn" onclick="sincronizarAhora(true)">
+                            <span class="material-symbols-outlined">sync</span> Sincronizar ahora
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instalar -->
+            <div class="settings-item" id="ajusteInstalar">
+                <button class="settings-head" onclick="toggleAjuste('ajusteInstalar')">
+                    <span class="settings-icon" style="background: #fff7ed; color: #ea580c;"><span class="material-symbols-outlined">install_desktop</span></span>
+                    <span class="settings-text">
+                        <span class="settings-title">Instalar en este equipo</span>
+                        <span class="settings-desc" id="descInstalar">Úsala como app, con su propio ícono</span>
+                    </span>
+                    <span class="material-symbols-outlined settings-chevron">expand_more</span>
+                </button>
+                <div class="settings-body">
+                    <div class="settings-status" id="estadoInstalar"></div>
+                    <div class="settings-actions">
+                        <button class="settings-btn primary" id="btnInstalar" onclick="instalarApp()" hidden>
+                            <span class="material-symbols-outlined">install_desktop</span> Instalar app
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acerca de -->
+            <div class="settings-item" id="ajusteAcerca">
+                <button class="settings-head" onclick="toggleAjuste('ajusteAcerca')">
+                    <span class="settings-icon" style="background: #f1f5f9; color: #475569;"><span class="material-symbols-outlined">info</span></span>
+                    <span class="settings-text">
+                        <span class="settings-title">Acerca de</span>
+                        <span class="settings-desc">Bosquejos y Cuestionarios</span>
+                    </span>
+                    <span class="material-symbols-outlined settings-chevron">expand_more</span>
+                </button>
+                <div class="settings-body">
+                    <div class="settings-info-row"><span>Versión</span><strong id="acercaVersion">—</strong></div>
+                    <div class="settings-info-row"><span>Funcionando como</span><strong id="acercaPlataforma">—</strong></div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <!-- VISTA 3.1: LECTOR / EDITOR DE BOSQUEJOS -->
@@ -1849,8 +2136,173 @@
         }
     } catch (e) {}
 
-    function toggleConfigModal() {
-        document.getElementById('configModalBackdrop').classList.toggle('show');
+    /* =========================================================
+       CONFIGURACIÓN: opciones, actualización e instalación
+       ========================================================= */
+    const APP_VERSION = '2026.11.12.0234';   // el script de publicación pone aquí la versión real
+    const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
+    let infoActualizacion = null;
+    let eventoInstalacion = null;
+
+    function esAppNativa() {
+        return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+    }
+    function esAppInstalada() {
+        return esAppNativa() || window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+    function nombrePlataforma() {
+        if (esAppNativa()) return 'App Android';
+        if (esAppInstalada()) return /Android/i.test(navigator.userAgent) ? 'App instalada (Android)' : 'App de escritorio';
+        if (location.protocol === 'file:') return 'Archivo local';
+        return 'Navegador';
+    }
+
+    function toggleAjuste(id) {
+        const item = document.getElementById(id);
+        if (!item) return;
+        item.classList.toggle('open');
+        if (item.classList.contains('open')) {
+            if (id === 'ajusteActualizar' && !infoActualizacion) buscarActualizacion(false);
+            if (id === 'ajusteSync') actualizarPanelSync();
+            if (id === 'ajusteInstalar') actualizarPanelInstalar();
+        }
+    }
+
+    function actualizarPanelConfiguracion() {
+        document.getElementById('versionInstalada').innerText = APP_VERSION;
+        document.getElementById('acercaVersion').innerText = APP_VERSION;
+        document.getElementById('acercaPlataforma').innerText = nombrePlataforma();
+        actualizarPanelSync();
+        actualizarPanelInstalar();
+    }
+
+    function actualizarPanelSync() {
+        const el = (id) => document.getElementById(id);
+        if (!el('syncConexion')) return;
+        const pendientes = Object.keys(pendientesGuardar).length;
+        const online = navigator.onLine;
+        el('syncConexion').innerText = online ? 'Con internet' : 'Sin internet';
+        el('syncPendientes').innerText = pendientes;
+        el('syncUltima').innerText = estadoSync.ultimaSync ? formatearFecha(estadoSync.ultimaSync) : '—';
+        el('syncTotal').innerText = bosquejosData.length + qaData.length;
+        el('iconoSync').innerText = !online ? 'cloud_off' : (pendientes ? 'cloud_sync' : 'cloud_done');
+        el('descSync').innerText = !online
+            ? `Sin internet · ${pendientes} cambio(s) guardado(s) en el dispositivo`
+            : (pendientes ? `${pendientes} cambio(s) por subir a la nube` : 'Todo guardado en la nube');
+    }
+
+    function actualizarPanelInstalar() {
+        const estado = document.getElementById('estadoInstalar');
+        const btn = document.getElementById('btnInstalar');
+        const desc = document.getElementById('descInstalar');
+        if (!estado) return;
+        btn.hidden = true;
+        if (esAppInstalada()) {
+            desc.innerText = 'Ya estás usando la app instalada';
+            estado.innerText = `Estás usando: ${nombrePlataforma()}. Para recibir cambios usa “Actualizar aplicación”.`;
+        } else if (eventoInstalacion) {
+            desc.innerText = 'Lista para instalar';
+            estado.innerText = 'Se instalará como una app con su propio ícono y ventana, y funcionará sin internet.';
+            btn.hidden = false;
+        } else if (location.protocol === 'file:') {
+            estado.innerText = `Para instalarla abre ${URL_PUBLICADA} en Chrome o Edge.`;
+        } else {
+            estado.innerText = 'En Chrome o Edge usa el ícono de instalar de la barra de direcciones, o el menú ⋮ → “Instalar app”.';
+        }
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        eventoInstalacion = e;
+        actualizarPanelInstalar();
+    });
+    window.addEventListener('appinstalled', () => {
+        eventoInstalacion = null;
+        mostrarAlerta('¡App instalada!');
+        actualizarPanelInstalar();
+    });
+
+    async function instalarApp() {
+        if (!eventoInstalacion) return;
+        eventoInstalacion.prompt();
+        await eventoInstalacion.userChoice.catch(() => null);
+        eventoInstalacion = null;
+        actualizarPanelInstalar();
+    }
+
+    async function buscarActualizacion(manual) {
+        const estado = document.getElementById('estadoActualizacion');
+        const btnAplicar = document.getElementById('btnAplicarActualizacion');
+        if (!navigator.onLine) {
+            if (manual) estado.innerText = 'Sin internet. Conéctate para buscar actualizaciones.';
+            return null;
+        }
+        if (manual) estado.innerText = 'Buscando…';
+        try {
+            const resp = await fetch(URL_PUBLICADA + 'version.json?t=' + Date.now(), { cache: 'no-store' });
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            infoActualizacion = await resp.json();
+            const hayNueva = infoActualizacion.version && infoActualizacion.version !== APP_VERSION;
+            document.getElementById('versionPublicada').innerText = infoActualizacion.version || '—';
+            document.getElementById('pillActualizacion').hidden = !hayNueva;
+            document.getElementById('navBadgeActualizacion').classList.toggle('show', !!hayNueva);
+            document.getElementById('descActualizacion').innerText = hayNueva ? 'Hay una versión nueva lista' : 'Tienes la última versión';
+            btnAplicar.hidden = !hayNueva;
+            estado.innerText = hayNueva
+                ? `Versión nueva disponible (${infoActualizacion.fecha ? formatearFecha(infoActualizacion.fecha) : infoActualizacion.version}). Tus datos no se tocan al actualizar.`
+                : 'Tienes la última versión.';
+            return hayNueva;
+        } catch (err) {
+            console.error('Buscar actualización:', err);
+            if (manual) estado.innerText = 'No se pudo comprobar. Inténtalo de nuevo más tarde.';
+            return null;
+        }
+    }
+
+    async function aplicarActualizacion() {
+        const btn = document.getElementById('btnAplicarActualizacion');
+        const estado = document.getElementById('estadoActualizacion');
+        btn.disabled = true;
+        estado.innerText = 'Guardando tus cambios…';
+        guardarEstadoActual();
+        await vaciarGuardados();
+        try {
+            if (esAppNativa()) {
+                const updater = window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorUpdater;
+                if (!updater) throw new Error('Actualizador no disponible');
+                if (!infoActualizacion || !infoActualizacion.zip) await buscarActualizacion(false);
+                estado.innerText = 'Descargando la versión nueva…';
+                const bundle = await updater.download({ url: URL_PUBLICADA + infoActualizacion.zip, version: infoActualizacion.version });
+                estado.innerText = 'Instalando…';
+                await updater.set(bundle);   // reinicia la app con la versión nueva
+                return;
+            }
+            estado.innerText = 'Descargando la versión nueva…';
+            if ('serviceWorker' in navigator) {
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (reg) {
+                    await reg.update();
+                    const nuevo = reg.installing || reg.waiting;
+                    if (nuevo) {
+                        await new Promise(resolve => {
+                            if (nuevo.state === 'activated') return resolve();
+                            nuevo.addEventListener('statechange', () => { if (nuevo.state === 'activated') resolve(); });
+                            setTimeout(resolve, 8000);
+                        });
+                    }
+                }
+            }
+            location.reload();
+        } catch (err) {
+            console.error('Actualizar:', err);
+            estado.innerText = 'No se pudo actualizar: ' + (err.message || err);
+            btn.disabled = false;
+        }
+    }
+
+    // App nativa: confirma que esta versión arrancó bien (si no, el actualizador vuelve a la anterior)
+    if (esAppNativa() && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorUpdater) {
+        window.Capacitor.Plugins.CapacitorUpdater.notifyAppReady().catch(() => {});
     }
 
     function mostrarAlerta(mensaje) {
@@ -1873,6 +2325,7 @@
 
         if (idVista === 'vistaDiscursos') renderizarListaBosquejos();
         if (idVista === 'vistaQAList') renderizarListaQAs();
+        if (idVista === 'vistaConfiguracion') actualizarPanelConfiguracion();
 
         if (elementoMenu) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -1969,11 +2422,52 @@
         'Content-Type': 'application/json'
     };
 
-    let supabaseDisponible = false;
     const ultimoGuardado = {};        // id -> snapshot JSON del último guardado exitoso
-    const pendientesGuardar = {};     // id -> fila pendiente de enviar
+    const pendientesGuardar = {};     // id -> fila pendiente de enviar (también guardada en el dispositivo)
     let timerGuardado = null;
+    let enviando = false;
     let avisoErrorMostrado = false;
+    const estadoSync = { conectado: navigator.onLine, ultimaSync: null, error: null };
+
+    /* ---------- Almacenamiento local (IndexedDB): permite usar la app sin internet ---------- */
+    let dbLocalPromesa = null;
+    function abrirDBLocal() {
+        if (dbLocalPromesa) return dbLocalPromesa;
+        dbLocalPromesa = new Promise((resolve, reject) => {
+            if (!('indexedDB' in window)) return reject(new Error('IndexedDB no disponible'));
+            const req = indexedDB.open('bosquejos-app', 1);
+            req.onupgradeneeded = () => {
+                const db = req.result;
+                if (!db.objectStoreNames.contains('docs')) db.createObjectStore('docs', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains('pendientes')) db.createObjectStore('pendientes', { keyPath: 'id' });
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+        return dbLocalPromesa;
+    }
+    async function idbOp(store, modo, fn) {
+        try {
+            const db = await abrirDBLocal();
+            return await new Promise((resolve, reject) => {
+                const tx = db.transaction(store, modo);
+                const resultado = fn(tx.objectStore(store));
+                tx.oncomplete = () => resolve(resultado && 'result' in resultado ? resultado.result : undefined);
+                tx.onerror = () => reject(tx.error);
+            });
+        } catch (err) {
+            console.error('Almacenamiento local:', err);
+            return undefined;
+        }
+    }
+    const idbTodos = (store) => idbOp(store, 'readonly', s => s.getAll()).then(r => r || []);
+    const idbPoner = (store, valor) => idbOp(store, 'readwrite', s => s.put(valor));
+    const idbBorrar = (store, id) => idbOp(store, 'readwrite', s => s.delete(id));
+    const idbReemplazarTodo = (store, valores) => idbOp(store, 'readwrite', s => { s.clear(); valores.forEach(v => s.put(v)); });
+
+    function filaConFecha(fila, fecha) {
+        return { ...fila, updated_at: fecha || new Date().toISOString() };
+    }
 
     function docAFila(doc, tipo) {
         return {
@@ -1995,7 +2489,8 @@
             scrollPos: fila.scroll_pos || 0,
             contenido: fila.contenido,
             panelContenido: fila.panel_contenido,
-            updatedAt: fila.updated_at
+            updatedAt: fila.updated_at,
+            createdAt: fila.created_at
         };
     }
 
@@ -2019,80 +2514,153 @@
         if (!resp.ok) throw new Error('Supabase ' + resp.status + ': ' + await resp.text());
     }
 
-    // Marca un documento para guardarse (solo si cambió desde el último guardado)
+    function refrescarListas() {
+        if (vistaActivaActual === 'vistaDiscursos') renderizarListaBosquejos();
+        if (vistaActivaActual === 'vistaQAList') renderizarListaQAs();
+        if (typeof actualizarPanelSync === 'function') actualizarPanelSync();
+    }
+
+    // Marca un documento para guardarse: primero en el dispositivo (al instante) y luego en la nube
     function programarGuardado(doc, tipo, inmediato = false) {
         if (!doc) return;
         const fila = docAFila(doc, tipo);
         const snapshot = JSON.stringify(fila);
         if (ultimoGuardado[fila.id] === snapshot && !pendientesGuardar[fila.id]) return;
+        if (pendientesGuardar[fila.id] && JSON.stringify(pendientesGuardar[fila.id]) === snapshot) return;
         pendientesGuardar[fila.id] = fila;
+        const ahora = new Date().toISOString();
+        doc.updatedAt = ahora;
+        if (!doc.createdAt) doc.createdAt = ahora;
+        idbPoner('docs', { ...filaConFecha(fila, ahora), created_at: doc.createdAt });
+        idbPoner('pendientes', fila);
         if (timerGuardado) clearTimeout(timerGuardado);
         timerGuardado = setTimeout(vaciarGuardados, inmediato ? 0 : 800);
+        if (typeof actualizarPanelSync === 'function') actualizarPanelSync();
     }
 
     async function vaciarGuardados(keepalive = false) {
         timerGuardado = null;
-        if (!supabaseDisponible) return;
+        if (enviando) { timerGuardado = setTimeout(vaciarGuardados, 1000); return; }
         const filas = Object.values(pendientesGuardar);
         if (filas.length === 0) return;
-        filas.forEach(f => delete pendientesGuardar[f.id]);
+        if (!navigator.onLine) { estadoSync.conectado = false; refrescarListas(); return; }
+        enviando = true;
         try {
             await enviarFilas(filas, keepalive);
-            const ahora = new Date().toISOString();
-            filas.forEach(f => {
+            for (const f of filas) {
                 ultimoGuardado[f.id] = JSON.stringify(f);
-                const doc = buscarDoc(f.id);
-                if (doc) doc.updatedAt = ahora;
-            });
+                // Solo se quita de pendientes si no hubo cambios nuevos mientras se enviaba
+                if (pendientesGuardar[f.id] && JSON.stringify(pendientesGuardar[f.id]) === JSON.stringify(f)) {
+                    delete pendientesGuardar[f.id];
+                    idbBorrar('pendientes', f.id);
+                }
+            }
+            estadoSync.conectado = true;
+            estadoSync.ultimaSync = new Date().toISOString();
+            estadoSync.error = null;
             avisoErrorMostrado = false;
-            if (vistaActivaActual === 'vistaDiscursos') renderizarListaBosquejos();
-            if (vistaActivaActual === 'vistaQAList') renderizarListaQAs();
         } catch (err) {
             console.error('Error guardando en Supabase:', err);
-            // Devuelve a la cola sin pisar cambios más nuevos
-            filas.forEach(f => { if (!pendientesGuardar[f.id]) pendientesGuardar[f.id] = f; });
+            estadoSync.error = String(err.message || err);
             if (!avisoErrorMostrado) {
-                mostrarAlerta('No se pudo guardar en la nube. Se reintentará automáticamente.');
+                mostrarAlerta('Guardado en el dispositivo. Se subirá a la nube al volver la conexión.');
                 avisoErrorMostrado = true;
             }
-            if (!timerGuardado) timerGuardado = setTimeout(vaciarGuardados, 5000);
+            if (!timerGuardado) timerGuardado = setTimeout(vaciarGuardados, 15000);
+        } finally {
+            enviando = false;
+            refrescarListas();
         }
+    }
+
+    function aplicarFilas(filas) {
+        bosquejosData = filas.filter(f => f.tipo === 'bosquejo').map(filaADoc);
+        qaData = filas.filter(f => f.tipo === 'qa').map(filaADoc);
+    }
+
+    // Combina la nube con el dispositivo: lo pendiente (editado sin conexión) tiene prioridad
+    async function sincronizarConNube() {
+        if (!navigator.onLine) throw new Error('Sin conexión a internet');
+        const remotas = await cargarDesdeSupabase();
+        const porId = new Map(remotas.map(f => [f.id, f]));
+        Object.values(pendientesGuardar).forEach(p => {
+            const previo = porId.get(p.id);
+            const local = buscarDoc(p.id);
+            porId.set(p.id, {
+                ...filaConFecha(p, (local && local.updatedAt) || (previo && previo.updated_at)),
+                created_at: (previo && previo.created_at) || (local && local.createdAt) || new Date().toISOString()
+            });
+        });
+        const combinadas = [...porId.values()].sort((a, b) => String(a.created_at || '').localeCompare(String(b.created_at || '')));
+        if (combinadas.length === 0) return false;
+        // Si hay un documento abierto, se guarda primero lo que está en pantalla
+        const abierto = (vistaActivaActual === 'vistaDetalleBosquejo' && idBosquejoActual) || (vistaActivaActual === 'vistaDetalleQA' && idQAActual);
+        aplicarFilas(combinadas);
+        remotas.forEach(f => { ultimoGuardado[f.id] = JSON.stringify(docAFila(filaADoc(f), f.tipo)); });
+        await idbReemplazarTodo('docs', combinadas);
+        if (abierto) guardarEstadoActual();
+        estadoSync.conectado = true;
+        estadoSync.ultimaSync = new Date().toISOString();
+        estadoSync.error = null;
+        return true;
+    }
+
+    async function sincronizarAhora(manual = false) {
+        try {
+            await vaciarGuardados();
+            const hayDatos = await sincronizarConNube();
+            if (!hayDatos) {
+                // Nube vacía: sube los documentos actuales (primera vez)
+                [...bosquejosData.map(b => ['bosquejo', b]), ...qaData.map(q => ['qa', q])]
+                    .forEach(([tipo, d]) => { delete ultimoGuardado[d.id]; programarGuardado(d, tipo, true); });
+            }
+            await vaciarGuardados();
+            if (manual) mostrarAlerta('Sincronizado con la nube');
+        } catch (err) {
+            estadoSync.conectado = navigator.onLine;
+            estadoSync.error = String(err.message || err);
+            if (manual) mostrarAlerta('No se pudo sincronizar: ' + (navigator.onLine ? 'error de la nube' : 'sin internet'));
+        }
+        refrescarListas();
     }
 
     async function iniciarApp() {
         document.getElementById('listaBosquejosContainer').innerHTML =
             `<div style="padding: 24px; text-align: center; color: var(--text-sub);">Cargando bosquejos…</div>`;
-        try {
-            const filas = await cargarDesdeSupabase();
-            supabaseDisponible = true;
-            if (filas.length === 0) {
-                // Primera vez: sube los documentos de ejemplo
-                const iniciales = [
-                    ...bosquejosData.map(b => docAFila(b, 'bosquejo')),
-                    ...qaData.map(q => docAFila(q, 'qa'))
-                ];
-                await enviarFilas(iniciales);
-                const ahora = new Date().toISOString();
-                iniciales.forEach(f => {
-                    ultimoGuardado[f.id] = JSON.stringify(f);
-                    const doc = buscarDoc(f.id);
-                    if (doc) doc.updatedAt = ahora;
-                });
-            } else {
-                bosquejosData = filas.filter(f => f.tipo === 'bosquejo').map(filaADoc);
-                qaData = filas.filter(f => f.tipo === 'qa').map(filaADoc);
-                filas.forEach(f => {
-                    ultimoGuardado[f.id] = JSON.stringify(docAFila(filaADoc(f), f.tipo));
-                });
-            }
-        } catch (err) {
-            console.error('Error conectando con Supabase:', err);
-            mostrarAlerta('Sin conexión con la nube: los cambios no se guardarán');
+
+        // 1. Lo guardado en el dispositivo aparece al instante (funciona sin internet)
+        const [locales, pendientes] = await Promise.all([idbTodos('docs'), idbTodos('pendientes')]);
+        pendientes.forEach(p => { pendientesGuardar[p.id] = p; });
+        if (locales.length > 0) {
+            aplicarFilas(locales.sort((a, b) => String(a.created_at || '').localeCompare(String(b.created_at || ''))));
+            locales.forEach(f => { if (!pendientesGuardar[f.id]) ultimoGuardado[f.id] = JSON.stringify(docAFila(filaADoc(f), f.tipo)); });
         }
-        if (supabaseDisponible) vaciarGuardados();
+        refrescarListas();
         renderizarListaBosquejos();
-        if (vistaActivaActual === 'vistaQAList') renderizarListaQAs();
+
+        // 2. Después se sincroniza con la nube
+        if (navigator.onLine) {
+            await sincronizarAhora(false);
+            if (estadoSync.error && locales.length === 0) {
+                mostrarAlerta('No se pudo conectar con la nube. Mostrando ejemplos.');
+            }
+        } else {
+            estadoSync.conectado = false;
+            mostrarAlerta(locales.length ? 'Sin internet: trabajando con tus datos guardados' : 'Sin internet: conéctate una vez para descargar tus datos');
+        }
+        renderizarListaBosquejos();
+        refrescarListas();
     }
+
+    window.addEventListener('online', () => {
+        estadoSync.conectado = true;
+        mostrarAlerta('Conexión recuperada: sincronizando…');
+        sincronizarAhora(false);
+    });
+    window.addEventListener('offline', () => {
+        estadoSync.conectado = false;
+        refrescarListas();
+    });
 
     // Autoguardado mientras se escribe o se da formato
     let timerAutoguardado = null;
@@ -2807,10 +3375,16 @@
         mostrarPuntoPanel(nuevaId);
     }
 
-    iniciarApp();
+    iniciarApp().then(() => {
+        // Aviso discreto si hay una versión nueva publicada
+        setTimeout(async () => {
+            if (APP_VERSION === 'dev') return;
+            if (await buscarActualizacion(false)) mostrarAlerta('Hay una actualización disponible en Configuración');
+        }, 3000);
+    });
 
-    // Instalación como app: registra el service worker (solo funciona en https o localhost)
-    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    // Instalación como app: registra el service worker (solo en https o localhost; la app nativa no lo necesita)
+    if (!esAppNativa() && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js').catch(err => console.error('Service worker:', err));
         });
