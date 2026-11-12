@@ -897,32 +897,28 @@
     }
 
     /* ENLACES DE REFERENCIA */
-    /* Texto con referencia: se abre al tocar el propio texto */
+    /* Texto con referencia (estilo original): azul, con fondo y el ojo. Se abre tocando cualquier parte. */
     .inline-reference {
-        color: inherit;
+        color: var(--reference-blue) !important;
         cursor: pointer;
-        font-weight: inherit;
+        font-weight: 600;
         display: inline;
-        padding: 1px 2px;
-        background: #f1f5f9;
-        border-bottom: 2px solid #94a3b8;
-        border-radius: 3px;
-        transition: background 0.15s, border-color 0.15s;
+        padding: 2px 6px;
+        background: #eff6ff;
+        border-radius: 4px;
+        transition: all 0.15s;
         position: relative;
         -webkit-box-decoration-break: clone;
         box-decoration-break: clone;
     }
-    .inline-reference:hover {
-        background: #e2e8f0;
-        border-bottom-color: #0f172a;
-    }
+    .inline-reference:hover,
     .inline-reference.ref-activa-texto {
-        background: #e2e8f0;
-        border-bottom-color: #0f172a;
+        background: #dbeafe;
     }
-    /* El ícono de "ver" ya no hace falta */
     .inline-reference .material-symbols-outlined {
-        display: none;
+        font-size: 14px !important;
+        vertical-align: -2px;
+        margin-left: 2px;
     }
 
     /* Panel de referencias: solo se ve una a la vez */
@@ -958,13 +954,25 @@
     .reference-card-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
+        gap: 8px;
+        position: relative;
+    }
+    .reference-card-header .ref-options-btn {
+        flex-shrink: 0;
+        margin-top: -2px;
+    }
+    .reference-item-source img,
+    .reference-body-text img {
+        max-width: 100%;
     }
 
     .reference-item-source {
         font-size: calc(var(--font-size-ref) + 0.05rem);
         font-weight: 700;
-        color: var(--text-main);
+        color: var(--theme-purple);
+        min-width: 0;
+        overflow-wrap: anywhere;
         outline: none;
         flex: 1;
         background: transparent;
@@ -2233,7 +2241,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.12.0246';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.12.0249';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
@@ -3548,6 +3556,11 @@
         spanEnlace.setAttribute('contenteditable', 'false');
         spanEnlace.setAttribute('data-refid', nuevaId);
         spanEnlace.appendChild(rangoSeleccionado.extractContents());
+        const ojo = document.createElement('span');
+        ojo.className = 'material-symbols-outlined';
+        ojo.style.fontSize = '14px';
+        ojo.textContent = 'visibility';
+        spanEnlace.appendChild(ojo);
         rangoSeleccionado.insertNode(spanEnlace);
         window.getSelection().removeAllRanges();
 
