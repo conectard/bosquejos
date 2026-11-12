@@ -144,9 +144,16 @@
         font-size: 22px;
     }
 
-    .nav-item:hover {
-        color: #0f172a;
-        background: #f8fafc;
+    /* En pantallas táctiles no hay "pasar el mouse": así el primer toque abre directamente */
+    @media (hover: hover) {
+        .nav-item:hover {
+            color: #0f172a;
+            background: #f8fafc;
+        }
+    }
+    .nav-item {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
     }
 
     .nav-item.active {
@@ -171,8 +178,15 @@
         transition: opacity 0.2s ease;
     }
 
-    .nav-item:hover::after {
-        opacity: 1;
+    @media (hover: hover) {
+        .nav-item:hover::after {
+            opacity: 1;
+        }
+    }
+    @media (hover: none) {
+        .nav-item::after {
+            display: none;
+        }
     }
 
     /* CONTENEDOR PRINCIPAL */
@@ -1467,6 +1481,11 @@
 
     /* TAMAÑOS DE LETRA OPTIMIZADOS PARA CELULARES (≤ 600px) */
     @media (max-width: 600px) {
+        /* Letra base un poco más grande en el celular (A+/A- de Configuración sigue funcionando encima) */
+        html {
+            font-size: 17.5px;
+        }
+
         .view {
             padding: 18px 16px;
         }
@@ -2241,7 +2260,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.12.0303';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.12.0308';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
@@ -4044,6 +4063,28 @@
             reiniciarHistorial();
             return r;
         };
+    });
+
+    /* MENÚ Y BOTÓN FLOTANTE: responden al PRIMER toque.
+       Antes, si estabas escribiendo, el primer toque solo cerraba el teclado (la pantalla se movía
+       y el toque se perdía). Ahora la acción ocurre al apoyar el dedo, antes de que nada se mueva. */
+    document.querySelectorAll('.nav-item, .floating-panel-toggle').forEach(el => {
+        const accion = el.onclick;
+        if (typeof accion !== 'function') return;
+        el.onclick = null;
+        el.removeAttribute('onclick');
+        let ultimoToque = 0;
+        el.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'mouse' || !e.isPrimary) return;
+            e.preventDefault();             // no quita el foco ni mueve la pantalla antes de tiempo
+            ultimoToque = Date.now();
+            if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+            accion.call(el, e);
+        });
+        el.addEventListener('click', (e) => {
+            if (Date.now() - ultimoToque < 800) return;   // ya se ejecutó con el toque
+            accion.call(el, e);
+        });
     });
 
     /* ACTUALIZACIÓN AUTOMÁTICA DE LA APP
