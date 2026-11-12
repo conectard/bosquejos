@@ -1383,7 +1383,7 @@
         /* Escala general un poco mayor: la tableta se lee a más distancia.
            El ajuste A+/A- de Configuración sigue funcionando encima de esto. */
         html {
-            font-size: 17px;
+            font-size: 18.5px;
         }
 
         .view {
@@ -1722,7 +1722,13 @@
     }
     @media (min-width: 1100px) and (max-width: 1366px) and (pointer: coarse) {
         html {
-            font-size: 17px;
+            font-size: 18.5px;
+        }
+    }
+    /* Tabletas en horizontal cuyo navegador no reporta el toque como puntero principal */
+    @media (min-width: 1100px) and (max-width: 1366px) and (any-pointer: coarse) and (hover: none) {
+        html {
+            font-size: 18.5px;
         }
     }
 
@@ -2260,7 +2266,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.12.0317';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.12.0321';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
