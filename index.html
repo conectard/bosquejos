@@ -1,0 +1,2821 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bosquejos y Cuestionarios</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Bosquejos, discursos y cuestionarios de estudio.">
+<!-- Instalación como app (PWA) -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bosquejos">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://awgnkfosohvdsreipgje.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg-body: #ffffff;
+        --text-main: #0f172a;
+        --text-sub: #64748b;
+        --border-light: #f1f5f9;
+        --radius-xl: 24px;
+        --radius-md: 12px;
+        --reference-blue: #2563eb;
+        --theme-purple: #7c3aed;
+        
+        /* Variables dinámicas de tamaño de fuente */
+        --font-size-ref: 0.9rem;
+        --font-size-qa: 0.95rem;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* NITIDEZ DE TEXTO Y ELEMENTOS */
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        font-optical-sizing: auto;
+        font-kerning: normal;
+        font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined' !important;
+        font-weight: normal;
+        font-style: normal;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        font-feature-settings: "liga" 1;
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+
+    img {
+        image-rendering: auto;
+        image-rendering: high-quality;
+    }
+
+    body {
+        background: #ffffff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        color: var(--text-main);
+    }
+
+    /* MENÚ INFERIOR EN MÓVIL Y TABLETAS DE HASTA 10 PULGADAS */
+    .icon-menu {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 64px;
+        background: #ffffff;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0 12px;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+        z-index: 1000;
+    }
+
+    .nav-item {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        color: #94a3b8;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        border-radius: 50%;
+        position: relative;
+        user-select: none;
+    }
+
+    .nav-item span {
+        font-size: 22px;
+    }
+
+    .nav-item:hover {
+        color: #0f172a;
+        background: #f8fafc;
+    }
+
+    .nav-item.active {
+        background: #000000;
+        color: #ffffff;
+        transform: translateY(-4px);
+    }
+
+    .nav-item::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 54px;
+        background: #0f172a;
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 6px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+
+    .nav-item:hover::after {
+        opacity: 1;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .main-content {
+        margin-left: 0;
+        margin-bottom: 64px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 64px);
+        background: #ffffff;
+        position: relative;
+    }
+
+    /* VISTAS */
+    .view {
+        display: none;
+        flex: 1;
+        flex-direction: column;
+        padding: 24px 20px;
+        max-width: 1350px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .view.active {
+        display: flex;
+    }
+
+    .section-header-small {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 4px;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -0.3px;
+        margin-bottom: 20px;
+    }
+
+    /* LISTAS Y CABECERAS */
+    .list-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .icon-btn-add {
+        width: 38px;
+        height: 38px;
+        background: var(--theme-purple);
+        color: #ffffff;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        transition: transform 0.2s;
+    }
+    .icon-btn-add:hover {
+        transform: scale(1.08);
+    }
+
+    .discourse-list-container {
+        background: #ffffff;
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+
+    .discourse-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-light);
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .discourse-item:hover {
+        background: #f8fafc;
+    }
+
+    .discourse-item-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .discourse-thumb {
+        width: 40px;
+        height: 50px;
+        background: #f1f5f9;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+    }
+
+    /* PESTAÑAS BOSQUEJOS / DISCURSOS */
+    .list-tabs {
+        display: flex;
+        gap: 24px;
+        padding: 0 20px;
+        border-bottom: 1px solid var(--border-light);
+    }
+    .list-tab {
+        position: relative;
+        background: none;
+        border: none;
+        padding: 14px 2px 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: var(--text-sub);
+        cursor: pointer;
+        transition: color 0.15s;
+    }
+    .list-tab:hover {
+        color: var(--text-main);
+    }
+    .list-tab.active {
+        color: var(--text-main);
+    }
+    .list-tab.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -1px;
+        height: 2px;
+        background: var(--text-main);
+        border-radius: 2px 2px 0 0;
+    }
+    @media (min-width: 1100px) {
+        .list-tabs { padding: 0 20px; gap: 28px; }
+    }
+
+    .discourse-title-text {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1d4ed8;
+    }
+
+    /* MODAL DE CONFIGURACIÓN */
+    .config-modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(0,0,0,0.4);
+        z-index: 5000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+    .config-modal-backdrop.show {
+        display: flex;
+        opacity: 1;
+    }
+    .config-modal {
+        background: #ffffff;
+        border-radius: var(--radius-xl);
+        width: 90%;
+        max-width: 400px;
+        padding: 24px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .config-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+        border-bottom: 1px solid var(--border-light);
+        padding-bottom: 12px;
+    }
+    .config-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .config-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-sub);
+    }
+    .config-controls-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius-md);
+        padding: 8px 14px;
+    }
+    .config-btn-action {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: var(--text-main);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-weight: 700;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .config-btn-action:hover {
+        background: #f1f5f9;
+        border-color: var(--theme-purple);
+        color: var(--theme-purple);
+    }
+
+    /* MENÚ CONTEXTUAL GLOBAL PARA CLIC DERECHO */
+    .card-context-menu {
+        position: fixed;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius-md);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        width: 190px;
+        display: none;
+        flex-direction: column;
+        z-index: 6000;
+        overflow: hidden;
+    }
+    .card-context-menu.show {
+        display: flex;
+    }
+    .card-context-item {
+        padding: 11px 14px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-main);
+        background: transparent;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.15s;
+    }
+    .card-context-item:hover {
+        background: #f8fafc;
+        color: var(--theme-purple);
+    }
+
+    /* VISTA LECTOR / EDITOR */
+    .reader-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        align-items: start;
+        position: relative;
+    }
+
+    .reader-card {
+        background: #ffffff;
+        border: none;
+        border-radius: 0;
+        padding: 10px 0;
+        box-shadow: none;
+        position: relative;
+    }
+
+    /* ÁREA EDITABLE DEL DISCURSO (APLICA TAMAÑO DINÁMICO DE REFERENCIAS) */
+    .editable-area {
+        outline: none;
+        border: none;
+        background: transparent;
+        width: 100%;
+        color: var(--text-main);
+        font-size: var(--font-size-ref) !important;
+    }
+    .editable-area h1,
+    .editable-area h2,
+    .editable-area h3,
+    .editable-area p,
+    .editable-area div {
+        color: inherit;
+    }
+    .editable-area h1 {
+        font-size: calc(var(--font-size-ref) + 0.7rem);
+        font-weight: 800;
+        line-height: 1.3;
+        margin-bottom: 18px;
+    }
+    .editable-area h2 {
+        font-size: calc(var(--font-size-ref) + 0.35rem);
+        font-weight: 800;
+        line-height: 1.35;
+        margin-top: 22px;
+        margin-bottom: 12px;
+    }
+    .editable-area h3 {
+        font-size: calc(var(--font-size-ref) + 0.15rem);
+        font-weight: 700;
+        line-height: 1.4;
+        margin-top: 18px;
+        margin-bottom: 10px;
+    }
+    .editable-area p {
+        font-size: var(--font-size-ref);
+        font-weight: 400;
+        line-height: 1.7;
+        margin-bottom: 16px;
+    }
+
+    /* ESTILOS DE IMÁGENES EDITABLES Y CONTENEDOR DE SELECCIÓN/RECROTE */
+    .editable-area img {
+        max-width: 100%;
+        border-radius: 8px;
+        margin: 12px 0;
+        display: block;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: outline 0.15s;
+    }
+
+    .image-wrapper {
+        display: inline-block;
+        position: relative;
+        margin: 12px 0;
+        max-width: 100%;
+        user-select: none;
+    }
+    .image-wrapper img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .image-wrapper.selected {
+        outline: 2px dashed var(--theme-purple);
+        outline-offset: 4px;
+    }
+
+    .resize-handle {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: var(--theme-purple);
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        display: none;
+        z-index: 10;
+    }
+    .image-wrapper.selected .resize-handle {
+        display: block;
+    }
+    .handle-tl { top: -6px; left: -6px; cursor: nwse-resize; }
+    .handle-tr { top: -6px; right: -6px; cursor: nesw-resize; }
+    .handle-bl { bottom: -6px; left: -6px; cursor: nesw-resize; }
+    .handle-br { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+    #imageCropToolbar {
+        position: absolute;
+        display: none;
+        background: #0f172a;
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 20px;
+        gap: 8px;
+        z-index: 5500;
+        align-items: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+        transform: translateY(-130%);
+        pointer-events: auto !important;
+    }
+    #imageCropToolbar button {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 8px;
+        cursor: pointer;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: background 0.15s;
+    }
+    #imageCropToolbar button:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+    .reader-breadcrumb {
+        font-size: 0.75rem;
+        color: var(--text-sub) !important;
+        margin-bottom: 12px;
+        font-weight: 500;
+    }
+
+    /* CONTENEDOR DE NOTA */
+    .reader-note {
+        font-size: var(--font-size-ref);
+        color: var(--text-main);
+        background: #f8fafc;
+        border-left: 4px solid #cbd5e1;
+        padding: 14px 18px;
+        border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        margin-bottom: 24px;
+        line-height: 1.5;
+        position: relative;
+        outline: none;
+    }
+
+    /* ESTILOS Q&A */
+    .qa-theme-container {
+        border-left: 4px solid #f97316;
+        padding-left: 16px;
+        margin: 24px 0 20px 0;
+        outline: none !important;
+        background: transparent;
+    }
+    .qa-theme-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    .qa-theme-title {
+        font-size: calc(var(--font-size-qa) + 0.25rem);
+        font-weight: 700;
+        color: var(--text-main);
+        outline: none !important;
+        border: none !important;
+        background: transparent;
+    }
+
+    .qa-item-block {
+        margin-bottom: 24px;
+        position: relative;
+    }
+
+    .qa-question-title {
+        font-size: var(--font-size-qa);
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 8px;
+        outline: none;
+    }
+
+    .qa-answer-input, .qa-item-block, .qa-theme-container {
+        font-size: var(--font-size-qa) !important;
+    }
+    .qa-answer-input {
+        width: 100%;
+        min-height: 48px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 12px;
+        background: #ffffff;
+        outline: none;
+        color: var(--text-main);
+        transition: border-color 0.2s;
+    }
+    .qa-answer-input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+
+    /* BARRA SUPERIOR Q&A */
+    .qa-top-action-bar {
+        display: flex;
+        justify-content: flex-end;
+        position: relative;
+        margin-bottom: 16px;
+    }
+
+    .three-dots-btn {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        color: var(--text-main);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .three-dots-btn:hover {
+        background: #e2e8f0;
+    }
+
+    .qa-dropdown-menu {
+        position: absolute;
+        top: 48px;
+        right: 0;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius-md);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        width: 210px;
+        display: none;
+        flex-direction: column;
+        z-index: 500;
+        overflow: hidden;
+    }
+    .qa-dropdown-menu.show {
+        display: flex;
+    }
+
+    .qa-dropdown-item {
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-main);
+        background: transparent;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.15s;
+    }
+    .qa-dropdown-item:hover {
+        background: #f8fafc;
+        color: var(--theme-purple);
+    }
+
+    /* ENLACES DE REFERENCIA */
+    .inline-reference {
+        color: var(--reference-blue) !important;
+        cursor: pointer;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        padding: 2px 6px;
+        background: #eff6ff;
+        border-radius: 4px;
+        transition: all 0.15s;
+        position: relative;
+    }
+    .inline-reference:hover {
+        background: #dbeafe;
+    }
+
+    /* SECCIÓN DE REFERENCIA */
+    .reference-item-card {
+        background: transparent;
+        border: none;
+        padding: 6px 0 16px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        position: relative;
+        margin-bottom: 14px;
+        border-bottom: 1px solid var(--border-light);
+        transition: background 0.3s ease;
+        border-radius: 8px;
+        font-size: var(--font-size-ref) !important;
+    }
+    
+    .reference-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .reference-item-source {
+        font-size: calc(var(--font-size-ref) + 0.05rem);
+        font-weight: 700;
+        color: var(--theme-purple);
+        outline: none;
+        flex: 1;
+        background: transparent;
+        border: none;
+    }
+
+    .ref-options-btn {
+        background: none;
+        border: none;
+        color: var(--text-sub);
+        cursor: pointer;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s;
+    }
+    .ref-options-btn:hover {
+        background: #e2e8f0;
+        color: var(--text-main);
+    }
+
+    .ref-dropdown-menu {
+        position: absolute;
+        top: 36px;
+        right: 0;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        width: 140px;
+        display: none;
+        flex-direction: column;
+        z-index: 1000;
+        overflow: hidden;
+    }
+    .ref-dropdown-menu.show {
+        display: flex;
+    }
+    .ref-dropdown-item {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #dc2626;
+        background: transparent;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        text-align: left;
+    }
+    .ref-dropdown-item:hover {
+        background: #fee2e2;
+    }
+
+    .reference-body-text {
+        font-size: var(--font-size-ref) !important;
+        color: var(--text-main);
+        line-height: 1.6;
+        outline: none;
+        padding: 2px 0;
+        background: transparent;
+        border: none;
+        min-height: 60px;
+    }
+
+    /* BOTÓN FLOTANTE */
+    .floating-panel-toggle {
+        position: fixed;
+        bottom: 84px;
+        right: 24px;
+        width: 50px;
+        height: 50px;
+        background: var(--theme-purple);
+        color: #ffffff;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+        z-index: 3500;
+    }
+
+    .floating-panel-toggle span {
+        font-size: 24px;
+    }
+
+    /* PANEL LATERAL / DRAWER */
+    .reference-box-wrapper {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        left: auto;
+        width: 100%;
+        max-width: 440px;
+        height: 100vh;
+        background: #ffffff;
+        box-shadow: -5px 0 30px rgba(0,0,0,0.15);
+        z-index: 2500;
+        transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .reference-box-wrapper.open {
+        right: 0;
+    }
+
+    .panel-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(0,0,0,0.4);
+        z-index: 2400;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .panel-backdrop.open {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .reference-box {
+        background: #ffffff;
+        border: none;
+        height: 100%;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        overflow-y: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .reference-box::-webkit-scrollbar {
+        display: none;
+    }
+
+    .reference-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-main);
+        border-bottom: 1px solid var(--border-light);
+        padding-bottom: 12px;
+    }
+
+    /* BARRA FLOTANTE DE TEXTO */
+    #floatingTextToolbar {
+        position: absolute;
+        display: none;
+        background: #0f172a;
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 24px;
+        gap: 6px;
+        z-index: 5000;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+        transform: translateY(-130%);
+        align-items: center;
+        max-width: 96vw;
+        flex-wrap: wrap;
+        justify-content: center;
+        pointer-events: auto !important;
+    }
+
+    #floatingTextToolbar * {
+        pointer-events: auto !important;
+    }
+
+    #floatingTextToolbar button {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 6px;
+        cursor: pointer;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s;
+    }
+    #floatingTextToolbar button:hover {
+        background: rgba(255,255,255,0.15);
+    }
+
+    .toolbar-divider {
+        width: 1px;
+        height: 16px;
+        background: rgba(255,255,255,0.2);
+    }
+
+    .heading-select {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        padding: 3px 6px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        outline: none;
+    }
+    .heading-select option {
+        background: #0f172a;
+        color: #ffffff;
+    }
+
+    .dropdown-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-toggle-btn {
+        background: rgba(255, 255, 255, 0.12) !important;
+        border-radius: 14px !important;
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        white-space: nowrap;
+    }
+    .dropdown-toggle-btn:hover {
+        background: rgba(255, 255, 255, 0.25) !important;
+    }
+
+    .dropdown-panel {
+        position: absolute;
+        bottom: 42px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1e293b;
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 12px;
+        padding: 10px;
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        z-index: 5500;
+        white-space: nowrap;
+    }
+    .dropdown-panel.show {
+        display: flex;
+    }
+
+    .color-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .color-dot {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.8);
+        cursor: pointer;
+        padding: 0 !important;
+        transition: transform 0.15s;
+    }
+    .color-dot:hover {
+        transform: scale(1.2);
+    }
+
+    .highlight-option-clean {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.4);
+        cursor: pointer;
+        padding: 0 !important;
+        transition: transform 0.15s;
+    }
+    .highlight-option-clean:hover {
+        transform: scale(1.2);
+    }
+
+    .remove-highlight-btn {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        border: none;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 5px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        text-align: center;
+    }
+    .remove-highlight-btn:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+    .diamond-btn {
+        background: linear-gradient(135deg, #a855f7, #7c3aed) !important;
+        color: #fff !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        border-radius: 16px !important;
+        padding: 4px 9px !important;
+    }
+
+    .note-btn {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+        color: #fff !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        border-radius: 16px !important;
+        padding: 4px 9px !important;
+    }
+
+    .btn-back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--text-sub);
+        background: none;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 16px;
+    }
+    .btn-back-link:hover { color: var(--text-main); }
+
+    /* TOAST */
+    .toast-msg {
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(15, 23, 42, 0.9);
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-size: 11px;
+        font-weight: 500;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 7000;
+        white-space: nowrap;
+    }
+    .toast-msg.show { opacity: 1; }
+
+    /* El panel lateral oculto no debe dejar sombra en el borde de la pantalla */
+    @media (max-width: 1099px) {
+        .reference-box-wrapper { box-shadow: none; }
+        .reference-box-wrapper.open { box-shadow: -5px 0 30px rgba(0,0,0,0.15); }
+    }
+
+    /* TABLETAS EN VERTICAL (601px – 1099px, p. ej. tabletas de 10") */
+    @media (min-width: 601px) and (max-width: 1099px) {
+        /* Escala general un poco mayor: la tableta se lee a más distancia.
+           El ajuste A+/A- de Configuración sigue funcionando encima de esto. */
+        html {
+            font-size: 17px;
+        }
+
+        .view {
+            padding: 28px 32px;
+        }
+
+        /* Listas */
+        .section-title {
+            font-size: 1.3rem;
+        }
+        .list-tabs {
+            padding: 0 24px;
+            gap: 28px;
+        }
+        .discourse-item {
+            padding: 16px 24px;
+        }
+        .discourse-item-left {
+            gap: 16px;
+        }
+
+        /* Lector: tarjeta centrada con ancho de lectura cómodo */
+        .reader-layout {
+            max-width: 760px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .btn-back-link {
+            max-width: 760px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .reader-card {
+            padding: 32px 36px;
+            background: #ffffff;
+            border-radius: var(--radius-xl);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border: 1px solid var(--border-light);
+        }
+        .editable-area h1 {
+            font-size: calc(var(--font-size-ref) + 0.55rem);
+            line-height: 1.25;
+        }
+        .editable-area h2 {
+            font-size: calc(var(--font-size-ref) + 0.28rem);
+        }
+        .editable-area h3 {
+            font-size: calc(var(--font-size-ref) + 0.12rem);
+        }
+        .editable-area p {
+            line-height: 1.7;
+        }
+
+        /* Panel lateral (cajón) más amplio en tableta */
+        .reference-box-wrapper {
+            max-width: 480px;
+        }
+        .reference-box {
+            padding: 28px;
+        }
+
+        /* Menú inferior con objetivos táctiles más cómodos */
+        .icon-menu {
+            height: 68px;
+        }
+        .main-content {
+            margin-bottom: 68px;
+            min-height: calc(100vh - 68px);
+        }
+        .nav-item {
+            width: 48px;
+            height: 48px;
+        }
+        .nav-item span {
+            font-size: 24px;
+        }
+        .floating-panel-toggle {
+            bottom: 92px;
+            right: 28px;
+            width: 54px;
+            height: 54px;
+        }
+        .toast-msg {
+            bottom: 88px;
+            font-size: 0.75rem;
+        }
+
+        /* Barra de formato con botones más fáciles de tocar */
+        #floatingTextToolbar button {
+            font-size: 13px;
+            padding: 6px 8px;
+        }
+    }
+
+    /* TAMAÑOS DE LETRA OPTIMIZADOS PARA CELULARES (≤ 600px) */
+    @media (max-width: 600px) {
+        .view {
+            padding: 18px 16px;
+        }
+
+        /* Cabeceras de lista */
+        .section-header-small {
+            font-size: 0.65rem;
+            margin-bottom: 2px;
+        }
+        .section-title {
+            font-size: 1.12rem;
+        }
+        .list-header-row {
+            margin-bottom: 12px;
+        }
+        .icon-btn-add {
+            width: 36px;
+            height: 36px;
+        }
+        .icon-btn-add .material-symbols-outlined {
+            font-size: 20px;
+        }
+
+        /* Pestañas */
+        .list-tabs {
+            gap: 20px;
+            padding: 0 14px;
+        }
+        .list-tab {
+            font-size: 0.7rem;
+            padding: 12px 2px 10px;
+        }
+
+        /* Elementos de la lista */
+        .discourse-item {
+            padding: 12px 14px;
+        }
+        .discourse-item-left {
+            gap: 12px;
+        }
+        .discourse-thumb {
+            width: 34px;
+            height: 42px;
+            flex-shrink: 0;
+        }
+        .discourse-thumb .material-symbols-outlined {
+            font-size: 20px;
+        }
+        .discourse-title-text {
+            font-size: 0.88rem;
+            line-height: 1.3;
+        }
+        .discourse-title-text + div {
+            font-size: 0.68rem !important;
+            margin-top: 2px;
+        }
+
+        /* Lector / editor: títulos proporcionados a la pantalla */
+        .btn-back-link {
+            font-size: 0.78rem;
+            margin-bottom: 12px;
+        }
+        .reader-breadcrumb {
+            font-size: 0.68rem;
+            margin-bottom: 8px;
+        }
+        .editable-area h1 {
+            font-size: calc(var(--font-size-ref) + 0.38rem);
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .editable-area h2 {
+            font-size: calc(var(--font-size-ref) + 0.18rem);
+            line-height: 1.3;
+            margin-top: 18px;
+            margin-bottom: 8px;
+        }
+        .editable-area h3 {
+            font-size: calc(var(--font-size-ref) + 0.08rem);
+            margin-top: 14px;
+            margin-bottom: 8px;
+        }
+        .editable-area p {
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .reader-note {
+            padding: 10px 14px;
+            margin-bottom: 18px;
+        }
+
+        /* Preguntas y respuestas */
+        .qa-theme-container {
+            margin: 18px 0 16px 0;
+            padding-left: 12px;
+        }
+        .qa-theme-label {
+            font-size: 0.65rem;
+        }
+        .qa-theme-title {
+            font-size: calc(var(--font-size-qa) + 0.12rem);
+        }
+        .qa-item-block {
+            margin-bottom: 18px;
+        }
+        .qa-answer-input {
+            padding: 10px;
+        }
+
+        /* Panel lateral de referencias */
+        .reference-box {
+            padding: 18px 16px;
+        }
+        .reference-header-top {
+            font-size: 0.85rem;
+        }
+
+        /* Menú inferior */
+        .nav-item span {
+            font-size: 21px;
+        }
+        .toast-msg {
+            font-size: 0.7rem;
+            max-width: calc(100vw - 32px);
+            white-space: normal;
+            text-align: center;
+        }
+    }
+
+    /* ADAPTACIÓN EXCLUSIVA PARA MONITORES DE COMPUTADORA (> 1100px) */
+    @media (min-width: 1100px) {
+        .icon-menu {
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            gap: 24px;
+            padding: 20px 0;
+            border-top: none;
+            border-right: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-item::after {
+            bottom: auto;
+            left: 54px;
+        }
+
+        .main-content {
+            margin-left: 60px;
+            margin-bottom: 0;
+            min-height: 100vh;
+        }
+
+        .view {
+            padding: 32px 40px;
+        }
+
+        .reader-layout {
+            grid-template-columns: 1fr 420px;
+            gap: 24px;
+        }
+
+        .reader-layout.panel-collapsed {
+            grid-template-columns: 1fr 0px;
+        }
+
+        .reader-card {
+            padding: 40px;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border-radius: var(--radius-xl);
+        }
+
+        .reference-box-wrapper {
+            position: sticky;
+            top: 24px;
+            right: auto;
+            left: auto;
+            width: 100%;
+            height: auto;
+            max-width: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border-radius: var(--radius-xl);
+            background: #ffffff;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .reader-layout.panel-collapsed .reference-box-wrapper {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(20px);
+        }
+
+        .panel-backdrop {
+            display: none !important;
+        }
+
+        .reference-box {
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .reference-box::-webkit-scrollbar {
+            display: none;
+        }
+
+        .floating-panel-toggle {
+            bottom: 30px;
+            right: 30px;
+        }
+    }
+
+    /* TABLETAS EN HORIZONTAL (1100px – 1366px) — va después del bloque de computadora */
+    @media (min-width: 1100px) and (max-width: 1366px) {
+        .view {
+            padding: 28px 28px;
+        }
+        .reader-layout {
+            grid-template-columns: 1fr 360px;
+            gap: 20px;
+        }
+        .reader-layout.panel-collapsed {
+            grid-template-columns: 1fr 0px;
+        }
+        .reader-card {
+            padding: 32px;
+        }
+    }
+    @media (min-width: 1100px) and (max-width: 1366px) and (pointer: coarse) {
+        html {
+            font-size: 17px;
+        }
+    }
+
+    /* App instalada: respeta la barra de gestos / muesca del dispositivo */
+    @media (max-width: 600px) {
+        .icon-menu {
+            height: calc(64px + env(safe-area-inset-bottom, 0px));
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .main-content { margin-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+    }
+    @media (min-width: 601px) and (max-width: 1099px) {
+        .icon-menu {
+            height: calc(68px + env(safe-area-inset-bottom, 0px));
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .main-content { margin-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+    }
+    @media (display-mode: standalone) {
+        body { -webkit-user-select: auto; overscroll-behavior-y: none; }
+    }
+</style>
+</head>
+<body>
+
+<!-- BACKDROP -->
+<div class="panel-backdrop" id="panelBackdrop" onclick="toggleActivePanel()"></div>
+
+<!-- INPUT GLOBAL PARA INSERTAR IMÁGENES -->
+<input type="file" id="globalImageInput" accept="image/*" style="display: none;" onchange="handleGlobalImageUpload(event)">
+
+<!-- MENÚ CONTEXTUAL GLOBAL (CLIC DERECHO PARA INSERTAR IMAGEN) -->
+<div class="card-context-menu" id="cardContextMenu">
+    <button class="card-context-item" onclick="triggerGlobalImageUploadFromContext()">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: #16a34a;">image</span> Insertar Imagen
+    </button>
+</div>
+
+<!-- BARRA FLOTANTE PARA RECORTAR IMAGEN (DOBLE CLIC) -->
+<div id="imageCropToolbar">
+    <button onclick="recortarImagenAccion('cuadrado')"><span class="material-symbols-outlined" style="font-size: 14px;">aspect_ratio</span> Cuadrada</button>
+    <button onclick="recortarImagenAccion('horizontal')"><span class="material-symbols-outlined" style="font-size: 14px;">panorama</span> Horizontal</button>
+    <button onclick="recortarImagenAccion('reset')"><span class="material-symbols-outlined" style="font-size: 14px;">restart_alt</span> Restaurar</button>
+</div>
+
+<!-- MODAL DE CONFIGURACIÓN DE TAMAÑO DE LETRA -->
+<div class="config-modal-backdrop" id="configModalBackdrop" onclick="toggleConfigModal()">
+    <div class="config-modal" onclick="event.stopPropagation()">
+        <div class="config-modal-header">
+            <span>Configuración de Texto</span>
+            <span class="material-symbols-outlined" style="cursor: pointer; color: var(--text-sub);" onclick="toggleConfigModal()">close</span>
+        </div>
+
+        <div class="config-group">
+            <span class="config-label">Tamaño de letra: Discursos y Referencias</span>
+            <div class="config-controls-row">
+                <button class="config-btn-action" onclick="cambiarTamanioFuente('ref', -0.05)">A-</button>
+                <span id="refSizeIndicator" style="font-weight: 600; font-size: 0.9rem;">90%</span>
+                <button class="config-btn-action" onclick="cambiarTamanioFuente('ref', 0.05)">A+</button>
+            </div>
+        </div>
+
+        <div class="config-group">
+            <span class="config-label">Tamaño de letra: Preguntas y Respuestas</span>
+            <div class="config-controls-row">
+                <button class="config-btn-action" onclick="cambiarTamanioFuente('qa', -0.05)">A-</button>
+                <span id="qaSizeIndicator" style="font-weight: 600; font-size: 0.9rem;">95%</span>
+                <button class="config-btn-action" onclick="cambiarTamanioFuente('qa', 0.05)">A+</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BARRA FLOTANTE DE HERRAMIENTAS DE TEXTO -->
+<div id="floatingTextToolbar" onmousedown="event.stopPropagation()">
+    <select class="heading-select" id="headingSelector" onchange="cambiarTipoTexto(this.value)" title="Tamaño de texto">
+        <option value="P">Normal</option>
+        <option value="H1">Título 1</option>
+        <option value="H2">Título 2</option>
+        <option value="H3">Título 3</option>
+    </select>
+
+    <div class="toolbar-divider"></div>
+
+    <button onclick="aplicarFormatoSeleccion('bold')" title="Negrita"><b>B</b></button>
+    <button onclick="aplicarFormatoSeleccion('italic')" title="Cursiva"><i>I</i></button>
+    <button onclick="aplicarFormatoSeleccion('underline')" title="Subrayado"><u>U</u></button>
+
+    <div class="toolbar-divider"></div>
+
+    <div class="dropdown-container">
+        <button class="dropdown-toggle-btn" onclick="toggleDropdownPanel('textColorPanel', event)">
+            <span class="material-symbols-outlined" style="font-size: 14px;">palette</span> Color <span class="material-symbols-outlined" style="font-size: 12px;">arrow_drop_down</span>
+        </button>
+        <div class="dropdown-panel" id="textColorPanel">
+            <div class="color-row">
+                <button class="color-dot" style="background: #0f172a;" onclick="aplicarColorTexto('#0f172a')" title="Negro"></button>
+                <button class="color-dot" style="background: #2563eb;" onclick="aplicarColorTexto('#2563eb')" title="Azul"></button>
+                <button class="color-dot" style="background: #7c3aed;" onclick="aplicarColorTexto('#7c3aed')" title="Morado"></button>
+                <button class="color-dot" style="background: #dc2626;" onclick="aplicarColorTexto('#dc2626')" title="Rojo"></button>
+                <button class="color-dot" style="background: #16a34a;" onclick="aplicarColorTexto('#16a34a')" title="Verde"></button>
+            </div>
+            <button class="remove-highlight-btn" style="margin-top: 4px;" onclick="aplicarColorTexto('inherit')">Original</button>
+        </div>
+    </div>
+
+    <div class="dropdown-container">
+        <button class="dropdown-toggle-btn" onclick="toggleDropdownPanel('highlightPanel', event)">
+            <span class="material-symbols-outlined" style="font-size: 14px;">highlighter</span> Resaltar <span class="material-symbols-outlined" style="font-size: 12px;">arrow_drop_down</span>
+        </button>
+        <div class="dropdown-panel" id="highlightPanel">
+            <div class="color-row">
+                <button class="highlight-option-clean" style="background: #fef08a;" onclick="aplicarResaltado('#fef08a')" title="Amarillo"></button>
+                <button class="highlight-option-clean" style="background: #bfdbfe;" onclick="aplicarResaltado('#bfdbfe')" title="Azul"></button>
+                <button class="highlight-option-clean" style="background: #e9d5ff;" onclick="aplicarResaltado('#e9d5ff')" title="Morado"></button>
+                <button class="highlight-option-clean" style="background: #bbf7d0;" onclick="aplicarResaltado('#bbf7d0')" title="Verde"></button>
+            </div>
+            <button class="remove-highlight-btn" style="margin-top: 4px;" onclick="aplicarResaltado('transparent')">Quitar</button>
+        </div>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <button class="note-btn" onclick="toggleNotaDesdeSeleccion()" title="Crear o Quitar Nota">
+        <span class="material-symbols-outlined" style="font-size: 14px;">note</span> Nota
+    </button>
+
+    <button class="diamond-btn" onclick="crearReferenciaDesdeSeleccion()" title="Crear referencia">
+        <span class="material-symbols-outlined" style="font-size: 14px;">diamond</span> Ref
+    </button>
+</div>
+
+<!-- MENÚ DE ICONOS CON BOTÓN DE CONFIGURACIÓN -->
+<nav class="icon-menu" aria-label="Menú principal">
+    <div class="nav-item active" data-tooltip="Bosquejos" onclick="cambiarVista('vistaDiscursos', this)">
+        <span class="material-symbols-outlined">menu_book</span>
+    </div>
+    <div class="nav-item" data-tooltip="Preguntas y Respuestas" onclick="cambiarVista('vistaQAList', this)">
+        <span class="material-symbols-outlined">favorite</span>
+    </div>
+    <div class="nav-item" data-tooltip="Configuración de texto" onclick="toggleConfigModal()">
+        <span class="material-symbols-outlined">settings</span>
+    </div>
+</nav>
+
+<div class="main-content">
+
+    <!-- VISTA 1: LISTA DE BOSQUEJOS -->
+    <div id="vistaDiscursos" class="view active">
+        <div class="list-header-row">
+            <div>
+                <div class="section-header-small">Biblioteca</div>
+                <div class="section-title" style="margin-bottom: 0;">Bosquejos de Discursos</div>
+            </div>
+            <button class="icon-btn-add" onclick="crearNuevoBosquejo()" title="Nuevo Bosquejo">
+                <span class="material-symbols-outlined">add</span>
+            </button>
+        </div>
+
+        <div class="discourse-list-container">
+            <div class="list-tabs" role="tablist">
+                <button class="list-tab active" role="tab" data-pestana="bosquejos" onclick="cambiarPestanaBosquejos('bosquejos')">Bosquejos</button>
+                <button class="list-tab" role="tab" data-pestana="discursos" onclick="cambiarPestanaBosquejos('discursos')">Discursos</button>
+            </div>
+            <div id="listaBosquejosContainer"></div>
+        </div>
+    </div>
+
+    <!-- VISTA 2: LISTA DE CUESTIONARIOS Q&A -->
+    <div id="vistaQAList" class="view">
+        <div class="list-header-row">
+            <div>
+                <div class="section-header-small">Biblioteca</div>
+                <div class="section-title" style="margin-bottom: 0;">Preguntas y Respuestas</div>
+            </div>
+            <button class="icon-btn-add" onclick="crearNuevoCuestionarioQA()" title="Nuevo Cuestionario" style="background: #f97316;">
+                <span class="material-symbols-outlined">add</span>
+            </button>
+        </div>
+
+        <div class="discourse-list-container" id="listaQAsContainer"></div>
+    </div>
+
+    <!-- VISTA 3.1: LECTOR / EDITOR DE BOSQUEJOS -->
+    <div id="vistaDetalleBosquejo" class="view">
+        <button class="btn-back-link" onclick="cambiarVista('vistaDiscursos', null)">
+            <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver a la lista
+        </button>
+
+        <div class="reader-layout" id="readerLayout">
+            <div class="reader-card editable-area" id="bosquejoEditorContent" contenteditable="true"></div>
+
+            <div class="reference-box-wrapper" id="panelWrapper">
+                <div class="reference-box">
+                    <div class="reference-header-top">
+                        <span id="panelHeaderTitle">Desarrollo del Discurso / Referencia</span>
+                        <span class="material-symbols-outlined" style="font-size: 18px; cursor: pointer; color: var(--text-sub);" onclick="togglePanel()">close</span>
+                    </div>
+
+                    <div id="activeDevelopmentView">
+                        <div class="reference-item-card" id="dev-1" data-ref-id="dev-1">
+                            <div class="reference-card-header">
+                                <div class="reference-item-source editable-area" contenteditable="true">Punto clave de referencia</div>
+                                <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                                    <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                                </button>
+                                <div class="ref-dropdown-menu">
+                                    <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="reference-body-text editable-area" contenteditable="true">Escribe o pega aquí la información adicional...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA 3.2: LECTOR / EDITOR DE Q&A -->
+    <div id="vistaDetalleQA" class="view">
+        <button class="btn-back-link" onclick="cambiarVista('vistaQAList', null)">
+            <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver a cuestionarios
+        </button>
+
+        <div class="reader-layout" id="qaLayout">
+            <div class="reader-card" id="qaEditorMainContent"></div>
+
+            <div class="reference-box-wrapper" id="qaPanelWrapper">
+                <div class="reference-box">
+                    <div class="reference-header-top">
+                        <span id="qaPanelHeaderTitle">Notas de Estudio Q&A</span>
+                        <span class="material-symbols-outlined" style="font-size: 18px; cursor: pointer; color: var(--text-sub);" onclick="toggleQAPanel()">close</span>
+                    </div>
+
+                    <div id="qaActiveDevelopmentView">
+                        <div class="reference-item-card">
+                            <div class="reference-card-header">
+                                <div class="reference-item-source editable-area" contenteditable="true">Nota general del cuestionario</div>
+                                <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                                    <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                                </button>
+                                <div class="ref-dropdown-menu">
+                                    <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="reference-body-text editable-area" contenteditable="true">Añade anotaciones de apoyo aquí...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- BOTÓN FLOTANTE -->
+<button class="floating-panel-toggle" onclick="toggleActivePanel()" title="Abrir/Cerrar panel lateral">
+    <span class="material-symbols-outlined" id="toggleIcon">keyboard_arrow_left</span>
+</button>
+
+<div id="mensajeToast" class="toast-msg"></div>
+
+<script>
+    const DESKTOP_BREAKPOINT = 1100;
+
+    let bosquejosData = [
+        {
+            id: 'b-191',
+            titulo: '191. Cómo vencen al mundo la fe y el amor',
+            sub: 'Bosquejo S-34',
+            scrollPos: 0,
+            contenido: `
+                <div class="reader-breadcrumb">Bosquejos de discursos públicos</div>
+                <h1>Núm. 191 Cómo vencen al mundo la fe y el amor</h1>
+                <div class="reader-note" id="note-init" contenteditable="true">
+                    <strong>Nota:</strong> Ayude al auditorio a entender que, cuanto más conozcamos y amemos a Jehová, más fuerte será nuestra fe en sus promesas.
+                </div>
+                <h2>Jesucristo venció al mundo (4 mins.)</h2>
+                <p>Poco antes de finalizar su ministerio en la Tierra, Jesús dijo: "Yo he vencido al mundo" 
+                   <span class="inline-reference" contenteditable="false" data-refid="dev-1" onclick="mostrarPuntoPanel('dev-1')">
+                       Jn 16:33 
+                       <span class="material-symbols-outlined" style="font-size: 14px;">visibility</span>
+                   </span>.
+                </p>
+            `,
+            panelContenido: `
+                <div class="reference-item-card" id="dev-1" data-ref-id="dev-1">
+                    <div class="reference-card-header">
+                        <div class="reference-item-source editable-area" contenteditable="true">Punto clave de referencia</div>
+                        <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                        </button>
+                        <div class="ref-dropdown-menu">
+                            <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="reference-body-text editable-area" contenteditable="true">Escribe o pega aquí la información adicional...</div>
+                </div>
+            `
+        }
+    ];
+
+    let qaData = [
+        {
+            id: 'qa-1',
+            titulo: 'Qué nos ayudará a obedecer de corazón a Jehová',
+            sub: 'Cuestionario interactivo',
+            scrollPos: 0,
+            contenido: `
+                <div class="reader-breadcrumb">Preguntas y Respuestas</div>
+                
+                <div class="qa-top-action-bar">
+                    <button class="three-dots-btn" onclick="toggleQADropdown(event)" title="Opciones">
+                        <span class="material-symbols-outlined">more_vert</span>
+                    </button>
+                    
+                    <div class="qa-dropdown-menu" id="qaDropdownMenu">
+                        <button class="qa-dropdown-item" onclick="agregarNuevoTemaQA()">
+                            <span class="material-symbols-outlined" style="font-size: 18px; color: #f97316;">label_important</span> Añadir Tema
+                        </button>
+                        <button class="qa-dropdown-item" onclick="agregarNuevaPreguntaQA()">
+                            <span class="material-symbols-outlined" style="font-size: 18px; color: #2563eb;">add_circle</span> Añadir Pregunta
+                        </button>
+                    </div>
+                </div>
+
+                <div class="qa-theme-container">
+                    <div class="qa-theme-label">TEMA</div>
+                    <div class="qa-theme-title" contenteditable="true">Qué nos ayudará a obedecer de corazón a Jehová.</div>
+                </div>
+                <div class="qa-item-block">
+                    <div class="qa-question-title" contenteditable="true">1. ¿Por qué suelen obedecer algunas personas?</div>
+                    <div class="qa-answer-input" contenteditable="true" placeholder="Escribe tu respuesta aquí..."></div>
+                </div>
+                <div id="dynamicQAList"></div>
+            `,
+            panelContenido: `
+                <div class="reference-item-card">
+                    <div class="reference-card-header">
+                        <div class="reference-item-source editable-area" contenteditable="true">Nota general del cuestionario</div>
+                        <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                        </button>
+                        <div class="ref-dropdown-menu">
+                            <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="reference-body-text editable-area" contenteditable="true">Añade anotaciones de apoyo aquí...</div>
+                </div>
+            `
+        }
+    ];
+
+    let idBosquejoActual = null;
+    let idQAActual = null;
+    let vistaActivaActual = 'vistaDiscursos';
+    const viewScrollMemory = { vistaDiscursos: 0, vistaQAList: 0, vistaDetalleBosquejo: 0, vistaDetalleQA: 0 };
+
+    let fontSizeRefValue = 0.9;
+    let fontSizeQAValue = 0.95;
+
+    function cambiarTamanioFuente(tipo, delta) {
+        if (tipo === 'ref') {
+            fontSizeRefValue = Math.max(0.75, Math.min(1.4, fontSizeRefValue + delta));
+        } else if (tipo === 'qa') {
+            fontSizeQAValue = Math.max(0.75, Math.min(1.4, fontSizeQAValue + delta));
+        }
+        aplicarTamaniosFuente();
+        try {
+            localStorage.setItem('bosquejos_tamanios', JSON.stringify({ ref: fontSizeRefValue, qa: fontSizeQAValue }));
+        } catch (e) {}
+    }
+
+    function aplicarTamaniosFuente() {
+        document.documentElement.style.setProperty('--font-size-ref', fontSizeRefValue + 'rem');
+        document.getElementById('refSizeIndicator').innerText = Math.round(fontSizeRefValue * 100) + '%';
+        document.documentElement.style.setProperty('--font-size-qa', fontSizeQAValue + 'rem');
+        document.getElementById('qaSizeIndicator').innerText = Math.round(fontSizeQAValue * 100) + '%';
+    }
+
+    // Recupera el tamaño de letra guardado en este dispositivo
+    try {
+        const t = JSON.parse(localStorage.getItem('bosquejos_tamanios') || 'null');
+        if (t && typeof t.ref === 'number' && typeof t.qa === 'number') {
+            fontSizeRefValue = t.ref;
+            fontSizeQAValue = t.qa;
+            aplicarTamaniosFuente();
+        }
+    } catch (e) {}
+
+    function toggleConfigModal() {
+        document.getElementById('configModalBackdrop').classList.toggle('show');
+    }
+
+    function mostrarAlerta(mensaje) {
+        const toast = document.getElementById('mensajeToast');
+        toast.innerText = mensaje;
+        toast.classList.add('show');
+        if(window.toastTimer) clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function cambiarVista(idVista, elementoMenu) {
+        viewScrollMemory[vistaActivaActual] = window.scrollY;
+        guardarEstadoActual();
+        cerrarDrawersMoviles();
+        deseleccionarImagenActiva();
+
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(idVista).classList.add('active');
+        vistaActivaActual = idVista;
+
+        if (idVista === 'vistaDiscursos') renderizarListaBosquejos();
+        if (idVista === 'vistaQAList') renderizarListaQAs();
+
+        if (elementoMenu) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            elementoMenu.classList.add('active');
+        }
+
+        let targetScroll = viewScrollMemory[idVista] || 0;
+        if (idVista === 'vistaDetalleBosquejo' && idBosquejoActual) {
+            const b = bosquejosData.find(item => item.id === idBosquejoActual);
+            if (b && typeof b.scrollPos === 'number') targetScroll = b.scrollPos;
+        } else if (idVista === 'vistaDetalleQA' && idQAActual) {
+            const q = qaData.find(item => item.id === idQAActual);
+            if (q && typeof q.scrollPos === 'number') targetScroll = q.scrollPos;
+        }
+
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: targetScroll, behavior: 'instant' });
+        });
+    }
+
+    function cerrarDrawersMoviles() {
+        const panelWrapper = document.getElementById('panelWrapper');
+        const qaPanelWrapper = document.getElementById('qaPanelWrapper');
+        const backdrop = document.getElementById('panelBackdrop');
+        if (panelWrapper) panelWrapper.classList.remove('open');
+        if (qaPanelWrapper) qaPanelWrapper.classList.remove('open');
+        if (backdrop) backdrop.classList.remove('open');
+    }
+
+    // HTML limpio para guardar (sin selección temporal de imágenes)
+    function htmlParaGuardar(el) {
+        const copia = el.cloneNode(true);
+        copia.querySelectorAll('.image-wrapper.selected').forEach(w => w.classList.remove('selected'));
+        return copia.innerHTML;
+    }
+
+    // Título real tomado del propio documento
+    function extraerTitulo(el, selector, actual) {
+        const nodo = el.querySelector(selector);
+        const texto = nodo ? nodo.textContent.replace(/\s+/g, ' ').trim() : '';
+        return texto || actual;
+    }
+
+    function guardarEstadoActual() {
+        if (vistaActivaActual === 'vistaDetalleBosquejo' && idBosquejoActual) {
+            const b = bosquejosData.find(item => item.id === idBosquejoActual);
+            if (b) {
+                const editor = document.getElementById('bosquejoEditorContent');
+                b.contenido = htmlParaGuardar(editor);
+                b.panelContenido = htmlParaGuardar(document.getElementById('activeDevelopmentView'));
+                b.titulo = extraerTitulo(editor, 'h1', b.titulo);
+                b.scrollPos = window.scrollY;
+                programarGuardado(b, 'bosquejo');
+            }
+        } else if (vistaActivaActual === 'vistaDetalleQA' && idQAActual) {
+            const q = qaData.find(item => item.id === idQAActual);
+            if (q) {
+                const editor = document.getElementById('qaEditorMainContent');
+                q.contenido = htmlParaGuardar(editor);
+                q.panelContenido = htmlParaGuardar(document.getElementById('qaActiveDevelopmentView'));
+                q.titulo = extraerTitulo(editor, '.qa-theme-title', q.titulo);
+                q.scrollPos = window.scrollY;
+                programarGuardado(q, 'qa');
+            }
+        }
+    }
+
+    function formatearFecha(iso) {
+        if (!iso) return '';
+        const d = new Date(iso);
+        if (isNaN(d)) return '';
+        return d.toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function escaparHTML(texto) {
+        return String(texto ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function textoSub(doc) {
+        const fecha = formatearFecha(doc.updatedAt);
+        return fecha ? `${doc.sub} · Editado ${fecha}` : doc.sub;
+    }
+
+    /* =========================================================
+       PERSISTENCIA EN SUPABASE
+       ========================================================= */
+    const SUPABASE_URL = 'https://awgnkfosohvdsreipgje.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3Z25rZm9zb2h2ZHNyZWlwZ2plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyOTQ1NjksImV4cCI6MjA3MDg3MDU2OX0.ka7Nn4k-zX6HZhakwIeURUKw8aB8Q_dygcjChMAIgUY';
+    const SUPABASE_TABLA = 'documentos';
+
+    const sbHeaders = {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+    };
+
+    let supabaseDisponible = false;
+    const ultimoGuardado = {};        // id -> snapshot JSON del último guardado exitoso
+    const pendientesGuardar = {};     // id -> fila pendiente de enviar
+    let timerGuardado = null;
+    let avisoErrorMostrado = false;
+
+    function docAFila(doc, tipo) {
+        return {
+            id: doc.id,
+            tipo: tipo,
+            titulo: doc.titulo || '',
+            sub: doc.sub || '',
+            contenido: doc.contenido || '',
+            panel_contenido: doc.panelContenido || '',
+            scroll_pos: Math.round(doc.scrollPos || 0)
+        };
+    }
+
+    function filaADoc(fila) {
+        return {
+            id: fila.id,
+            titulo: fila.titulo,
+            sub: fila.sub,
+            scrollPos: fila.scroll_pos || 0,
+            contenido: fila.contenido,
+            panelContenido: fila.panel_contenido,
+            updatedAt: fila.updated_at
+        };
+    }
+
+    function buscarDoc(id) {
+        return bosquejosData.find(d => d.id === id) || qaData.find(d => d.id === id);
+    }
+
+    async function cargarDesdeSupabase() {
+        const resp = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLA}?select=*&order=created_at.asc`, { headers: sbHeaders });
+        if (!resp.ok) throw new Error('Supabase ' + resp.status + ': ' + await resp.text());
+        return resp.json();
+    }
+
+    async function enviarFilas(filas, keepalive = false) {
+        const resp = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLA}?on_conflict=id`, {
+            method: 'POST',
+            headers: { ...sbHeaders, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+            body: JSON.stringify(filas.map(f => ({ ...f, updated_at: new Date().toISOString() }))),
+            keepalive
+        });
+        if (!resp.ok) throw new Error('Supabase ' + resp.status + ': ' + await resp.text());
+    }
+
+    // Marca un documento para guardarse (solo si cambió desde el último guardado)
+    function programarGuardado(doc, tipo, inmediato = false) {
+        if (!doc) return;
+        const fila = docAFila(doc, tipo);
+        const snapshot = JSON.stringify(fila);
+        if (ultimoGuardado[fila.id] === snapshot && !pendientesGuardar[fila.id]) return;
+        pendientesGuardar[fila.id] = fila;
+        if (timerGuardado) clearTimeout(timerGuardado);
+        timerGuardado = setTimeout(vaciarGuardados, inmediato ? 0 : 800);
+    }
+
+    async function vaciarGuardados(keepalive = false) {
+        timerGuardado = null;
+        if (!supabaseDisponible) return;
+        const filas = Object.values(pendientesGuardar);
+        if (filas.length === 0) return;
+        filas.forEach(f => delete pendientesGuardar[f.id]);
+        try {
+            await enviarFilas(filas, keepalive);
+            const ahora = new Date().toISOString();
+            filas.forEach(f => {
+                ultimoGuardado[f.id] = JSON.stringify(f);
+                const doc = buscarDoc(f.id);
+                if (doc) doc.updatedAt = ahora;
+            });
+            avisoErrorMostrado = false;
+            if (vistaActivaActual === 'vistaDiscursos') renderizarListaBosquejos();
+            if (vistaActivaActual === 'vistaQAList') renderizarListaQAs();
+        } catch (err) {
+            console.error('Error guardando en Supabase:', err);
+            // Devuelve a la cola sin pisar cambios más nuevos
+            filas.forEach(f => { if (!pendientesGuardar[f.id]) pendientesGuardar[f.id] = f; });
+            if (!avisoErrorMostrado) {
+                mostrarAlerta('No se pudo guardar en la nube. Se reintentará automáticamente.');
+                avisoErrorMostrado = true;
+            }
+            if (!timerGuardado) timerGuardado = setTimeout(vaciarGuardados, 5000);
+        }
+    }
+
+    async function iniciarApp() {
+        document.getElementById('listaBosquejosContainer').innerHTML =
+            `<div style="padding: 24px; text-align: center; color: var(--text-sub);">Cargando bosquejos…</div>`;
+        try {
+            const filas = await cargarDesdeSupabase();
+            supabaseDisponible = true;
+            if (filas.length === 0) {
+                // Primera vez: sube los documentos de ejemplo
+                const iniciales = [
+                    ...bosquejosData.map(b => docAFila(b, 'bosquejo')),
+                    ...qaData.map(q => docAFila(q, 'qa'))
+                ];
+                await enviarFilas(iniciales);
+                const ahora = new Date().toISOString();
+                iniciales.forEach(f => {
+                    ultimoGuardado[f.id] = JSON.stringify(f);
+                    const doc = buscarDoc(f.id);
+                    if (doc) doc.updatedAt = ahora;
+                });
+            } else {
+                bosquejosData = filas.filter(f => f.tipo === 'bosquejo').map(filaADoc);
+                qaData = filas.filter(f => f.tipo === 'qa').map(filaADoc);
+                filas.forEach(f => {
+                    ultimoGuardado[f.id] = JSON.stringify(docAFila(filaADoc(f), f.tipo));
+                });
+            }
+        } catch (err) {
+            console.error('Error conectando con Supabase:', err);
+            mostrarAlerta('Sin conexión con la nube: los cambios no se guardarán');
+        }
+        if (supabaseDisponible) vaciarGuardados();
+        renderizarListaBosquejos();
+        if (vistaActivaActual === 'vistaQAList') renderizarListaQAs();
+    }
+
+    // Autoguardado mientras se escribe o se da formato
+    let timerAutoguardado = null;
+    document.addEventListener('input', () => {
+        if (vistaActivaActual !== 'vistaDetalleBosquejo' && vistaActivaActual !== 'vistaDetalleQA') return;
+        if (timerAutoguardado) clearTimeout(timerAutoguardado);
+        timerAutoguardado = setTimeout(guardarEstadoActual, 1000);
+    });
+
+    // Respaldo periódico (cambios de imágenes, posición de lectura, etc.)
+    setInterval(() => {
+        if (vistaActivaActual === 'vistaDetalleBosquejo' || vistaActivaActual === 'vistaDetalleQA') guardarEstadoActual();
+    }, 15000);
+
+    // Guardar al cambiar de pestaña, minimizar o cerrar
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            guardarEstadoActual();
+            vaciarGuardados(true);
+        }
+    });
+    window.addEventListener('pagehide', () => {
+        guardarEstadoActual();
+        vaciarGuardados(true);
+    });
+
+    /* PESTAÑAS: los discursos se guardan con id que empieza por "d-" */
+    let pestanaBosquejos = 'bosquejos';
+    try {
+        const guardada = localStorage.getItem('bosquejos_pestana');
+        if (guardada === 'bosquejos' || guardada === 'discursos') pestanaBosquejos = guardada;
+    } catch (e) {}
+
+    function esDiscurso(doc) {
+        return String(doc.id).startsWith('d-');
+    }
+
+    function cambiarPestanaBosquejos(pestana) {
+        pestanaBosquejos = pestana;
+        try { localStorage.setItem('bosquejos_pestana', pestana); } catch (e) {}
+        renderizarListaBosquejos();
+    }
+
+    // Número del título ("191. ...", "Núm. 191 ...", "12 - ...") para ordenar
+    function numeroDeTitulo(titulo) {
+        const m = String(titulo || '').match(/\d+/);
+        return m ? parseInt(m[0], 10) : Infinity;
+    }
+
+    function ordenarPorNumero(lista) {
+        return lista
+            .map((doc, i) => ({ doc, i, n: numeroDeTitulo(doc.titulo) }))
+            .sort((a, b) => (a.n - b.n) || (a.i - b.i))
+            .map(x => x.doc);
+    }
+
+    function renderizarListaBosquejos() {
+        const container = document.getElementById('listaBosquejosContainer');
+        const enDiscursos = pestanaBosquejos === 'discursos';
+
+        document.querySelectorAll('.list-tab').forEach(tab => {
+            const activa = tab.dataset.pestana === pestanaBosquejos;
+            tab.classList.toggle('active', activa);
+            tab.setAttribute('aria-selected', activa ? 'true' : 'false');
+        });
+        const btnAdd = document.querySelector('#vistaDiscursos .icon-btn-add');
+        if (btnAdd) btnAdd.title = enDiscursos ? 'Nuevo Discurso' : 'Nuevo Bosquejo';
+
+        const lista = ordenarPorNumero(bosquejosData.filter(b => esDiscurso(b) === enDiscursos));
+        if (lista.length === 0) {
+            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-sub);">${enDiscursos ? 'No hay discursos creados.' : 'No hay bosquejos creados.'}</div>`;
+            return;
+        }
+        container.innerHTML = lista.map(b => `
+            <div class="discourse-item" onclick="abrirBosquejo('${b.id}')">
+                <div class="discourse-item-left">
+                    <div class="discourse-thumb"><span class="material-symbols-outlined">${esDiscurso(b) ? 'record_voice_over' : 'menu_book'}</span></div>
+                    <div>
+                        <div class="discourse-title-text">${escaparHTML(b.titulo)}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-sub);">${escaparHTML(textoSub(b))}</div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderizarListaQAs() {
+        const container = document.getElementById('listaQAsContainer');
+        if (qaData.length === 0) {
+            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-sub);">No hay cuestionarios creados.</div>`;
+            return;
+        }
+        container.innerHTML = qaData.map(q => `
+            <div class="discourse-item" onclick="abrirQA('${q.id}')">
+                <div class="discourse-item-left">
+                    <div class="discourse-thumb" style="background: #fff7ed; color: #f97316;"><span class="material-symbols-outlined">favorite</span></div>
+                    <div>
+                        <div class="discourse-title-text">${escaparHTML(q.titulo)}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-sub);">${escaparHTML(textoSub(q))}</div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    /* GESTIÓN DE IMÁGENES */
+    let imagenSeleccionadaActual = null;
+    const handlesActivos = new WeakSet();
+    let resizingActive = false;
+    let currentHandle = null;
+    let startX = 0, startWidth = 0;
+
+    document.addEventListener('click', (e) => {
+        const img = e.target.closest('img');
+        const cropToolbar = document.getElementById('imageCropToolbar');
+        const textToolbar = document.getElementById('floatingTextToolbar');
+
+        if (cropToolbar.contains(e.target)) return;
+
+        if (img && (img.closest('.editable-area') || img.closest('.reference-body-text') || img.closest('.qa-answer-input'))) {
+            e.stopPropagation();
+            envolverImagen(img);
+            return;
+        }
+
+        if (!e.target.closest('.image-wrapper') && !textToolbar.contains(e.target)) {
+            deseleccionarImagenActiva();
+        }
+    });
+
+    document.addEventListener('dblclick', (e) => {
+        const img = e.target.closest('img');
+        if (img && img.closest('.image-wrapper')) {
+            e.stopPropagation();
+            imagenSeleccionadaActual = img.closest('.image-wrapper');
+            mostrarBarraRecorte(imagenSeleccionadaActual, e);
+        }
+    });
+
+    function envolverImagen(img) {
+        if (img.parentElement.classList.contains('image-wrapper')) {
+            const wrapperExistente = img.parentElement;
+            // Reactiva los controles de tamaño de imágenes cargadas desde la nube
+            wrapperExistente.querySelectorAll('.resize-handle').forEach(handle => {
+                if (handlesActivos.has(handle)) return;
+                const pos = ['tl', 'tr', 'bl', 'br'].find(p => handle.classList.contains('handle-' + p)) || 'br';
+                handle.addEventListener('mousedown', (e) => iniciarRedimensionado(e, wrapperExistente, pos));
+                handle.addEventListener('touchstart', (e) => iniciarRedimensionadoTacto(e, wrapperExistente, pos));
+                handlesActivos.add(handle);
+            });
+            seleccionarImagenWrapper(wrapperExistente);
+            return;
+        }
+
+        const wrapper = document.createElement('span');
+        wrapper.className = 'image-wrapper';
+        wrapper.contentEditable = 'false';
+
+        ['tl', 'tr', 'bl', 'br'].forEach(pos => {
+            const handle = document.createElement('div');
+            handle.className = `resize-handle handle-${pos}`;
+            handle.addEventListener('mousedown', (e) => iniciarRedimensionado(e, wrapper, pos));
+            handle.addEventListener('touchstart', (e) => iniciarRedimensionadoTacto(e, wrapper, pos));
+            handlesActivos.add(handle);
+            wrapper.appendChild(handle);
+        });
+
+        img.parentNode.insertBefore(wrapper, img);
+        wrapper.appendChild(img);
+        seleccionarImagenWrapper(wrapper);
+    }
+
+    function seleccionarImagenWrapper(wrapper) {
+        deseleccionarImagenActiva();
+        imagenSeleccionadaActual = wrapper;
+        wrapper.classList.add('selected');
+    }
+
+    function deseleccionarImagenActiva() {
+        document.querySelectorAll('.image-wrapper.selected').forEach(w => w.classList.remove('selected'));
+        document.getElementById('imageCropToolbar').style.display = 'none';
+        imagenSeleccionadaActual = null;
+    }
+
+    function iniciarRedimensionado(e, wrapper, handlePos) {
+        e.preventDefault();
+        e.stopPropagation();
+        resizingActive = true;
+        currentHandle = handlePos;
+        startX = e.clientX;
+        startWidth = wrapper.querySelector('img').offsetWidth;
+
+        document.addEventListener('mousemove', enMovimientoRedimension);
+        document.addEventListener('mouseup', detenerRedimensionado);
+    }
+
+    function iniciarRedimensionadoTacto(e, wrapper, handlePos) {
+        e.stopPropagation();
+        resizingActive = true;
+        currentHandle = handlePos;
+        startX = e.touches[0].clientX;
+        startWidth = wrapper.querySelector('img').offsetWidth;
+
+        document.addEventListener('touchmove', enMovimientoRedimensionTacto);
+        document.addEventListener('touchend', detenerRedimensionadoTacto);
+    }
+
+    function enMovimientoRedimension(e) {
+        if (!resizingActive || !imagenSeleccionadaActual) return;
+        const img = imagenSeleccionadaActual.querySelector('img');
+        const deltaX = e.clientX - startX;
+        let nuevoAncho = currentHandle.includes('l') ? startWidth - deltaX : startWidth + deltaX;
+        if (nuevoAncho > 50 && nuevoAncho < window.innerWidth * 0.9) {
+            img.style.width = nuevoAncho + 'px';
+        }
+    }
+
+    function enMovimientoRedimensionTacto(e) {
+        if (!resizingActive || !imagenSeleccionadaActual) return;
+        const img = imagenSeleccionadaActual.querySelector('img');
+        const deltaX = e.touches[0].clientX - startX;
+        let nuevoAncho = currentHandle.includes('l') ? startWidth - deltaX : startWidth + deltaX;
+        if (nuevoAncho > 50 && nuevoAncho < window.innerWidth * 0.9) {
+            img.style.width = nuevoAncho + 'px';
+        }
+    }
+
+    function detenerRedimensionado() {
+        resizingActive = false;
+        document.removeEventListener('mousemove', enMovimientoRedimension);
+        document.removeEventListener('mouseup', detenerRedimensionado);
+    }
+
+    function detenerRedimensionadoTacto() {
+        resizingActive = false;
+        document.removeEventListener('touchmove', enMovimientoRedimensionTacto);
+        document.removeEventListener('touchend', detenerRedimensionadoTacto);
+    }
+
+    function mostrarBarraRecorte(wrapper, e) {
+        const toolbar = document.getElementById('imageCropToolbar');
+        const rect = wrapper.getBoundingClientRect();
+        toolbar.style.display = 'flex';
+        toolbar.style.top = Math.max(10, rect.top + window.scrollY - 55) + 'px';
+        toolbar.style.left = Math.max(10, rect.left + window.scrollX + (rect.width / 2) - 80) + 'px';
+    }
+
+    function recortarImagenAccion(modo) {
+        if (!imagenSeleccionadaActual) return;
+        const img = imagenSeleccionadaActual.querySelector('img');
+        if (modo === 'cuadrado') {
+            img.style.aspectRatio = '1 / 1';
+            img.style.objectFit = 'cover';
+            mostrarAlerta('Imagen recortada a formato cuadrado');
+        } else if (modo === 'horizontal') {
+            img.style.aspectRatio = '16 / 9';
+            img.style.objectFit = 'cover';
+            mostrarAlerta('Imagen recortada a formato horizontal');
+        } else if (modo === 'reset') {
+            img.style.aspectRatio = 'auto';
+            img.style.objectFit = 'fill';
+            img.style.width = '100%';
+            mostrarAlerta('Imagen restaurada');
+        }
+        document.getElementById('imageCropToolbar').style.display = 'none';
+    }
+
+    let targetEditableElement = null;
+
+    document.addEventListener('contextmenu', (e) => {
+        const editableTarget = e.target.closest('[contenteditable="true"], .editable-area, .reference-body-text, .qa-answer-input');
+        if (editableTarget) {
+            e.preventDefault();
+            targetEditableElement = editableTarget;
+
+            const menu = document.getElementById('cardContextMenu');
+            menu.style.top = Math.min(e.clientY, window.innerHeight - 70) + 'px';
+            menu.style.left = Math.min(e.clientX, window.innerWidth - 200) + 'px';
+            menu.classList.add('show');
+        }
+    });
+
+    window.addEventListener('click', () => {
+        const menu = document.getElementById('cardContextMenu');
+        if (menu) menu.classList.remove('show');
+        document.querySelectorAll('.ref-dropdown-menu').forEach(m => m.classList.remove('show'));
+        document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('show'));
+    });
+
+    function toggleRefDropdown(event, btn) {
+        event.stopPropagation();
+        document.querySelectorAll('.ref-dropdown-menu').forEach(m => {
+            if (m !== btn.nextElementSibling) m.classList.remove('show');
+        });
+        const dropdown = btn.nextElementSibling;
+        if (dropdown) dropdown.classList.toggle('show');
+    }
+
+    function toggleDropdownPanel(panelId, event) {
+        event.stopPropagation();
+        document.querySelectorAll('.dropdown-panel').forEach(p => {
+            if (p.id !== panelId) p.classList.remove('show');
+        });
+        const panel = document.getElementById(panelId);
+        if (panel) panel.classList.toggle('show');
+    }
+
+    function eliminarTarjetaReferencia(btn) {
+        const card = btn.closest('.reference-item-card');
+        if (card) {
+            const refId = card.getAttribute('data-ref-id') || card.id;
+            const mainEditor = vistaActivaActual === 'vistaDetalleBosquejo' 
+                ? document.getElementById('bosquejoEditorContent') 
+                : document.getElementById('qaEditorMainContent');
+
+            if (mainEditor && refId) {
+                const enlazados = mainEditor.querySelectorAll(`[data-refid="${refId}"]`);
+                enlazados.forEach(span => {
+                    const textoLimpio = span.textContent.replace('visibility', '').trim();
+                    const textNode = document.createTextNode(textoLimpio);
+                    span.parentNode.replaceChild(textNode, span);
+                });
+            }
+            card.remove();
+            mostrarAlerta('Referencia eliminada y desmarcada del texto');
+        }
+    }
+
+    function crearNuevoBosquejo() {
+        const esNuevoDiscurso = pestanaBosquejos === 'discursos';
+        const nuevoId = (esNuevoDiscurso ? 'd-' : 'b-') + Date.now();
+        const nuevo = {
+            id: nuevoId,
+            titulo: esNuevoDiscurso ? 'Nuevo Discurso' : 'Nuevo Bosquejo Personalizado',
+            sub: esNuevoDiscurso ? 'Discurso' : 'Creado recientemente',
+            scrollPos: 0,
+            contenido: `
+                <div class="reader-breadcrumb">${esNuevoDiscurso ? 'Discursos' : 'Bosquejos personalizados'}</div>
+                <h1>Nuevo Título del Discurso</h1>
+                <div class="reader-note" contenteditable="true">
+                    <strong>Nota:</strong> Escribe aquí tus notas...
+                </div>
+                <h2>Introducción (1 min.)</h2>
+                <p>Escribe aquí el contenido...</p>
+            `,
+            panelContenido: `
+                <div class="reference-item-card" data-ref-id="ref-init-${nuevoId}" id="ref-init-${nuevoId}">
+                    <div class="reference-card-header">
+                        <div class="reference-item-source editable-area" contenteditable="true">Punto clave</div>
+                        <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                        </button>
+                        <div class="ref-dropdown-menu">
+                            <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="reference-body-text editable-area" contenteditable="true">Añade información aquí...</div>
+                </div>
+            `
+        };
+        bosquejosData.push(nuevo);
+        programarGuardado(nuevo, 'bosquejo', true);
+        abrirBosquejo(nuevoId);
+        mostrarAlerta(esNuevoDiscurso ? '¡Discurso creado con éxito!' : '¡Bosquejo creado con éxito!');
+    }
+
+    function abrirBosquejo(id) {
+        guardarEstadoActual();
+        idBosquejoActual = id;
+        const b = bosquejosData.find(item => item.id === id);
+        if (b) {
+            document.getElementById('bosquejoEditorContent').innerHTML = b.contenido;
+            document.getElementById('activeDevelopmentView').innerHTML = b.panelContenido || '';
+            cambiarVista('vistaDetalleBosquejo', null);
+        }
+    }
+
+    function crearNuevoCuestionarioQA() {
+        const nuevoId = 'qa-' + Date.now();
+        const nuevo = {
+            id: nuevoId,
+            titulo: 'Nuevo Cuestionario de Estudio',
+            sub: 'Preguntas y Respuestas',
+            scrollPos: 0,
+            contenido: `
+                <div class="reader-breadcrumb">Preguntas y Respuestas</div>
+                
+                <div class="qa-top-action-bar">
+                    <button class="three-dots-btn" onclick="toggleQADropdown(event)" title="Opciones">
+                        <span class="material-symbols-outlined">more_vert</span>
+                    </button>
+                    
+                    <div class="qa-dropdown-menu" id="qaDropdownMenu">
+                        <button class="qa-dropdown-item" onclick="agregarNuevoTemaQA()">
+                            <span class="material-symbols-outlined" style="font-size: 18px; color: #f97316;">label_important</span> Añadir Tema
+                        </button>
+                        <button class="qa-dropdown-item" onclick="agregarNuevaPreguntaQA()">
+                            <span class="material-symbols-outlined" style="font-size: 18px; color: #2563eb;">add_circle</span> Añadir Pregunta
+                        </button>
+                    </div>
+                </div>
+
+                <div class="qa-theme-container">
+                    <div class="qa-theme-label">TEMA</div>
+                    <div class="qa-theme-title" contenteditable="true">Escribe el tema principal aquí...</div>
+                </div>
+                <div class="qa-item-block">
+                    <div class="qa-question-title" contenteditable="true">1. ¿Escribe la primera pregunta?</div>
+                    <div class="qa-answer-input" contenteditable="true" placeholder="Escribe tu respuesta aquí..."></div>
+                </div>
+                <div id="dynamicQAList"></div>
+            `,
+            panelContenido: `
+                <div class="reference-item-card">
+                    <div class="reference-card-header">
+                        <div class="reference-item-source editable-area" contenteditable="true">Nota general</div>
+                        <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                        </button>
+                        <div class="ref-dropdown-menu">
+                            <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="reference-body-text editable-area" contenteditable="true">Añade notas de apoyo aquí...</div>
+                </div>
+            `
+        };
+        qaData.push(nuevo);
+        programarGuardado(nuevo, 'qa', true);
+        abrirQA(nuevoId);
+        mostrarAlerta('¡Cuestionario creado con éxito!');
+    }
+
+    function abrirQA(id) {
+        guardarEstadoActual();
+        idQAActual = id;
+        const q = qaData.find(item => item.id === id);
+        if (q) {
+            document.getElementById('qaEditorMainContent').innerHTML = q.contenido;
+            document.getElementById('qaActiveDevelopmentView').innerHTML = q.panelContenido || '';
+            cambiarVista('vistaDetalleQA', null);
+        }
+    }
+
+    function toggleQADropdown(event) {
+        event.stopPropagation();
+        const menu = document.getElementById('qaDropdownMenu');
+        if (menu) menu.classList.toggle('show');
+    }
+
+    function toggleActivePanel() {
+        if (vistaActivaActual === 'vistaDetalleBosquejo') {
+            togglePanel();
+        } else if (vistaActivaActual === 'vistaDetalleQA') {
+            toggleQAPanel();
+        } else {
+            mostrarAlerta('Abre un documento para usar el panel lateral');
+        }
+    }
+
+    function togglePanel() {
+        const panelWrapper = document.getElementById('panelWrapper');
+        const backdrop = document.getElementById('panelBackdrop');
+        const icon = document.getElementById('toggleIcon');
+        const readerLayout = document.getElementById('readerLayout');
+
+        if (window.innerWidth < DESKTOP_BREAKPOINT) {
+            panelWrapper.classList.toggle('open');
+            backdrop.classList.toggle('open');
+            icon.innerText = panelWrapper.classList.contains('open') ? 'keyboard_arrow_right' : 'keyboard_arrow_left';
+        } else {
+            readerLayout.classList.toggle('panel-collapsed');
+            icon.innerText = readerLayout.classList.contains('panel-collapsed') ? 'keyboard_arrow_left' : 'keyboard_arrow_right';
+        }
+    }
+
+    function toggleQAPanel() {
+        const panelWrapper = document.getElementById('qaPanelWrapper');
+        const backdrop = document.getElementById('panelBackdrop');
+        const icon = document.getElementById('toggleIcon');
+        const qaLayout = document.getElementById('qaLayout');
+
+        if (window.innerWidth < DESKTOP_BREAKPOINT) {
+            panelWrapper.classList.toggle('open');
+            backdrop.classList.toggle('open');
+            icon.innerText = panelWrapper.classList.contains('open') ? 'keyboard_arrow_right' : 'keyboard_arrow_left';
+        } else {
+            qaLayout.classList.toggle('panel-collapsed');
+            icon.innerText = qaLayout.classList.contains('panel-collapsed') ? 'keyboard_arrow_left' : 'keyboard_arrow_right';
+        }
+    }
+
+    function mostrarPuntoPanel(id) {
+        const panelWrapper = document.getElementById(vistaActivaActual === 'vistaDetalleBosquejo' ? 'panelWrapper' : 'qaPanelWrapper');
+        const readerLayout = document.getElementById(vistaActivaActual === 'vistaDetalleBosquejo' ? 'readerLayout' : 'qaLayout');
+        const backdrop = document.getElementById('panelBackdrop');
+        const icon = document.getElementById('toggleIcon');
+
+        if (window.innerWidth < DESKTOP_BREAKPOINT) {
+            panelWrapper.classList.add('open');
+            backdrop.classList.add('open');
+            icon.innerText = 'keyboard_arrow_right';
+        } else {
+            if (readerLayout.classList.contains('panel-collapsed')) {
+                readerLayout.classList.remove('panel-collapsed');
+                icon.innerText = 'keyboard_arrow_right';
+            }
+        }
+
+        const tarjeta = document.getElementById(id);
+        if (tarjeta) {
+            tarjeta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            tarjeta.style.background = '#eff6ff';
+            setTimeout(() => { tarjeta.style.background = 'transparent'; }, 1200);
+        }
+        mostrarAlerta('Mostrando referencia en el panel');
+    }
+
+    let contadorPreguntasQA = 1;
+    function agregarNuevoTemaQA() {
+        const container = document.getElementById('dynamicQAList');
+        if(!container) return;
+        const divTema = document.createElement('div');
+        divTema.className = 'qa-theme-container';
+        divTema.innerHTML = `
+            <div class="qa-theme-label">TEMA</div>
+            <div class="qa-theme-title" contenteditable="true">Nuevo Tema o Sección...</div>
+        `;
+        container.appendChild(divTema);
+        mostrarAlerta('¡Tema añadido!');
+    }
+
+    function agregarNuevaPreguntaQA() {
+        const container = document.getElementById('dynamicQAList');
+        if(!container) return;
+        contadorPreguntasQA = document.querySelectorAll('#qaEditorMainContent .qa-item-block').length + 1;
+        const divBlock = document.createElement('div');
+        divBlock.className = 'qa-item-block';
+        divBlock.innerHTML = `
+            <div class="qa-question-title" contenteditable="true">${contadorPreguntasQA}. Escribe la nueva pregunta...</div>
+            <div class="qa-answer-input" contenteditable="true" placeholder="Escribe tu respuesta aquí..."></div>
+        `;
+        container.appendChild(divBlock);
+        mostrarAlerta('¡Pregunta añadida!');
+    }
+
+    function triggerGlobalImageUploadFromContext() {
+        document.getElementById('globalImageInput').click();
+    }
+
+    function handleGlobalImageUpload(event) {
+        const file = event.target.files[0];
+        if (file && targetEditableElement) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                targetEditableElement.appendChild(img);
+                envolverImagen(img);
+
+                const p = document.createElement('p');
+                p.innerHTML = '<br>';
+                targetEditableElement.appendChild(p);
+
+                mostrarAlerta('¡Imagen insertada con éxito!');
+            };
+            reader.readAsDataURL(file);
+        }
+        event.target.value = '';
+    }
+
+    let rangoSeleccionado = null;
+    const toolbar = document.getElementById('floatingTextToolbar');
+
+    document.addEventListener('mouseup', (e) => {
+        if (toolbar.contains(e.target) || document.getElementById('cardContextMenu').contains(e.target)) return;
+        const seleccion = window.getSelection();
+        if (!seleccion.isCollapsed && seleccion.toString().trim().length > 0) {
+            rangoSeleccionado = seleccion.getRangeAt(0);
+            const rect = rangoSeleccionado.getBoundingClientRect();
+            
+            toolbar.style.display = 'flex';
+            const topPos = Math.max(10, rect.top + window.scrollY - 55);
+            const leftPos = Math.max(10, Math.min(window.innerWidth - toolbar.offsetWidth - 10, rect.left + window.scrollX + (rect.width / 2) - (toolbar.offsetWidth / 2)));
+            
+            toolbar.style.top = topPos + 'px';
+            toolbar.style.left = leftPos + 'px';
+
+            let nodoPadre = rangoSeleccionado.commonAncestorContainer;
+            if (nodoPadre.nodeType === 3) nodoPadre = nodoPadre.parentNode;
+            targetEditableElement = nodoPadre.closest('[contenteditable="true"], .editable-area, .reference-body-text, .qa-answer-input');
+
+            const bloque = nodoPadre.closest('h1, h2, h3, p');
+            const selector = document.getElementById('headingSelector');
+            if (bloque && ['H1', 'H2', 'H3', 'P'].includes(bloque.tagName)) {
+                selector.value = bloque.tagName;
+            } else {
+                selector.value = 'P';
+            }
+        } else {
+            toolbar.style.display = 'none';
+        }
+    });
+
+    function aplicarFormatoSeleccion(comando, valor = null) {
+        document.execCommand(comando, false, valor);
+    }
+
+    function cambiarTipoTexto(tag) {
+        if (tag === 'P') {
+            document.execCommand('formatBlock', false, '<p>');
+        } else {
+            document.execCommand('formatBlock', false, '<' + tag + '>');
+        }
+    }
+
+    function aplicarColorTexto(colorHex) {
+        document.execCommand('styleWithCSS', false, true);
+        if (colorHex === 'inherit') {
+            document.execCommand('removeFormat', false, 'foreColor');
+        } else {
+            document.execCommand('foreColor', false, colorHex);
+        }
+        document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('show'));
+    }
+
+    function aplicarResaltado(colorHex) {
+        document.execCommand('styleWithCSS', false, true);
+        if (colorHex === 'transparent') {
+            document.execCommand('removeFormat', false, 'backColor');
+        } else {
+            document.execCommand('backColor', false, colorHex);
+        }
+        document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('show'));
+    }
+
+    function toggleNotaDesdeSeleccion() {
+        if (!rangoSeleccionado) return;
+        let nodoComun = rangoSeleccionado.commonAncestorContainer;
+        if (nodoComun.nodeType === 3) nodoComun = nodoComun.parentNode;
+
+        const notaExistente = nodoComun.closest('.reader-note');
+        if (notaExistente) {
+            const spanContenido = notaExistente.textContent.replace('Nota:', '').trim();
+            const textNode = document.createTextNode(spanContenido);
+            notaExistente.parentNode.replaceChild(textNode, notaExistente);
+            toolbar.style.display = 'none';
+            mostrarAlerta('Nota quitada con éxito');
+            return;
+        }
+
+        const textoSeleccionado = rangoSeleccionado.toString().trim();
+        if (!textoSeleccionado) return;
+
+        const divNota = document.createElement('div');
+        divNota.className = 'reader-note';
+        divNota.setAttribute('contenteditable', 'true');
+        divNota.innerHTML = `<strong>Nota:</strong> ${textoSeleccionado}`;
+
+        rangoSeleccionado.deleteContents();
+        rangoSeleccionado.insertNode(divNota);
+
+        toolbar.style.display = 'none';
+        mostrarAlerta('¡Nota creada con éxito!');
+    }
+
+    function crearReferenciaDesdeSeleccion() {
+        if (!rangoSeleccionado) return;
+        const textoSeleccionado = rangoSeleccionado.toString().trim();
+        const nuevaId = 'ref-' + Date.now();
+        const tituloRef = textoSeleccionado.length > 30 ? textoSeleccionado.substring(0, 30) + '...' : textoSeleccionado;
+
+        const spanEnlace = document.createElement('span');
+        spanEnlace.className = 'inline-reference';
+        spanEnlace.setAttribute('contenteditable', 'false');
+        spanEnlace.setAttribute('data-refid', nuevaId);
+        spanEnlace.setAttribute('onclick', `mostrarPuntoPanel('${nuevaId}')`);
+        spanEnlace.innerHTML = `${tituloRef} <span class="material-symbols-outlined" style="font-size: 14px;">visibility</span>`;
+
+        rangoSeleccionado.deleteContents();
+        rangoSeleccionado.insertNode(spanEnlace);
+
+        const panelContenido = document.getElementById(vistaActivaActual === 'vistaDetalleBosquejo' ? 'activeDevelopmentView' : 'qaActiveDevelopmentView');
+        if (panelContenido) {
+            const nuevaTarjeta = document.createElement('div');
+            nuevaTarjeta.className = 'reference-item-card';
+            nuevaTarjeta.id = nuevaId;
+            nuevaTarjeta.setAttribute('data-ref-id', nuevaId);
+            nuevaTarjeta.innerHTML = `
+                <div class="reference-card-header">
+                    <div class="reference-item-source editable-area" contenteditable="true">${tituloRef}</div>
+                    <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                    </button>
+                    <div class="ref-dropdown-menu">
+                        <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                        </button>
+                    </div>
+                </div>
+                <div class="reference-body-text editable-area" contenteditable="true">${textoSeleccionado}</div>
+            `;
+            panelContenido.prepend(nuevaTarjeta);
+        }
+
+        toolbar.style.display = 'none';
+        mostrarAlerta('¡Referencia creada con éxito!');
+        mostrarPuntoPanel(nuevaId);
+    }
+
+    iniciarApp();
+
+    // Instalación como app: registra el service worker (solo funciona en https o localhost)
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch(err => console.error('Service worker:', err));
+        });
+    }
+</script>
+
+</body>
+</html>
