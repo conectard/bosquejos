@@ -1,0 +1,82 @@
+# Compila el APK de la app Android "Bosquejos" en los servidores de GitHub.
+# Se ejecuta al subir cambios en app-android/ o a mano desde la pestaña "Actions".
+# El APK queda siempre en: Releases -> "android-latest" -> Bosquejos.apk
+name: Android APK
+
+on:
+  push:
+    paths:
+      - 'app-android/**'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app-android
+    env:
+      APP_VERSION_CODE: ${{ github.run_number }}
+      APP_VERSION_NAME: 1.0.${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Copiar la app web al proyecto Android
+        run: npx cap sync android
+
+      - name: Preparar llave de firma (opcional)
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/bosquejos.jks"
+            echo "KEYSTORE_FILE=$RUNNER_TEMP/bosquejos.jks" >> "$GITHUB_ENV"
+            echo "Se usará la llave fija."
+          else
+            echo "Sin llave fija: se firma con llave de prueba (debug)."
+          fi
+
+      - name: Compilar APK
+        working-directory: app-android/android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          if [ -n "$KEYSTORE_FILE" ]; then
+            ./gradlew assembleRelease --no-daemon
+            cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/Bosquejos.apk"
+          else
+            ./gradlew assembleDebug --no-daemon
+            cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Bosquejos.apk"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Bosquejos-apk
+          path: Bosquejos.apk
+
+      - name: Publicar en Releases (android-latest)
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view android-latest >/dev/null 2>&1 || \
+            gh release create android-latest --title "App Android (última)" --notes "APK de Bosquejos. Descárgalo en la tableta y ábrelo para instalarlo."
+          gh release upload android-latest Bosquejos.apk --clobber
+          gh release edit android-latest --notes "APK de Bosquejos — compilación ${{ github.run_number }} ($(date -u +'%Y-%m-%d %H:%M') UTC). Descárgalo en la tableta y ábrelo para instalarlo."

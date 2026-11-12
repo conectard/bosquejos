@@ -1,0 +1,16 @@
+{
+  "appId": "com.bosquejos.app",
+  "appName": "Bosquejos",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#ffffff"
+  },
+  "plugins": {
+    "CapacitorUpdater": {
+      "autoUpdate": false,
+      "statsUrl": "",
+      "resetWhenUpdate": false,
+      "appReadyTimeout": 15000
+    }
+  }
+}

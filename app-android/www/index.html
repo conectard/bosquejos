@@ -1,0 +1,4174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bosquejos y Cuestionarios</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Bosquejos, discursos y cuestionarios de estudio.">
+<!-- Instalación como app (PWA) -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bosquejos">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://awgnkfosohvdsreipgje.supabase.co" crossorigin>
+<link rel="preload" href="fonts/material-symbols-outlined.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+    /* Fuentes incluidas en la app (funcionan sin internet) */
+    @font-face {
+        font-family: 'Material Symbols Outlined';
+        font-style: normal;
+        font-weight: 400;
+        font-display: block;
+        src: url(fonts/material-symbols-outlined.woff2) format('woff2');
+    }
+    @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(fonts/inter-latin-ext.woff2) format('woff2');
+        unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url(fonts/inter-latin.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    :root {
+        --bg-body: #ffffff;
+        --text-main: #0f172a;
+        --text-sub: #64748b;
+        --border-light: #f1f5f9;
+        --radius-xl: 24px;
+        --radius-md: 12px;
+        --reference-blue: #2563eb;
+        --theme-purple: #7c3aed;
+        
+        /* Variables dinámicas de tamaño de fuente */
+        --font-size-ref: 0.9rem;
+        --font-size-qa: 0.95rem;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* NITIDEZ DE TEXTO Y ELEMENTOS */
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        font-optical-sizing: auto;
+        font-kerning: normal;
+        font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined' !important;
+        font-weight: normal;
+        font-style: normal;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        font-feature-settings: "liga" 1;
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+
+    img {
+        image-rendering: auto;
+        image-rendering: high-quality;
+    }
+
+    body {
+        background: #ffffff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        color: var(--text-main);
+    }
+
+    /* MENÚ INFERIOR EN MÓVIL Y TABLETAS DE HASTA 10 PULGADAS */
+    .icon-menu {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 64px;
+        background: #ffffff;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0 12px;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+        z-index: 1000;
+    }
+
+    .nav-item {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        color: #94a3b8;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        border-radius: 50%;
+        position: relative;
+        user-select: none;
+    }
+
+    .nav-item span {
+        font-size: 22px;
+    }
+
+    /* En pantallas táctiles no hay "pasar el mouse": así el primer toque abre directamente */
+    @media (hover: hover) {
+        .nav-item:hover {
+            color: #0f172a;
+            background: #f8fafc;
+        }
+    }
+    .nav-item {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+
+    .nav-item.active {
+        background: #000000;
+        color: #ffffff;
+        transform: translateY(-4px);
+    }
+
+    .nav-item::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 54px;
+        background: #0f172a;
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 6px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+
+    @media (hover: hover) {
+        .nav-item:hover::after {
+            opacity: 1;
+        }
+    }
+    @media (hover: none) {
+        .nav-item::after {
+            display: none;
+        }
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .main-content {
+        margin-left: 0;
+        margin-bottom: 64px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 64px);
+        background: #ffffff;
+        position: relative;
+    }
+
+    /* VISTAS */
+    .view {
+        display: none;
+        flex: 1;
+        flex-direction: column;
+        padding: 24px 20px;
+        max-width: 1350px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .view.active {
+        display: flex;
+    }
+
+    .section-header-small {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 4px;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -0.3px;
+        margin-bottom: 20px;
+    }
+
+    /* LISTAS Y CABECERAS */
+    .list-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .icon-btn-add {
+        width: 38px;
+        height: 38px;
+        background: var(--theme-purple);
+        color: #ffffff;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        transition: transform 0.2s;
+    }
+    .icon-btn-add:hover {
+        transform: scale(1.08);
+    }
+
+    .discourse-list-container {
+        background: #ffffff;
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+
+    .discourse-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-light);
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .discourse-item:hover {
+        background: #f8fafc;
+    }
+
+    .discourse-item-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .discourse-thumb {
+        width: 40px;
+        height: 50px;
+        background: #f1f5f9;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+    }
+
+    /* SECCIÓN CONFIGURACIÓN */
+    .settings-item {
+        border-bottom: 1px solid var(--border-light);
+    }
+    .settings-item:last-child {
+        border-bottom: none;
+    }
+    .settings-head {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 20px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        color: var(--text-main);
+        transition: background 0.15s;
+    }
+    .settings-head:hover {
+        background: #f8fafc;
+    }
+    .settings-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .settings-icon .material-symbols-outlined {
+        font-size: 20px;
+    }
+    .settings-text {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+    .settings-title {
+        font-size: 0.92rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .settings-desc {
+        font-size: 0.75rem;
+        color: var(--text-sub);
+    }
+    .settings-pill {
+        background: #059669;
+        color: #fff;
+        font-size: 0.62rem;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 10px;
+        letter-spacing: 0.3px;
+    }
+    .settings-chevron {
+        color: #94a3b8;
+        font-size: 22px;
+        transition: transform 0.2s ease;
+    }
+    .settings-item.open .settings-chevron {
+        transform: rotate(180deg);
+    }
+    .settings-body {
+        display: none;
+        flex-direction: column;
+        gap: 14px;
+        padding: 4px 20px 20px 72px;
+    }
+    .settings-item.open .settings-body {
+        display: flex;
+    }
+    .settings-info-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 0.82rem;
+        color: var(--text-sub);
+        border-bottom: 1px dashed #e2e8f0;
+        padding-bottom: 8px;
+    }
+    .settings-info-row strong {
+        color: var(--text-main);
+        font-weight: 600;
+        text-align: right;
+    }
+    .settings-status {
+        font-size: 0.8rem;
+        color: var(--text-sub);
+        line-height: 1.5;
+    }
+    .settings-status:empty {
+        display: none;
+    }
+    .settings-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .settings-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 14px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: var(--text-main);
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .settings-btn .material-symbols-outlined {
+        font-size: 18px;
+    }
+    .settings-btn:hover {
+        background: #f8fafc;
+        border-color: #94a3b8;
+    }
+    .settings-btn.primary {
+        background: var(--theme-purple);
+        border-color: var(--theme-purple);
+        color: #ffffff;
+    }
+    .settings-btn.primary:hover {
+        background: #6d28d9;
+    }
+    .settings-btn:disabled {
+        opacity: 0.6;
+        cursor: wait;
+    }
+    .settings-btn[hidden] {
+        display: none;
+    }
+    .nav-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #059669;
+        border: 2px solid #ffffff;
+        display: none;
+    }
+    .nav-badge.show {
+        display: block;
+    }
+    @media (max-width: 600px) {
+        .settings-head { padding: 12px 14px; gap: 12px; }
+        .settings-body { padding: 4px 14px 16px 14px; }
+        .settings-icon { width: 34px; height: 34px; }
+    }
+
+    /* PESTAÑAS BOSQUEJOS / DISCURSOS */
+    .list-tabs {
+        display: flex;
+        gap: 24px;
+        padding: 0 20px;
+        border-bottom: 1px solid var(--border-light);
+    }
+    .list-tab {
+        position: relative;
+        background: none;
+        border: none;
+        padding: 14px 2px 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: var(--text-sub);
+        cursor: pointer;
+        transition: color 0.15s;
+    }
+    .list-tab:hover {
+        color: var(--text-main);
+    }
+    .list-tab.active {
+        color: var(--text-main);
+    }
+    .list-tab.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -1px;
+        height: 2px;
+        background: var(--text-main);
+        border-radius: 2px 2px 0 0;
+    }
+    @media (min-width: 1100px) {
+        .list-tabs { padding: 0 20px; gap: 28px; }
+    }
+
+    .discourse-title-text {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    /* MODAL DE CONFIGURACIÓN */
+    .config-modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(0,0,0,0.4);
+        z-index: 5000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+    .config-modal-backdrop.show {
+        display: flex;
+        opacity: 1;
+    }
+    .config-modal {
+        background: #ffffff;
+        border-radius: var(--radius-xl);
+        width: 90%;
+        max-width: 400px;
+        padding: 24px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .config-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+        border-bottom: 1px solid var(--border-light);
+        padding-bottom: 12px;
+    }
+    .config-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .config-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-sub);
+    }
+    .config-controls-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius-md);
+        padding: 8px 14px;
+    }
+    .config-btn-action {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: var(--text-main);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-weight: 700;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .config-btn-action:hover {
+        background: #f1f5f9;
+        border-color: var(--theme-purple);
+        color: var(--theme-purple);
+    }
+
+    /* MENÚ CONTEXTUAL GLOBAL PARA CLIC DERECHO */
+    .card-context-menu {
+        position: fixed;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius-md);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        width: 190px;
+        display: none;
+        flex-direction: column;
+        z-index: 6000;
+        overflow: hidden;
+    }
+    .card-context-menu.show {
+        display: flex;
+    }
+    .card-context-item {
+        padding: 11px 14px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-main);
+        background: transparent;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.15s;
+    }
+    .card-context-item:hover {
+        background: #f8fafc;
+        color: var(--theme-purple);
+    }
+
+    /* VISTA LECTOR / EDITOR */
+    .reader-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        align-items: start;
+        position: relative;
+    }
+
+    .reader-card {
+        background: #ffffff;
+        border: none;
+        border-radius: 0;
+        padding: 10px 0;
+        box-shadow: none;
+        position: relative;
+    }
+
+    /* ÁREA EDITABLE DEL DISCURSO (APLICA TAMAÑO DINÁMICO DE REFERENCIAS) */
+    .editable-area {
+        outline: none;
+        border: none;
+        background: transparent;
+        width: 100%;
+        color: var(--text-main);
+        font-size: var(--font-size-ref) !important;
+    }
+    .editable-area h1,
+    .editable-area h2,
+    .editable-area h3,
+    .editable-area p,
+    .editable-area div {
+        color: inherit;
+    }
+    .editable-area h1 {
+        font-size: calc(var(--font-size-ref) + 0.7rem);
+        font-weight: 800;
+        line-height: 1.3;
+        margin-bottom: 18px;
+    }
+    .editable-area h2 {
+        font-size: calc(var(--font-size-ref) + 0.35rem);
+        font-weight: 800;
+        line-height: 1.35;
+        margin-top: 22px;
+        margin-bottom: 12px;
+    }
+    .editable-area h3 {
+        font-size: calc(var(--font-size-ref) + 0.15rem);
+        font-weight: 700;
+        line-height: 1.4;
+        margin-top: 18px;
+        margin-bottom: 10px;
+    }
+    .editable-area p {
+        font-size: var(--font-size-ref);
+        font-weight: 400;
+        line-height: 1.7;
+        margin-bottom: 16px;
+    }
+
+    /* ESTILOS DE IMÁGENES EDITABLES Y CONTENEDOR DE SELECCIÓN/RECROTE */
+    .editable-area img {
+        max-width: 100%;
+        border-radius: 8px;
+        margin: 12px 0;
+        display: block;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: outline 0.15s;
+    }
+
+    .image-wrapper {
+        display: inline-block;
+        position: relative;
+        margin: 12px 0;
+        max-width: 100%;
+        user-select: none;
+    }
+    .image-wrapper img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .image-wrapper.selected {
+        outline: 2px dashed var(--theme-purple);
+        outline-offset: 4px;
+    }
+
+    .resize-handle {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: var(--theme-purple);
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        display: none;
+        z-index: 10;
+    }
+    .image-wrapper.selected .resize-handle {
+        display: block;
+    }
+    .handle-tl { top: -6px; left: -6px; cursor: nwse-resize; }
+    .handle-tr { top: -6px; right: -6px; cursor: nesw-resize; }
+    .handle-bl { bottom: -6px; left: -6px; cursor: nesw-resize; }
+    .handle-br { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+    #imageCropToolbar {
+        position: absolute;
+        display: none;
+        background: #0f172a;
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 20px;
+        gap: 8px;
+        z-index: 5500;
+        align-items: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+        pointer-events: auto !important;
+        width: max-content;
+        max-width: calc(100vw - 16px);
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    #imageCropToolbar .btn-eliminar-imagen {
+        color: #fca5a5;
+    }
+    #imageCropToolbar .btn-eliminar-imagen:hover {
+        background: rgba(239, 68, 68, 0.25);
+        color: #fff;
+    }
+    #imageCropToolbar button {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 8px;
+        cursor: pointer;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: background 0.15s;
+    }
+    #imageCropToolbar button:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+    .reader-breadcrumb {
+        font-size: 0.75rem;
+        color: var(--text-sub) !important;
+        margin-bottom: 12px;
+        font-weight: 500;
+    }
+
+    /* CONTENEDOR DE NOTA */
+    .reader-note {
+        font-size: var(--font-size-ref);
+        color: var(--text-main);
+        background: #f8fafc;
+        border-left: 4px solid #cbd5e1;
+        padding: 14px 18px;
+        border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        margin-bottom: 24px;
+        line-height: 1.5;
+        position: relative;
+        outline: none;
+    }
+
+    /* ESTILOS Q&A */
+    .qa-theme-container {
+        border-left: 4px solid #f97316;
+        padding-left: 16px;
+        margin: 24px 0 20px 0;
+        outline: none !important;
+        background: transparent;
+    }
+    .qa-theme-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    .qa-theme-title {
+        font-size: calc(var(--font-size-qa) + 0.25rem);
+        font-weight: 700;
+        color: var(--text-main);
+        outline: none !important;
+        border: none !important;
+        background: transparent;
+    }
+
+    .qa-item-block {
+        margin-bottom: 24px;
+        position: relative;
+    }
+
+    .qa-question-title {
+        font-size: var(--font-size-qa);
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 8px;
+        outline: none;
+    }
+
+    .qa-answer-input, .qa-item-block, .qa-theme-container {
+        font-size: var(--font-size-qa) !important;
+    }
+    .qa-answer-input {
+        width: 100%;
+        min-height: 48px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 12px;
+        background: #ffffff;
+        outline: none;
+        color: var(--text-main);
+        transition: border-color 0.2s;
+    }
+    .qa-answer-input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+
+    /* BARRA SUPERIOR Q&A */
+    .qa-top-action-bar {
+        display: flex;
+        justify-content: flex-end;
+        position: relative;
+        margin-bottom: 16px;
+    }
+
+    .three-dots-btn {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        color: var(--text-main);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .three-dots-btn:hover {
+        background: #e2e8f0;
+    }
+
+    .qa-dropdown-menu {
+        position: absolute;
+        top: 48px;
+        right: 0;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius-md);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        width: 210px;
+        display: none;
+        flex-direction: column;
+        z-index: 500;
+        overflow: hidden;
+    }
+    .qa-dropdown-menu.show {
+        display: flex;
+    }
+
+    .qa-dropdown-item {
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-main);
+        background: transparent;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.15s;
+    }
+    .qa-dropdown-item:hover {
+        background: #f8fafc;
+        color: var(--theme-purple);
+    }
+
+    /* ENLACES DE REFERENCIA */
+    /* Texto con referencia (estilo original): azul, con fondo y el ojo. Se abre tocando cualquier parte. */
+    .inline-reference {
+        color: var(--reference-blue) !important;
+        cursor: pointer;
+        font-weight: 600;
+        display: inline;
+        padding: 2px 6px;
+        background: #eff6ff;
+        border-radius: 4px;
+        transition: all 0.15s;
+        position: relative;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+    }
+    .inline-reference:hover,
+    .inline-reference.ref-activa-texto {
+        background: #dbeafe;
+    }
+    .inline-reference .material-symbols-outlined {
+        font-size: 14px !important;
+        vertical-align: -2px;
+        margin-left: 2px;
+    }
+
+    /* Panel de referencias: solo se ve una a la vez */
+    #activeDevelopmentView .reference-item-card:not(.ref-activa),
+    #qaActiveDevelopmentView .reference-item-card:not(.ref-activa) {
+        display: none;
+    }
+    #activeDevelopmentView:not(:has(.reference-item-card))::before,
+    #qaActiveDevelopmentView:not(:has(.reference-item-card))::before {
+        content: 'Selecciona un texto y pulsa “Ref” para crear una referencia.';
+        display: block;
+        font-size: 0.85rem;
+        color: var(--text-sub);
+        padding: 8px 0;
+    }
+
+    /* SECCIÓN DE REFERENCIA */
+    .reference-item-card {
+        background: transparent;
+        border: none;
+        padding: 6px 0 16px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        position: relative;
+        margin-bottom: 14px;
+        border-bottom: 1px solid var(--border-light);
+        transition: background 0.3s ease;
+        border-radius: 8px;
+        font-size: var(--font-size-ref) !important;
+    }
+    
+    .reference-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 8px;
+        position: relative;
+    }
+    .reference-card-header .ref-options-btn {
+        flex-shrink: 0;
+        margin-top: -2px;
+    }
+    .reference-item-source img,
+    .reference-body-text img {
+        max-width: 100%;
+    }
+
+    .reference-item-source {
+        font-size: calc(var(--font-size-ref) + 0.05rem);
+        font-weight: 700;
+        color: var(--theme-purple);
+        min-width: 0;
+        overflow-wrap: anywhere;
+        outline: none;
+        flex: 1;
+        background: transparent;
+        border: none;
+    }
+
+    .ref-options-btn {
+        background: none;
+        border: none;
+        color: var(--text-sub);
+        cursor: pointer;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s;
+    }
+    .ref-options-btn:hover {
+        background: #e2e8f0;
+        color: var(--text-main);
+    }
+
+    .ref-dropdown-menu {
+        position: absolute;
+        top: 36px;
+        right: 0;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        width: 140px;
+        display: none;
+        flex-direction: column;
+        z-index: 1000;
+        overflow: hidden;
+    }
+    .ref-dropdown-menu.show {
+        display: flex;
+    }
+    .ref-dropdown-item {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #dc2626;
+        background: transparent;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        text-align: left;
+    }
+    .ref-dropdown-item:hover {
+        background: #fee2e2;
+    }
+
+    /* Misma letra en el discurso y en las referencias (también en texto pegado de otras páginas) */
+    .editable-area *:not(.material-symbols-outlined),
+    .reference-body-text *:not(.material-symbols-outlined),
+    .reader-note *:not(.material-symbols-outlined),
+    .qa-answer-input *:not(.material-symbols-outlined) {
+        font-family: inherit !important;
+    }
+    .reference-body-text span,
+    .reference-body-text font,
+    .reference-body-text div,
+    .reference-body-text p,
+    .reference-body-text li {
+        font-size: inherit !important;
+        line-height: inherit !important;
+    }
+    .reference-body-text p {
+        margin-bottom: 12px;
+    }
+
+    .reference-body-text {
+        font-size: var(--font-size-ref) !important;
+        color: var(--text-main);
+        font-weight: 400;
+        line-height: 1.7;
+        outline: none;
+        padding: 2px 0;
+        background: transparent;
+        border: none;
+        min-height: 60px;
+    }
+
+    /* BOTÓN FLOTANTE */
+    .floating-panel-toggle {
+        position: fixed;
+        bottom: 84px;
+        right: 24px;
+        width: 50px;
+        height: 50px;
+        background: var(--theme-purple);
+        color: #ffffff;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+        z-index: 3500;
+    }
+
+    .floating-panel-toggle span {
+        font-size: 24px;
+    }
+
+    /* PANEL LATERAL / DRAWER */
+    .reference-box-wrapper {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        left: auto;
+        width: 100%;
+        max-width: 440px;
+        height: 100vh;
+        background: #ffffff;
+        box-shadow: -5px 0 30px rgba(0,0,0,0.15);
+        z-index: 2500;
+        transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .reference-box-wrapper.open {
+        right: 0;
+    }
+
+    .panel-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(0,0,0,0.4);
+        z-index: 2400;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .panel-backdrop.open {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .reference-box {
+        background: #ffffff;
+        border: none;
+        height: 100%;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        overflow-y: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .reference-box::-webkit-scrollbar {
+        display: none;
+    }
+
+    .reference-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-main);
+        border-bottom: 1px solid var(--border-light);
+        padding-bottom: 12px;
+    }
+
+    /* BARRA FLOTANTE DE TEXTO */
+    #floatingTextToolbar {
+        position: absolute;
+        display: none;
+        background: #0f172a;
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 24px;
+        gap: 6px;
+        z-index: 5000;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+        align-items: center;
+        width: max-content;
+        max-width: calc(100vw - 16px);
+        flex-wrap: wrap;
+        justify-content: center;
+        pointer-events: auto !important;
+    }
+
+    #floatingTextToolbar * {
+        pointer-events: auto !important;
+    }
+
+    #floatingTextToolbar button {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 6px;
+        cursor: pointer;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s;
+    }
+    #floatingTextToolbar button:hover {
+        background: rgba(255,255,255,0.15);
+    }
+
+    .toolbar-divider {
+        width: 1px;
+        height: 16px;
+        background: rgba(255,255,255,0.2);
+    }
+
+    .heading-select {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        padding: 3px 6px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        outline: none;
+    }
+    .heading-select option {
+        background: #0f172a;
+        color: #ffffff;
+    }
+
+    .dropdown-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-toggle-btn {
+        background: rgba(255, 255, 255, 0.12) !important;
+        border-radius: 14px !important;
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        white-space: nowrap;
+    }
+    .dropdown-toggle-btn:hover {
+        background: rgba(255, 255, 255, 0.25) !important;
+    }
+
+    .dropdown-panel {
+        position: absolute;
+        bottom: 42px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1e293b;
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 12px;
+        padding: 10px;
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        z-index: 5500;
+        white-space: nowrap;
+    }
+    .dropdown-panel.show {
+        display: flex;
+    }
+    /* Si no hay espacio arriba, el menú se abre hacia abajo */
+    .dropdown-panel.abajo {
+        bottom: auto;
+        top: 42px;
+    }
+
+    .color-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .color-dot {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.8);
+        cursor: pointer;
+        padding: 0 !important;
+        transition: transform 0.15s;
+    }
+    .color-dot:hover {
+        transform: scale(1.2);
+    }
+
+    .highlight-option-clean {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.4);
+        cursor: pointer;
+        padding: 0 !important;
+        transition: transform 0.15s;
+    }
+    .highlight-option-clean:hover {
+        transform: scale(1.2);
+    }
+
+    .remove-highlight-btn {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        border: none;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 5px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        text-align: center;
+    }
+    .remove-highlight-btn:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+    .diamond-btn {
+        background: linear-gradient(135deg, #a855f7, #7c3aed) !important;
+        color: #fff !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        border-radius: 16px !important;
+        padding: 4px 9px !important;
+    }
+
+    .note-btn {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+        color: #fff !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        border-radius: 16px !important;
+        padding: 4px 9px !important;
+    }
+
+    .btn-back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--text-sub);
+        background: none;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 16px;
+    }
+    .btn-back-link:hover { color: var(--text-main); }
+
+    /* TOAST */
+    .toast-msg {
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(15, 23, 42, 0.9);
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-size: 11px;
+        font-weight: 500;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 7000;
+        white-space: nowrap;
+    }
+    .toast-msg.show { opacity: 1; }
+
+    /* El panel lateral oculto no debe dejar sombra en el borde de la pantalla */
+    @media (max-width: 1099px) {
+        .reference-box-wrapper { box-shadow: none; }
+        .reference-box-wrapper.open { box-shadow: -5px 0 30px rgba(0,0,0,0.15); }
+    }
+
+    /* TABLETAS EN VERTICAL (601px – 1099px, p. ej. tabletas de 10") */
+    @media (min-width: 601px) and (max-width: 1099px) {
+        /* Escala general un poco mayor: la tableta se lee a más distancia.
+           El ajuste A+/A- de Configuración sigue funcionando encima de esto. */
+        html {
+            font-size: 20px;
+        }
+
+        .view {
+            padding: 28px 32px;
+        }
+
+        /* Listas */
+        .section-title {
+            font-size: 1.3rem;
+        }
+        .list-tabs {
+            padding: 0 24px;
+            gap: 28px;
+        }
+        .discourse-item {
+            padding: 16px 24px;
+        }
+        .discourse-item-left {
+            gap: 16px;
+        }
+
+        /* Lector: tarjeta centrada con ancho de lectura cómodo */
+        .reader-layout {
+            max-width: 760px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .btn-back-link {
+            max-width: 760px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .reader-card {
+            padding: 32px 36px;
+            background: #ffffff;
+            border-radius: var(--radius-xl);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border: 1px solid var(--border-light);
+        }
+        .editable-area h1 {
+            font-size: calc(var(--font-size-ref) + 0.55rem);
+            line-height: 1.25;
+        }
+        .editable-area h2 {
+            font-size: calc(var(--font-size-ref) + 0.28rem);
+        }
+        .editable-area h3 {
+            font-size: calc(var(--font-size-ref) + 0.12rem);
+        }
+        .editable-area p {
+            line-height: 1.7;
+        }
+
+        /* Panel lateral (cajón) más amplio en tableta */
+        .reference-box-wrapper {
+            max-width: 480px;
+        }
+        .reference-box {
+            padding: 28px;
+        }
+
+        /* Menú inferior con objetivos táctiles más cómodos */
+        .icon-menu {
+            height: 68px;
+        }
+        .main-content {
+            margin-bottom: 68px;
+            min-height: calc(100vh - 68px);
+        }
+        .nav-item {
+            width: 48px;
+            height: 48px;
+        }
+        .nav-item span {
+            font-size: 24px;
+        }
+        .floating-panel-toggle {
+            bottom: 92px;
+            right: 28px;
+            width: 54px;
+            height: 54px;
+        }
+        .toast-msg {
+            bottom: 88px;
+            font-size: 0.75rem;
+        }
+
+        /* Barra de formato con botones más fáciles de tocar */
+        #floatingTextToolbar button {
+            font-size: 13px;
+            padding: 6px 8px;
+        }
+    }
+
+    /* TAMAÑOS DE LETRA OPTIMIZADOS PARA CELULARES (≤ 600px) */
+    @media (max-width: 600px) {
+        /* Letra base un poco más grande en el celular (A+/A- de Configuración sigue funcionando encima) */
+        html {
+            font-size: 18.5px;
+        }
+
+        .view {
+            padding: 18px 16px;
+        }
+
+        /* Cabeceras de lista */
+        .section-header-small {
+            font-size: 0.65rem;
+            margin-bottom: 2px;
+        }
+        .section-title {
+            font-size: 1.12rem;
+        }
+        .list-header-row {
+            margin-bottom: 12px;
+        }
+        .icon-btn-add {
+            width: 36px;
+            height: 36px;
+        }
+        .icon-btn-add .material-symbols-outlined {
+            font-size: 20px;
+        }
+
+        /* Pestañas */
+        .list-tabs {
+            gap: 20px;
+            padding: 0 14px;
+        }
+        .list-tab {
+            font-size: 0.7rem;
+            padding: 12px 2px 10px;
+        }
+
+        /* Elementos de la lista */
+        .discourse-item {
+            padding: 12px 14px;
+        }
+        .discourse-item-left {
+            gap: 12px;
+        }
+        .discourse-thumb {
+            width: 34px;
+            height: 42px;
+            flex-shrink: 0;
+        }
+        .discourse-thumb .material-symbols-outlined {
+            font-size: 20px;
+        }
+        .discourse-title-text {
+            font-size: 0.88rem;
+            line-height: 1.3;
+        }
+        .discourse-title-text + div {
+            font-size: 0.68rem !important;
+            margin-top: 2px;
+        }
+
+        /* Lector / editor: títulos proporcionados a la pantalla */
+        .btn-back-link {
+            font-size: 0.78rem;
+            margin-bottom: 12px;
+        }
+        .reader-breadcrumb {
+            font-size: 0.68rem;
+            margin-bottom: 8px;
+        }
+        .editable-area h1 {
+            font-size: calc(var(--font-size-ref) + 0.38rem);
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .editable-area h2 {
+            font-size: calc(var(--font-size-ref) + 0.18rem);
+            line-height: 1.3;
+            margin-top: 18px;
+            margin-bottom: 8px;
+        }
+        .editable-area h3 {
+            font-size: calc(var(--font-size-ref) + 0.08rem);
+            margin-top: 14px;
+            margin-bottom: 8px;
+        }
+        .editable-area p {
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .reader-note {
+            padding: 10px 14px;
+            margin-bottom: 18px;
+        }
+
+        /* Preguntas y respuestas */
+        .qa-theme-container {
+            margin: 18px 0 16px 0;
+            padding-left: 12px;
+        }
+        .qa-theme-label {
+            font-size: 0.65rem;
+        }
+        .qa-theme-title {
+            font-size: calc(var(--font-size-qa) + 0.12rem);
+        }
+        .qa-item-block {
+            margin-bottom: 18px;
+        }
+        .qa-answer-input {
+            padding: 10px;
+        }
+
+        /* Panel lateral de referencias */
+        .reference-box {
+            padding: 18px 16px;
+        }
+        .reference-header-top {
+            font-size: 0.85rem;
+        }
+
+        /* Menú inferior */
+        .nav-item span {
+            font-size: 21px;
+        }
+        .toast-msg {
+            font-size: 0.7rem;
+            max-width: calc(100vw - 32px);
+            white-space: normal;
+            text-align: center;
+        }
+    }
+
+    /* ADAPTACIÓN EXCLUSIVA PARA MONITORES DE COMPUTADORA (> 1100px) */
+    @media (min-width: 1100px) {
+        .icon-menu {
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            gap: 24px;
+            padding: 20px 0;
+            border-top: none;
+            border-right: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-item::after {
+            bottom: auto;
+            left: 54px;
+        }
+
+        .main-content {
+            margin-left: 60px;
+            margin-bottom: 0;
+            min-height: 100vh;
+        }
+
+        .view {
+            padding: 32px 40px;
+        }
+
+        .reader-layout {
+            grid-template-columns: 1fr 420px;
+            gap: 24px;
+        }
+
+        .reader-layout.panel-collapsed {
+            grid-template-columns: 1fr 0px;
+        }
+
+        .reader-card {
+            padding: 40px;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border-radius: var(--radius-xl);
+        }
+
+        .reference-box-wrapper {
+            position: sticky;
+            top: 24px;
+            right: auto;
+            left: auto;
+            width: 100%;
+            height: auto;
+            max-width: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border-radius: var(--radius-xl);
+            background: #ffffff;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .reader-layout.panel-collapsed .reference-box-wrapper {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(20px);
+        }
+
+        .panel-backdrop {
+            display: none !important;
+        }
+
+        .reference-box {
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .reference-box::-webkit-scrollbar {
+            display: none;
+        }
+
+        .floating-panel-toggle {
+            bottom: 30px;
+            right: 30px;
+        }
+    }
+
+    /* TABLETAS EN HORIZONTAL (1100px – 1366px) — va después del bloque de computadora */
+    @media (min-width: 1100px) and (max-width: 1366px) {
+        .view {
+            padding: 28px 28px;
+        }
+        .reader-layout {
+            grid-template-columns: 1fr 360px;
+            gap: 20px;
+        }
+        .reader-layout.panel-collapsed {
+            grid-template-columns: 1fr 0px;
+        }
+        .reader-card {
+            padding: 32px;
+        }
+    }
+    @media (min-width: 1100px) and (max-width: 1366px) and (pointer: coarse) {
+        html {
+            font-size: 19.5px;
+        }
+    }
+    /* Tabletas en horizontal cuyo navegador no reporta el toque como puntero principal */
+    @media (min-width: 1100px) and (max-width: 1366px) and (any-pointer: coarse) and (hover: none) {
+        html {
+            font-size: 19.5px;
+        }
+    }
+
+    /* App instalada: respeta la barra de gestos / muesca del dispositivo */
+    @media (max-width: 600px) {
+        .icon-menu {
+            height: calc(64px + env(safe-area-inset-bottom, 0px));
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .main-content { margin-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+    }
+    @media (min-width: 601px) and (max-width: 1099px) {
+        .icon-menu {
+            height: calc(68px + env(safe-area-inset-bottom, 0px));
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .main-content { margin-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+    }
+    /* INTERLINEADO UNIFORME: discurso y referencias se escriben igual.
+       Cada Enter pasa a la línea siguiente (sin dejar una fila vacía) y el texto respira con 1.7. */
+    .editable-area p,
+    .reference-body-text p,
+    .reference-item-source p {
+        line-height: 1.7;
+        margin: 0 0 0.25em 0;
+    }
+    .editable-area div:not([class]),
+    .reference-body-text div:not([class]),
+    .reference-item-source div:not([class]) {
+        line-height: 1.7;
+        margin: 0 0 0.25em 0;
+    }
+    .reference-body-text,
+    .reference-item-source,
+    .reader-note,
+    .qa-answer-input {
+        line-height: 1.7;
+    }
+    .reference-item-source span,
+    .reference-item-source font,
+    .reference-item-source div,
+    .reference-item-source p {
+        font-size: inherit !important;
+    }
+    .reference-item-source {
+        margin-bottom: 4px;
+    }
+    .editable-area h1 + p, .editable-area h2 + p, .editable-area h3 + p {
+        margin-top: 0;
+    }
+
+    @media (display-mode: standalone) {
+        body { -webkit-user-select: auto; overscroll-behavior-y: none; }
+    }
+</style>
+</head>
+<body>
+
+<!-- BACKDROP -->
+<div class="panel-backdrop" id="panelBackdrop" onclick="toggleActivePanel()"></div>
+
+<!-- INPUT GLOBAL PARA INSERTAR IMÁGENES -->
+<input type="file" id="globalImageInput" accept="image/*" style="display: none;" onchange="handleGlobalImageUpload(event)">
+
+<!-- MENÚ CONTEXTUAL GLOBAL (CLIC DERECHO PARA INSERTAR IMAGEN) -->
+<div class="card-context-menu" id="cardContextMenu">
+    <button class="card-context-item" onclick="triggerGlobalImageUploadFromContext()">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: #16a34a;">image</span> Insertar Imagen
+    </button>
+</div>
+
+<!-- BARRA FLOTANTE PARA RECORTAR IMAGEN (DOBLE CLIC) -->
+<div id="imageCropToolbar">
+    <button onclick="recortarImagenAccion('cuadrado')"><span class="material-symbols-outlined" style="font-size: 14px;">aspect_ratio</span> Cuadrada</button>
+    <button onclick="recortarImagenAccion('horizontal')"><span class="material-symbols-outlined" style="font-size: 14px;">panorama</span> Horizontal</button>
+    <button onclick="recortarImagenAccion('reset')"><span class="material-symbols-outlined" style="font-size: 14px;">restart_alt</span> Restaurar</button>
+    <button class="btn-eliminar-imagen" onclick="eliminarImagenSeleccionada()"><span class="material-symbols-outlined" style="font-size: 14px;">delete</span> Eliminar</button>
+</div>
+
+
+<!-- BARRA FLOTANTE DE HERRAMIENTAS DE TEXTO -->
+<div id="floatingTextToolbar" onmousedown="event.stopPropagation()">
+    <select class="heading-select" id="headingSelector" onchange="cambiarTipoTexto(this.value)" title="Tamaño de texto">
+        <option value="P">Normal</option>
+        <option value="H1">Título 1</option>
+        <option value="H2">Título 2</option>
+        <option value="H3">Título 3</option>
+    </select>
+
+    <div class="toolbar-divider"></div>
+
+    <button onclick="aplicarFormatoSeleccion('bold')" title="Negrita"><b>B</b></button>
+    <button onclick="aplicarFormatoSeleccion('italic')" title="Cursiva"><i>I</i></button>
+    <button onclick="aplicarFormatoSeleccion('underline')" title="Subrayado"><u>U</u></button>
+
+    <div class="toolbar-divider"></div>
+
+    <div class="dropdown-container">
+        <button class="dropdown-toggle-btn" onclick="toggleDropdownPanel('textColorPanel', event)">
+            <span class="material-symbols-outlined" style="font-size: 14px;">palette</span> Color <span class="material-symbols-outlined" style="font-size: 12px;">arrow_drop_down</span>
+        </button>
+        <div class="dropdown-panel" id="textColorPanel">
+            <div class="color-row">
+                <button class="color-dot" style="background: #0f172a;" onclick="aplicarColorTexto('#0f172a')" title="Negro"></button>
+                <button class="color-dot" style="background: #2563eb;" onclick="aplicarColorTexto('#2563eb')" title="Azul"></button>
+                <button class="color-dot" style="background: #7c3aed;" onclick="aplicarColorTexto('#7c3aed')" title="Morado"></button>
+                <button class="color-dot" style="background: #dc2626;" onclick="aplicarColorTexto('#dc2626')" title="Rojo"></button>
+                <button class="color-dot" style="background: #16a34a;" onclick="aplicarColorTexto('#16a34a')" title="Verde"></button>
+            </div>
+            <button class="remove-highlight-btn" style="margin-top: 4px;" onclick="aplicarColorTexto('inherit')">Original</button>
+        </div>
+    </div>
+
+    <div class="dropdown-container">
+        <button class="dropdown-toggle-btn" onclick="toggleDropdownPanel('highlightPanel', event)">
+            <span class="material-symbols-outlined" style="font-size: 14px;">ink_highlighter</span> Resaltar <span class="material-symbols-outlined" style="font-size: 12px;">arrow_drop_down</span>
+        </button>
+        <div class="dropdown-panel" id="highlightPanel">
+            <div class="color-row">
+                <button class="highlight-option-clean" style="background: #fef08a;" onclick="aplicarResaltado('#fef08a')" title="Amarillo"></button>
+                <button class="highlight-option-clean" style="background: #bfdbfe;" onclick="aplicarResaltado('#bfdbfe')" title="Azul"></button>
+                <button class="highlight-option-clean" style="background: #e9d5ff;" onclick="aplicarResaltado('#e9d5ff')" title="Morado"></button>
+                <button class="highlight-option-clean" style="background: #bbf7d0;" onclick="aplicarResaltado('#bbf7d0')" title="Verde"></button>
+            </div>
+            <button class="remove-highlight-btn" style="margin-top: 4px;" onclick="aplicarResaltado('transparent')">Quitar</button>
+        </div>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <button class="note-btn" onclick="toggleNotaDesdeSeleccion()" title="Crear o Quitar Nota">
+        <span class="material-symbols-outlined" style="font-size: 14px;">note</span> Nota
+    </button>
+
+    <button class="diamond-btn" onclick="crearReferenciaDesdeSeleccion()" title="Crear referencia">
+        <span class="material-symbols-outlined" style="font-size: 14px;">diamond</span> Ref
+    </button>
+</div>
+
+<!-- MENÚ DE ICONOS CON BOTÓN DE CONFIGURACIÓN -->
+<nav class="icon-menu" aria-label="Menú principal">
+    <div class="nav-item active" data-tooltip="Bosquejos" onclick="cambiarVista('vistaDiscursos', this)">
+        <span class="material-symbols-outlined">menu_book</span>
+    </div>
+    <div class="nav-item" data-tooltip="Preguntas y Respuestas" onclick="cambiarVista('vistaQAList', this)">
+        <span class="material-symbols-outlined">favorite</span>
+    </div>
+    <div class="nav-item" id="navConfiguracion" data-tooltip="Configuración" onclick="cambiarVista('vistaConfiguracion', this)">
+        <span class="material-symbols-outlined">settings</span>
+        <span class="nav-badge" id="navBadgeActualizacion"></span>
+    </div>
+</nav>
+
+<div class="main-content">
+
+    <!-- VISTA 1: LISTA DE BOSQUEJOS -->
+    <div id="vistaDiscursos" class="view active">
+        <div class="list-header-row">
+            <div>
+                <div class="section-header-small">Biblioteca</div>
+                <div class="section-title" style="margin-bottom: 0;">Bosquejos de Discursos</div>
+            </div>
+            <button class="icon-btn-add" onclick="crearNuevoBosquejo()" title="Nuevo Bosquejo">
+                <span class="material-symbols-outlined">add</span>
+            </button>
+        </div>
+
+        <div class="discourse-list-container">
+            <div class="list-tabs" role="tablist">
+                <button class="list-tab active" role="tab" data-pestana="bosquejos" onclick="cambiarPestanaBosquejos('bosquejos')">Bosquejos</button>
+                <button class="list-tab" role="tab" data-pestana="discursos" onclick="cambiarPestanaBosquejos('discursos')">Discursos</button>
+            </div>
+            <div id="listaBosquejosContainer"></div>
+        </div>
+    </div>
+
+    <!-- VISTA 2: LISTA DE CUESTIONARIOS Q&A -->
+    <div id="vistaQAList" class="view">
+        <div class="list-header-row">
+            <div>
+                <div class="section-header-small">Biblioteca</div>
+                <div class="section-title" style="margin-bottom: 0;">Preguntas y Respuestas</div>
+            </div>
+            <button class="icon-btn-add" onclick="crearNuevoCuestionarioQA()" title="Nuevo Cuestionario" style="background: #f97316;">
+                <span class="material-symbols-outlined">add</span>
+            </button>
+        </div>
+
+        <div class="discourse-list-container" id="listaQAsContainer"></div>
+    </div>
+
+    <!-- VISTA: CONFIGURACIÓN -->
+    <div id="vistaConfiguracion" class="view">
+        <div class="list-header-row">
+            <div>
+                <div class="section-header-small">Ajustes</div>
+                <div class="section-title" style="margin-bottom: 0;">Configuración</div>
+            </div>
+        </div>
+
+        <div class="discourse-list-container settings-list">
+
+            <!-- Tamaño de letra -->
+            <div class="settings-item" id="ajusteTexto">
+                <button class="settings-head" onclick="toggleAjuste('ajusteTexto')">
+                    <span class="settings-icon" style="background: #f5f3ff; color: #7c3aed;"><span class="material-symbols-outlined">text_fields</span></span>
+                    <span class="settings-text">
+                        <span class="settings-title">Tamaño de letra</span>
+                        <span class="settings-desc">Discursos, referencias y cuestionarios</span>
+                    </span>
+                    <span class="material-symbols-outlined settings-chevron">expand_more</span>
+                </button>
+                <div class="settings-body">
+                    <div class="config-group">
+                        <span class="config-label">Discursos y Referencias</span>
+                        <div class="config-controls-row">
+                            <button class="config-btn-action" onclick="cambiarTamanioFuente('ref', -0.05)">A-</button>
+                            <span id="refSizeIndicator" style="font-weight: 600; font-size: 0.9rem;">90%</span>
+                            <button class="config-btn-action" onclick="cambiarTamanioFuente('ref', 0.05)">A+</button>
+                        </div>
+                    </div>
+                    <div class="config-group">
+                        <span class="config-label">Preguntas y Respuestas</span>
+                        <div class="config-controls-row">
+                            <button class="config-btn-action" onclick="cambiarTamanioFuente('qa', -0.05)">A-</button>
+                            <span id="qaSizeIndicator" style="font-weight: 600; font-size: 0.9rem;">95%</span>
+                            <button class="config-btn-action" onclick="cambiarTamanioFuente('qa', 0.05)">A+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actualizar -->
+            <div class="settings-item" id="ajusteActualizar">
+                <button class="settings-head" onclick="toggleAjuste('ajusteActualizar')">
+                    <span class="settings-icon" style="background: #ecfdf5; color: #059669;"><span class="material-symbols-outlined">system_update</span></span>
+                    <span class="settings-text">
+                        <span class="settings-title">Actualizar aplicación <span class="settings-pill" id="pillActualizacion" hidden>Nueva</span></span>
+                        <span class="settings-desc" id="descActualizacion">Buscar e instalar la última versión</span>
+                    </span>
+                    <span class="material-symbols-outlined settings-chevron">expand_more</span>
+                </button>
+                <div class="settings-body">
+                    <div class="settings-info-row"><span>Versión instalada</span><strong id="versionInstalada">—</strong></div>
+                    <div class="settings-info-row"><span>Última versión</span><strong id="versionPublicada">—</strong></div>
+                    <div class="settings-status" id="estadoActualizacion">Pulsa “Buscar actualización” para comprobar.</div>
+                    <div class="settings-actions">
+                        <button class="settings-btn" onclick="buscarActualizacion(true)">
+                            <span class="material-symbols-outlined">refresh</span> Buscar actualización
+                        </button>
+                        <button class="settings-btn primary" id="btnAplicarActualizacion" onclick="aplicarActualizacion()" hidden>
+                            <span class="material-symbols-outlined">download</span> Actualizar ahora
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sincronización -->
+            <div class="settings-item" id="ajusteSync">
+                <button class="settings-head" onclick="toggleAjuste('ajusteSync')">
+                    <span class="settings-icon" style="background: #eff6ff; color: #2563eb;"><span class="material-symbols-outlined" id="iconoSync">cloud_done</span></span>
+                    <span class="settings-text">
+                        <span class="settings-title">Sincronización y datos</span>
+                        <span class="settings-desc" id="descSync">Tus datos se guardan en el dispositivo y en la nube</span>
+                    </span>
+                    <span class="material-symbols-outlined settings-chevron">expand_more</span>
+                </button>
+                <div class="settings-body">
+                    <div class="settings-info-row"><span>Conexión</span><strong id="syncConexion">—</strong></div>
+                    <div class="settings-info-row"><span>Cambios por subir</span><strong id="syncPendientes">0</strong></div>
+                    <div class="settings-info-row"><span>Última sincronización</span><strong id="syncUltima">—</strong></div>
+                    <div class="settings-info-row"><span>Documentos</span><strong id="syncTotal">0</strong></div>
+                    <div class="settings-actions">
+                        <button class="settings-btn" onclick="sincronizarAhora(true)">
+                            <span class="material-symbols-outlined">sync</span> Sincronizar ahora
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instalar -->
+            <div class="settings-item" id="ajusteInstalar">
+                <button class="settings-head" onclick="toggleAjuste('ajusteInstalar')">
+                    <span class="settings-icon" style="background: #fff7ed; color: #ea580c;"><span class="material-symbols-outlined">install_desktop</span></span>
+                    <span class="settings-text">
+                        <span class="settings-title">Instalar en este equipo</span>
+                        <span class="settings-desc" id="descInstalar">Úsala como app, con su propio ícono</span>
+                    </span>
+                    <span class="material-symbols-outlined settings-chevron">expand_more</span>
+                </button>
+                <div class="settings-body">
+                    <div class="settings-status" id="estadoInstalar"></div>
+                    <div class="settings-actions">
+                        <button class="settings-btn primary" id="btnInstalar" onclick="instalarApp()" hidden>
+                            <span class="material-symbols-outlined">install_desktop</span> Instalar app
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acerca de -->
+            <div class="settings-item" id="ajusteAcerca">
+                <button class="settings-head" onclick="toggleAjuste('ajusteAcerca')">
+                    <span class="settings-icon" style="background: #f1f5f9; color: #475569;"><span class="material-symbols-outlined">info</span></span>
+                    <span class="settings-text">
+                        <span class="settings-title">Acerca de</span>
+                        <span class="settings-desc">Bosquejos y Cuestionarios</span>
+                    </span>
+                    <span class="material-symbols-outlined settings-chevron">expand_more</span>
+                </button>
+                <div class="settings-body">
+                    <div class="settings-info-row"><span>Versión</span><strong id="acercaVersion">—</strong></div>
+                    <div class="settings-info-row"><span>Funcionando como</span><strong id="acercaPlataforma">—</strong></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- VISTA 3.1: LECTOR / EDITOR DE BOSQUEJOS -->
+    <div id="vistaDetalleBosquejo" class="view">
+        <button class="btn-back-link" onclick="cambiarVista('vistaDiscursos', null)">
+            <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver a la lista
+        </button>
+
+        <div class="reader-layout" id="readerLayout">
+            <div class="reader-card editable-area" id="bosquejoEditorContent" contenteditable="true"></div>
+
+            <div class="reference-box-wrapper" id="panelWrapper">
+                <div class="reference-box">
+                    <div class="reference-header-top">
+                        <span id="panelHeaderTitle">Desarrollo del Discurso / Referencia</span>
+                        <span class="material-symbols-outlined" style="font-size: 18px; cursor: pointer; color: var(--text-sub);" onclick="togglePanel()">close</span>
+                    </div>
+
+                    <div id="activeDevelopmentView">
+                        <div class="reference-item-card" id="dev-1" data-ref-id="dev-1">
+                            <div class="reference-card-header">
+                                <div class="reference-item-source editable-area" contenteditable="true">Punto clave de referencia</div>
+                                <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                                    <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                                </button>
+                                <div class="ref-dropdown-menu">
+                                    <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="reference-body-text editable-area" contenteditable="true">Escribe o pega aquí la información adicional...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA 3.2: LECTOR / EDITOR DE Q&A -->
+    <div id="vistaDetalleQA" class="view">
+        <button class="btn-back-link" onclick="cambiarVista('vistaQAList', null)">
+            <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver a cuestionarios
+        </button>
+
+        <div class="reader-layout" id="qaLayout">
+            <div class="reader-card" id="qaEditorMainContent"></div>
+
+            <div class="reference-box-wrapper" id="qaPanelWrapper">
+                <div class="reference-box">
+                    <div class="reference-header-top">
+                        <span id="qaPanelHeaderTitle">Notas de Estudio Q&A</span>
+                        <span class="material-symbols-outlined" style="font-size: 18px; cursor: pointer; color: var(--text-sub);" onclick="toggleQAPanel()">close</span>
+                    </div>
+
+                    <div id="qaActiveDevelopmentView">
+                        <div class="reference-item-card">
+                            <div class="reference-card-header">
+                                <div class="reference-item-source editable-area" contenteditable="true">Nota general del cuestionario</div>
+                                <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                                    <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                                </button>
+                                <div class="ref-dropdown-menu">
+                                    <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="reference-body-text editable-area" contenteditable="true">Añade anotaciones de apoyo aquí...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- BOTÓN FLOTANTE -->
+<button class="floating-panel-toggle" onclick="toggleActivePanel()" title="Abrir/Cerrar panel lateral">
+    <span class="material-symbols-outlined" id="toggleIcon">keyboard_arrow_left</span>
+</button>
+
+<div id="mensajeToast" class="toast-msg"></div>
+
+<script>
+    const DESKTOP_BREAKPOINT = 1100;
+
+    let bosquejosData = [
+        {
+            id: 'b-191',
+            titulo: '191. Cómo vencen al mundo la fe y el amor',
+            sub: 'Bosquejo S-34',
+            scrollPos: 0,
+            contenido: `
+                <div class="reader-breadcrumb">Bosquejos de discursos públicos</div>
+                <h1>Núm. 191 Cómo vencen al mundo la fe y el amor</h1>
+                <div class="reader-note" id="note-init" contenteditable="true">
+                    <strong>Nota:</strong> Ayude al auditorio a entender que, cuanto más conozcamos y amemos a Jehová, más fuerte será nuestra fe en sus promesas.
+                </div>
+                <h2>Jesucristo venció al mundo (4 mins.)</h2>
+                <p>Poco antes de finalizar su ministerio en la Tierra, Jesús dijo: "Yo he vencido al mundo" 
+                   <span class="inline-reference" contenteditable="false" data-refid="dev-1" onclick="mostrarPuntoPanel('dev-1')">
+                       Jn 16:33 
+                       <span class="material-symbols-outlined" style="font-size: 14px;">visibility</span>
+                   </span>.
+                </p>
+            `,
+            panelContenido: `
+                <div class="reference-item-card" id="dev-1" data-ref-id="dev-1">
+                    <div class="reference-card-header">
+                        <div class="reference-item-source editable-area" contenteditable="true">Punto clave de referencia</div>
+                        <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                        </button>
+                        <div class="ref-dropdown-menu">
+                            <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="reference-body-text editable-area" contenteditable="true">Escribe o pega aquí la información adicional...</div>
+                </div>
+            `
+        }
+    ];
+
+    let qaData = [
+        {
+            id: 'qa-1',
+            titulo: 'Qué nos ayudará a obedecer de corazón a Jehová',
+            sub: 'Cuestionario interactivo',
+            scrollPos: 0,
+            contenido: `
+                <div class="reader-breadcrumb">Preguntas y Respuestas</div>
+                
+                <div class="qa-top-action-bar">
+                    <button class="three-dots-btn" onclick="toggleQADropdown(event)" title="Opciones">
+                        <span class="material-symbols-outlined">more_vert</span>
+                    </button>
+                    
+                    <div class="qa-dropdown-menu" id="qaDropdownMenu">
+                        <button class="qa-dropdown-item" onclick="agregarNuevoTemaQA()">
+                            <span class="material-symbols-outlined" style="font-size: 18px; color: #f97316;">label_important</span> Añadir Tema
+                        </button>
+                        <button class="qa-dropdown-item" onclick="agregarNuevaPreguntaQA()">
+                            <span class="material-symbols-outlined" style="font-size: 18px; color: #2563eb;">add_circle</span> Añadir Pregunta
+                        </button>
+                    </div>
+                </div>
+
+                <div class="qa-theme-container">
+                    <div class="qa-theme-label">TEMA</div>
+                    <div class="qa-theme-title" contenteditable="true">Qué nos ayudará a obedecer de corazón a Jehová.</div>
+                </div>
+                <div class="qa-item-block">
+                    <div class="qa-question-title" contenteditable="true">1. ¿Por qué suelen obedecer algunas personas?</div>
+                    <div class="qa-answer-input" contenteditable="true" placeholder="Escribe tu respuesta aquí..."></div>
+                </div>
+                <div id="dynamicQAList"></div>
+            `,
+            panelContenido: `
+                <div class="reference-item-card">
+                    <div class="reference-card-header">
+                        <div class="reference-item-source editable-area" contenteditable="true">Nota general del cuestionario</div>
+                        <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                        </button>
+                        <div class="ref-dropdown-menu">
+                            <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="reference-body-text editable-area" contenteditable="true">Añade anotaciones de apoyo aquí...</div>
+                </div>
+            `
+        }
+    ];
+
+    let idBosquejoActual = null;
+    let idQAActual = null;
+    let vistaActivaActual = 'vistaDiscursos';
+    const viewScrollMemory = { vistaDiscursos: 0, vistaQAList: 0, vistaDetalleBosquejo: 0, vistaDetalleQA: 0 };
+
+    let fontSizeRefValue = 0.9;
+    let fontSizeQAValue = 0.95;
+
+    function cambiarTamanioFuente(tipo, delta) {
+        if (tipo === 'ref') {
+            fontSizeRefValue = Math.max(0.75, Math.min(1.4, fontSizeRefValue + delta));
+        } else if (tipo === 'qa') {
+            fontSizeQAValue = Math.max(0.75, Math.min(1.4, fontSizeQAValue + delta));
+        }
+        aplicarTamaniosFuente();
+        try {
+            localStorage.setItem('bosquejos_tamanios', JSON.stringify({ ref: fontSizeRefValue, qa: fontSizeQAValue }));
+        } catch (e) {}
+    }
+
+    function aplicarTamaniosFuente() {
+        document.documentElement.style.setProperty('--font-size-ref', fontSizeRefValue + 'rem');
+        document.getElementById('refSizeIndicator').innerText = Math.round(fontSizeRefValue * 100) + '%';
+        document.documentElement.style.setProperty('--font-size-qa', fontSizeQAValue + 'rem');
+        document.getElementById('qaSizeIndicator').innerText = Math.round(fontSizeQAValue * 100) + '%';
+    }
+
+    // Recupera el tamaño de letra guardado en este dispositivo
+    try {
+        const t = JSON.parse(localStorage.getItem('bosquejos_tamanios') || 'null');
+        if (t && typeof t.ref === 'number' && typeof t.qa === 'number') {
+            fontSizeRefValue = t.ref;
+            fontSizeQAValue = t.qa;
+            aplicarTamaniosFuente();
+        }
+    } catch (e) {}
+
+    /* =========================================================
+       CONFIGURACIÓN: opciones, actualización e instalación
+       ========================================================= */
+    const APP_VERSION = '2026.11.12.0328';   // el script de publicación pone aquí la versión real
+    const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
+    let infoActualizacion = null;
+    let eventoInstalacion = null;
+
+    function esAppNativa() {
+        return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+    }
+    function esAppInstalada() {
+        return esAppNativa() || window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+    function nombrePlataforma() {
+        if (esAppNativa()) return 'App Android';
+        if (esAppInstalada()) return /Android/i.test(navigator.userAgent) ? 'App instalada (Android)' : 'App de escritorio';
+        if (location.protocol === 'file:') return 'Archivo local';
+        return 'Navegador';
+    }
+
+    function toggleAjuste(id) {
+        const item = document.getElementById(id);
+        if (!item) return;
+        item.classList.toggle('open');
+        if (item.classList.contains('open')) {
+            if (id === 'ajusteActualizar' && !infoActualizacion) buscarActualizacion(false);
+            if (id === 'ajusteSync') actualizarPanelSync();
+            if (id === 'ajusteInstalar') actualizarPanelInstalar();
+        }
+    }
+
+    function actualizarPanelConfiguracion() {
+        document.getElementById('versionInstalada').innerText = APP_VERSION;
+        document.getElementById('acercaVersion').innerText = APP_VERSION;
+        document.getElementById('acercaPlataforma').innerText = nombrePlataforma();
+        actualizarPanelSync();
+        actualizarPanelInstalar();
+    }
+
+    function actualizarPanelSync() {
+        const el = (id) => document.getElementById(id);
+        if (!el('syncConexion')) return;
+        const pendientes = Object.keys(pendientesGuardar).length;
+        const online = navigator.onLine;
+        el('syncConexion').innerText = online ? 'Con internet' : 'Sin internet';
+        el('syncPendientes').innerText = pendientes;
+        el('syncUltima').innerText = estadoSync.ultimaSync ? formatearFecha(estadoSync.ultimaSync) : '—';
+        el('syncTotal').innerText = bosquejosData.length + qaData.length;
+        el('iconoSync').innerText = !online ? 'cloud_off' : (pendientes ? 'cloud_sync' : 'cloud_done');
+        el('descSync').innerText = !online
+            ? `Sin internet · ${pendientes} cambio(s) guardado(s) en el dispositivo`
+            : (pendientes ? `${pendientes} cambio(s) por subir a la nube` : 'Todo guardado en la nube');
+    }
+
+    function actualizarPanelInstalar() {
+        const estado = document.getElementById('estadoInstalar');
+        const btn = document.getElementById('btnInstalar');
+        const desc = document.getElementById('descInstalar');
+        if (!estado) return;
+        btn.hidden = true;
+        if (esAppInstalada()) {
+            desc.innerText = 'Ya estás usando la app instalada';
+            estado.innerText = `Estás usando: ${nombrePlataforma()}. Para recibir cambios usa “Actualizar aplicación”.`;
+        } else if (eventoInstalacion) {
+            desc.innerText = 'Lista para instalar';
+            estado.innerText = 'Se instalará como una app con su propio ícono y ventana, y funcionará sin internet.';
+            btn.hidden = false;
+        } else if (location.protocol === 'file:') {
+            estado.innerText = `Para instalarla abre ${URL_PUBLICADA} en Chrome o Edge.`;
+        } else {
+            estado.innerText = 'En Chrome o Edge usa el ícono de instalar de la barra de direcciones, o el menú ⋮ → “Instalar app”.';
+        }
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        eventoInstalacion = e;
+        actualizarPanelInstalar();
+    });
+    window.addEventListener('appinstalled', () => {
+        eventoInstalacion = null;
+        mostrarAlerta('¡App instalada!');
+        actualizarPanelInstalar();
+    });
+
+    async function instalarApp() {
+        if (!eventoInstalacion) return;
+        eventoInstalacion.prompt();
+        await eventoInstalacion.userChoice.catch(() => null);
+        eventoInstalacion = null;
+        actualizarPanelInstalar();
+    }
+
+    async function buscarActualizacion(manual) {
+        const estado = document.getElementById('estadoActualizacion');
+        const btnAplicar = document.getElementById('btnAplicarActualizacion');
+        if (!navigator.onLine) {
+            if (manual) estado.innerText = 'Sin internet. Conéctate para buscar actualizaciones.';
+            return null;
+        }
+        if (manual) estado.innerText = 'Buscando…';
+        try {
+            const resp = await fetch(URL_PUBLICADA + 'version.json?t=' + Date.now(), { cache: 'no-store' });
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            infoActualizacion = await resp.json();
+            const hayNueva = infoActualizacion.version && infoActualizacion.version !== APP_VERSION;
+            document.getElementById('versionPublicada').innerText = infoActualizacion.version || '—';
+            document.getElementById('pillActualizacion').hidden = !hayNueva;
+            document.getElementById('navBadgeActualizacion').classList.toggle('show', !!hayNueva);
+            document.getElementById('descActualizacion').innerText = hayNueva ? 'Hay una versión nueva lista' : 'Tienes la última versión';
+            btnAplicar.hidden = !hayNueva;
+            estado.innerText = hayNueva
+                ? `Versión nueva disponible (${infoActualizacion.fecha ? formatearFecha(infoActualizacion.fecha) : infoActualizacion.version}). Tus datos no se tocan al actualizar.`
+                : 'Tienes la última versión.';
+            return hayNueva;
+        } catch (err) {
+            console.error('Buscar actualización:', err);
+            if (manual) estado.innerText = 'No se pudo comprobar. Inténtalo de nuevo más tarde.';
+            return null;
+        }
+    }
+
+    async function aplicarActualizacion() {
+        const btn = document.getElementById('btnAplicarActualizacion');
+        const estado = document.getElementById('estadoActualizacion');
+        btn.disabled = true;
+        estado.innerText = 'Guardando tus cambios…';
+        guardarEstadoActual();
+        await vaciarGuardados();
+        try {
+            if (esAppNativa()) {
+                const updater = window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorUpdater;
+                if (!updater) throw new Error('Actualizador no disponible');
+                if (!infoActualizacion || !infoActualizacion.zip) await buscarActualizacion(false);
+                estado.innerText = 'Descargando la versión nueva…';
+                const bundle = await updater.download({ url: URL_PUBLICADA + infoActualizacion.zip + '?v=' + encodeURIComponent(infoActualizacion.version), version: infoActualizacion.version });
+                estado.innerText = 'Instalando…';
+                await updater.set(bundle);   // reinicia la app con la versión nueva
+                return;
+            }
+            estado.innerText = 'Descargando la versión nueva…';
+            if ('serviceWorker' in navigator) {
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (reg) {
+                    await reg.update();
+                    const nuevo = reg.installing || reg.waiting;
+                    if (nuevo) {
+                        await new Promise(resolve => {
+                            if (nuevo.state === 'activated') return resolve();
+                            nuevo.addEventListener('statechange', () => { if (nuevo.state === 'activated') resolve(); });
+                            setTimeout(resolve, 8000);
+                        });
+                    }
+                }
+            }
+            location.reload();
+        } catch (err) {
+            console.error('Actualizar:', err);
+            estado.innerText = 'No se pudo actualizar: ' + (err.message || err);
+            btn.disabled = false;
+        }
+    }
+
+    // App nativa: confirma que esta versión arrancó bien (si no, el actualizador vuelve a la anterior)
+    if (esAppNativa() && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorUpdater) {
+        window.Capacitor.Plugins.CapacitorUpdater.notifyAppReady().catch(() => {});
+    }
+
+    function mostrarAlerta(mensaje) {
+        const toast = document.getElementById('mensajeToast');
+        toast.innerText = mensaje;
+        toast.classList.add('show');
+        if(window.toastTimer) clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function cambiarVista(idVista, elementoMenu) {
+        viewScrollMemory[vistaActivaActual] = window.scrollY;
+        guardarEstadoActual();
+        cerrarDrawersMoviles();
+        deseleccionarImagenActiva();
+
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(idVista).classList.add('active');
+        vistaActivaActual = idVista;
+
+        if (idVista === 'vistaDiscursos') renderizarListaBosquejos();
+        if (idVista === 'vistaQAList') renderizarListaQAs();
+        if (idVista === 'vistaConfiguracion') actualizarPanelConfiguracion();
+
+        if (elementoMenu) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            elementoMenu.classList.add('active');
+        }
+
+        let targetScroll = viewScrollMemory[idVista] || 0;
+        if (idVista === 'vistaDetalleBosquejo' && idBosquejoActual) {
+            const b = bosquejosData.find(item => item.id === idBosquejoActual);
+            if (b && typeof b.scrollPos === 'number') targetScroll = b.scrollPos;
+        } else if (idVista === 'vistaDetalleQA' && idQAActual) {
+            const q = qaData.find(item => item.id === idQAActual);
+            if (q && typeof q.scrollPos === 'number') targetScroll = q.scrollPos;
+        }
+
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: targetScroll, behavior: 'instant' });
+        });
+    }
+
+    function cerrarDrawersMoviles() {
+        const panelWrapper = document.getElementById('panelWrapper');
+        const qaPanelWrapper = document.getElementById('qaPanelWrapper');
+        const backdrop = document.getElementById('panelBackdrop');
+        if (panelWrapper) panelWrapper.classList.remove('open');
+        if (qaPanelWrapper) qaPanelWrapper.classList.remove('open');
+        if (backdrop) backdrop.classList.remove('open');
+    }
+
+    // HTML limpio para guardar (sin selección temporal de imágenes)
+    function htmlParaGuardar(el) {
+        const copia = el.cloneNode(true);
+        copia.querySelectorAll('.image-wrapper.selected').forEach(w => w.classList.remove('selected'));
+        copia.querySelectorAll('.resize-handle').forEach(h => h.remove());   // se recrean al seleccionar la imagen
+        // Qué referencia se está mirando es algo de cada pantalla, no del documento
+        copia.querySelectorAll('.ref-activa').forEach(e => e.classList.remove('ref-activa'));
+        copia.querySelectorAll('.ref-activa-texto').forEach(e => e.classList.remove('ref-activa-texto'));
+        copia.querySelectorAll('[class=""]').forEach(e => e.removeAttribute('class'));
+        return copia.innerHTML;
+    }
+
+    // Título real tomado del propio documento
+    function extraerTitulo(el, selector, actual) {
+        const nodo = el.querySelector(selector);
+        const texto = nodo ? nodo.textContent.replace(/\s+/g, ' ').trim() : '';
+        return texto || actual;
+    }
+
+    function guardarEstadoActual() {
+        if (vistaActivaActual === 'vistaDetalleBosquejo' && idBosquejoActual) {
+            const b = bosquejosData.find(item => item.id === idBosquejoActual);
+            if (b) {
+                const editor = document.getElementById('bosquejoEditorContent');
+                b.contenido = htmlParaGuardar(editor);
+                b.panelContenido = htmlParaGuardar(document.getElementById('activeDevelopmentView'));
+                b.titulo = extraerTitulo(editor, 'h1', b.titulo);
+                b.scrollPos = window.scrollY;
+                programarGuardado(b, 'bosquejo');
+            }
+        } else if (vistaActivaActual === 'vistaDetalleQA' && idQAActual) {
+            const q = qaData.find(item => item.id === idQAActual);
+            if (q) {
+                const editor = document.getElementById('qaEditorMainContent');
+                q.contenido = htmlParaGuardar(editor);
+                q.panelContenido = htmlParaGuardar(document.getElementById('qaActiveDevelopmentView'));
+                q.titulo = extraerTitulo(editor, '.qa-theme-title', q.titulo);
+                q.scrollPos = window.scrollY;
+                programarGuardado(q, 'qa');
+            }
+        }
+    }
+
+    function formatearFecha(iso) {
+        if (!iso) return '';
+        const d = new Date(iso);
+        if (isNaN(d)) return '';
+        return d.toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function escaparHTML(texto) {
+        return String(texto ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function textoSub(doc) {
+        const fecha = formatearFecha(doc.updatedAt);
+        return fecha ? `${doc.sub} · Editado ${fecha}` : doc.sub;
+    }
+
+    /* =========================================================
+       PERSISTENCIA EN SUPABASE
+       ========================================================= */
+    const SUPABASE_URL = 'https://awgnkfosohvdsreipgje.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3Z25rZm9zb2h2ZHNyZWlwZ2plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyOTQ1NjksImV4cCI6MjA3MDg3MDU2OX0.ka7Nn4k-zX6HZhakwIeURUKw8aB8Q_dygcjChMAIgUY';
+    const SUPABASE_TABLA = 'documentos';
+
+    const sbHeaders = {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+    };
+
+    const ultimoGuardado = {};        // id -> snapshot JSON del último guardado exitoso
+    const pendientesGuardar = {};     // id -> fila pendiente de enviar (también guardada en el dispositivo)
+    let timerGuardado = null;
+    let enviando = false;
+    let avisoErrorMostrado = false;
+    const estadoSync = { conectado: navigator.onLine, ultimaSync: null, error: null };
+
+    /* ---------- Almacenamiento local (IndexedDB): permite usar la app sin internet ---------- */
+    let dbLocalPromesa = null;
+    function abrirDBLocal() {
+        if (dbLocalPromesa) return dbLocalPromesa;
+        dbLocalPromesa = new Promise((resolve, reject) => {
+            if (!('indexedDB' in window)) return reject(new Error('IndexedDB no disponible'));
+            const req = indexedDB.open('bosquejos-app', 1);
+            req.onupgradeneeded = () => {
+                const db = req.result;
+                if (!db.objectStoreNames.contains('docs')) db.createObjectStore('docs', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains('pendientes')) db.createObjectStore('pendientes', { keyPath: 'id' });
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+        return dbLocalPromesa;
+    }
+    async function idbOp(store, modo, fn) {
+        try {
+            const db = await abrirDBLocal();
+            return await new Promise((resolve, reject) => {
+                const tx = db.transaction(store, modo);
+                const resultado = fn(tx.objectStore(store));
+                tx.oncomplete = () => resolve(resultado && 'result' in resultado ? resultado.result : undefined);
+                tx.onerror = () => reject(tx.error);
+            });
+        } catch (err) {
+            console.error('Almacenamiento local:', err);
+            return undefined;
+        }
+    }
+    const idbTodos = (store) => idbOp(store, 'readonly', s => s.getAll()).then(r => r || []);
+    const idbPoner = (store, valor) => idbOp(store, 'readwrite', s => s.put(valor));
+    const idbBorrar = (store, id) => idbOp(store, 'readwrite', s => s.delete(id));
+    const idbReemplazarTodo = (store, valores) => idbOp(store, 'readwrite', s => { s.clear(); valores.forEach(v => s.put(v)); });
+
+    function filaConFecha(fila, fecha) {
+        return { ...fila, updated_at: fecha || new Date().toISOString() };
+    }
+
+    function docAFila(doc, tipo) {
+        return {
+            id: doc.id,
+            tipo: tipo,
+            titulo: doc.titulo || '',
+            sub: doc.sub || '',
+            contenido: doc.contenido || '',
+            panel_contenido: doc.panelContenido || '',
+            scroll_pos: Math.round(doc.scrollPos || 0)
+        };
+    }
+
+    function filaADoc(fila) {
+        return {
+            id: fila.id,
+            titulo: fila.titulo,
+            sub: fila.sub,
+            scrollPos: fila.scroll_pos || 0,
+            contenido: fila.contenido,
+            panelContenido: fila.panel_contenido,
+            updatedAt: fila.updated_at,
+            createdAt: fila.created_at
+        };
+    }
+
+    function buscarDoc(id) {
+        return bosquejosData.find(d => d.id === id) || qaData.find(d => d.id === id);
+    }
+
+    async function cargarDesdeSupabase() {
+        const resp = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLA}?select=*&order=created_at.asc`, { headers: sbHeaders });
+        if (!resp.ok) throw new Error('Supabase ' + resp.status + ': ' + await resp.text());
+        return resp.json();
+    }
+
+    const fechaConocida = {};   // id -> updated_at de la última versión conocida (de la nube o enviada por aquí)
+
+    async function enviarFilas(filas, keepalive = false) {
+        const ahora = new Date().toISOString();
+        const resp = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLA}?on_conflict=id`, {
+            method: 'POST',
+            headers: { ...sbHeaders, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+            body: JSON.stringify(filas.map(f => ({ ...f, updated_at: ahora }))),
+            keepalive
+        });
+        if (!resp.ok) throw new Error('Supabase ' + resp.status + ': ' + await resp.text());
+        filas.forEach(f => { fechaConocida[f.id] = ahora; });
+    }
+
+    /* ---------- Cambios en vivo: lo que se edita en otro dispositivo aparece aquí en segundos ---------- */
+    let ultimaEdicionLocal = 0;
+    let sondeando = false;
+    ['input', 'keydown', 'paste', 'drop'].forEach(ev => document.addEventListener(ev, (e) => {
+        if (e.target && e.target.closest && e.target.closest('[contenteditable="true"], .editable-area')) ultimaEdicionLocal = Date.now();
+    }, true));
+
+    function mismaFecha(a, b) {
+        return !!a && !!b && new Date(a).getTime() === new Date(b).getTime();
+    }
+
+    function idAbierto() {
+        if (vistaActivaActual === 'vistaDetalleBosquejo') return idBosquejoActual;
+        if (vistaActivaActual === 'vistaDetalleQA') return idQAActual;
+        return null;
+    }
+
+    // Aplica una fila que cambió en la nube. Devuelve false si hay que reintentar más tarde.
+    function aplicarCambioRemoto(fila) {
+        const nuevo = filaADoc(fila);
+        const existente = buscarDoc(fila.id);
+        const abierto = idAbierto() === fila.id;
+
+        if (abierto) {
+            // Si estás escribiendo justo ahora, no se toca tu pantalla (se reintenta en unos segundos)
+            if (Date.now() - ultimaEdicionLocal < 4000 || pendientesGuardar[fila.id]) return false;
+            const editor = editorPrincipal();
+            const panel = contenedorReferencias();
+            const cambioContenido = !existente || existente.contenido !== nuevo.contenido;
+            const cambioPanel = !existente || existente.panelContenido !== nuevo.panelContenido;
+            if (cambioContenido || cambioPanel) {
+                const activa = panel && panel.querySelector('.reference-item-card.ref-activa');
+                const idActiva = activa ? idDeTarjeta(activa) : null;
+                const y = window.scrollY;
+                if (cambioContenido && editor) editor.innerHTML = nuevo.contenido;
+                if (cambioPanel && panel) panel.innerHTML = nuevo.panelContenido || '';
+                reiniciarHistorial();   // el documento cambió desde otro dispositivo
+                activarReferencia(idActiva);
+                window.scrollTo({ top: y, behavior: 'instant' });
+            }
+            if (existente) nuevo.scrollPos = existente.scrollPos;   // tu posición de lectura se respeta
+        }
+
+        if (existente) {
+            Object.assign(existente, nuevo);
+        } else {
+            (fila.tipo === 'qa' ? qaData : bosquejosData).push(nuevo);
+        }
+        fechaConocida[fila.id] = fila.updated_at;
+        ultimoGuardado[fila.id] = JSON.stringify(docAFila(existente || nuevo, fila.tipo));
+        idbPoner('docs', fila);
+        return true;
+    }
+
+    async function sondearCambios() {
+        if (!inicioCompleto || sondeando || enviando || !navigator.onLine || document.visibilityState !== 'visible') return;
+        sondeando = true;
+        try {
+            const resp = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLA}?select=id,updated_at`, { headers: sbHeaders, cache: 'no-store' });
+            if (!resp.ok) return;
+            const lista = await resp.json();
+            const remotos = new Set(lista.map(r => r.id));
+            const cambiados = lista.filter(r => !mismaFecha(fechaConocida[r.id], r.updated_at) && !pendientesGuardar[r.id]).map(r => r.id);
+
+            let hubo = false;
+            if (cambiados.length) {
+                const ids = cambiados.map(id => `"${id}"`).join(',');
+                const r2 = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLA}?select=*&id=in.(${encodeURIComponent(ids)})`, { headers: sbHeaders, cache: 'no-store' });
+                if (r2.ok) {
+                    for (const fila of await r2.json()) {
+                        if (pendientesGuardar[fila.id]) continue;
+                        if (aplicarCambioRemoto(fila)) hubo = true;
+                    }
+                }
+            }
+
+            // Documentos borrados en otro lugar (solo los que ya estaban en la nube y no tienen cambios pendientes)
+            const borrados = [...bosquejosData, ...qaData].filter(d => !remotos.has(d.id) && fechaConocida[d.id] && !pendientesGuardar[d.id]);
+            if (borrados.length) {
+                const abierto = idAbierto();
+                borrados.forEach(d => { delete fechaConocida[d.id]; delete ultimoGuardado[d.id]; idbBorrar('docs', d.id); });
+                const ids = new Set(borrados.map(d => d.id));
+                bosquejosData = bosquejosData.filter(d => !ids.has(d.id));
+                qaData = qaData.filter(d => !ids.has(d.id));
+                if (abierto && ids.has(abierto)) {
+                    cambiarVista(vistaActivaActual === 'vistaDetalleQA' ? 'vistaQAList' : 'vistaDiscursos', null);
+                    mostrarAlerta('Este documento se eliminó en otro dispositivo');
+                }
+                hubo = true;
+            }
+
+            if (hubo) {
+                estadoSync.ultimaSync = new Date().toISOString();
+                refrescarListas();
+            }
+        } catch (err) {
+            // Sin conexión momentánea: se intentará en el siguiente ciclo
+        } finally {
+            sondeando = false;
+        }
+    }
+
+    setInterval(sondearCambios, 3000);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') sondearCambios(); });
+    window.addEventListener('focus', () => sondearCambios());
+
+    function refrescarListas() {
+        if (vistaActivaActual === 'vistaDiscursos') renderizarListaBosquejos();
+        if (vistaActivaActual === 'vistaQAList') renderizarListaQAs();
+        if (typeof actualizarPanelSync === 'function') actualizarPanelSync();
+    }
+
+    // Marca un documento para guardarse: primero en el dispositivo (al instante) y luego en la nube
+    function programarGuardado(doc, tipo, inmediato = false) {
+        if (!doc) return;
+        const fila = docAFila(doc, tipo);
+        const snapshot = JSON.stringify(fila);
+        if (ultimoGuardado[fila.id] === snapshot && !pendientesGuardar[fila.id]) return;
+        if (pendientesGuardar[fila.id] && JSON.stringify(pendientesGuardar[fila.id]) === snapshot) return;
+        pendientesGuardar[fila.id] = fila;
+        const ahora = new Date().toISOString();
+        doc.updatedAt = ahora;
+        if (!doc.createdAt) doc.createdAt = ahora;
+        idbPoner('docs', { ...filaConFecha(fila, ahora), created_at: doc.createdAt });
+        idbPoner('pendientes', fila);
+        if (timerGuardado) clearTimeout(timerGuardado);
+        timerGuardado = setTimeout(vaciarGuardados, inmediato ? 0 : 300);
+        if (typeof actualizarPanelSync === 'function') actualizarPanelSync();
+    }
+
+    async function vaciarGuardados(keepalive = false) {
+        timerGuardado = null;
+        if (enviando) { timerGuardado = setTimeout(vaciarGuardados, 1000); return; }
+        const filas = Object.values(pendientesGuardar);
+        if (filas.length === 0) return;
+        if (!navigator.onLine) { estadoSync.conectado = false; refrescarListas(); return; }
+        enviando = true;
+        try {
+            await enviarFilas(filas, keepalive);
+            for (const f of filas) {
+                ultimoGuardado[f.id] = JSON.stringify(f);
+                // Solo se quita de pendientes si no hubo cambios nuevos mientras se enviaba
+                if (pendientesGuardar[f.id] && JSON.stringify(pendientesGuardar[f.id]) === JSON.stringify(f)) {
+                    delete pendientesGuardar[f.id];
+                    idbBorrar('pendientes', f.id);
+                }
+            }
+            estadoSync.conectado = true;
+            estadoSync.ultimaSync = new Date().toISOString();
+            estadoSync.error = null;
+            avisoErrorMostrado = false;
+        } catch (err) {
+            console.error('Error guardando en Supabase:', err);
+            estadoSync.error = String(err.message || err);
+            if (!avisoErrorMostrado) {
+                mostrarAlerta('Guardado en el dispositivo. Se subirá a la nube al volver la conexión.');
+                avisoErrorMostrado = true;
+            }
+            if (!timerGuardado) timerGuardado = setTimeout(vaciarGuardados, 15000);
+        } finally {
+            enviando = false;
+            refrescarListas();
+        }
+    }
+
+    function aplicarFilas(filas) {
+        bosquejosData = filas.filter(f => f.tipo === 'bosquejo').map(filaADoc);
+        qaData = filas.filter(f => f.tipo === 'qa').map(filaADoc);
+    }
+
+    // Combina la nube con el dispositivo: lo pendiente (editado sin conexión) tiene prioridad
+    async function sincronizarConNube() {
+        if (!navigator.onLine) throw new Error('Sin conexión a internet');
+        const remotas = await cargarDesdeSupabase();
+        const porId = new Map(remotas.map(f => [f.id, f]));
+        Object.values(pendientesGuardar).forEach(p => {
+            const previo = porId.get(p.id);
+            const local = buscarDoc(p.id);
+            porId.set(p.id, {
+                ...filaConFecha(p, (local && local.updatedAt) || (previo && previo.updated_at)),
+                created_at: (previo && previo.created_at) || (local && local.createdAt) || new Date().toISOString()
+            });
+        });
+        const combinadas = [...porId.values()].sort((a, b) => String(a.created_at || '').localeCompare(String(b.created_at || '')));
+        if (combinadas.length === 0) return false;
+        // Si hay un documento abierto, se guarda primero lo que está en pantalla
+        const abierto = (vistaActivaActual === 'vistaDetalleBosquejo' && idBosquejoActual) || (vistaActivaActual === 'vistaDetalleQA' && idQAActual);
+        aplicarFilas(combinadas);
+        remotas.forEach(f => {
+            ultimoGuardado[f.id] = JSON.stringify(docAFila(filaADoc(f), f.tipo));
+            fechaConocida[f.id] = f.updated_at;
+        });
+        await idbReemplazarTodo('docs', combinadas);
+        if (abierto) guardarEstadoActual();
+        estadoSync.conectado = true;
+        estadoSync.ultimaSync = new Date().toISOString();
+        estadoSync.error = null;
+        return true;
+    }
+
+    async function sincronizarAhora(manual = false) {
+        try {
+            await vaciarGuardados();
+            const hayDatos = await sincronizarConNube();
+            if (!hayDatos) {
+                // Nube vacía: sube los documentos actuales (primera vez)
+                [...bosquejosData.map(b => ['bosquejo', b]), ...qaData.map(q => ['qa', q])]
+                    .forEach(([tipo, d]) => { delete ultimoGuardado[d.id]; programarGuardado(d, tipo, true); });
+            }
+            await vaciarGuardados();
+            if (manual) mostrarAlerta('Sincronizado con la nube');
+        } catch (err) {
+            estadoSync.conectado = navigator.onLine;
+            estadoSync.error = String(err.message || err);
+            if (manual) mostrarAlerta('No se pudo sincronizar: ' + (navigator.onLine ? 'error de la nube' : 'sin internet'));
+        }
+        refrescarListas();
+    }
+
+    async function iniciarApp() {
+        document.getElementById('listaBosquejosContainer').innerHTML =
+            `<div style="padding: 24px; text-align: center; color: var(--text-sub);">Cargando bosquejos…</div>`;
+
+        // 1. Lo guardado en el dispositivo aparece al instante (funciona sin internet)
+        const [locales, pendientes] = await Promise.all([idbTodos('docs'), idbTodos('pendientes')]);
+        pendientes.forEach(p => { pendientesGuardar[p.id] = p; });
+        if (locales.length > 0) {
+            aplicarFilas(locales.sort((a, b) => String(a.created_at || '').localeCompare(String(b.created_at || ''))));
+            locales.forEach(f => { if (!pendientesGuardar[f.id]) ultimoGuardado[f.id] = JSON.stringify(docAFila(filaADoc(f), f.tipo)); });
+        }
+        refrescarListas();
+        renderizarListaBosquejos();
+
+        // 2. Después se sincroniza con la nube
+        if (navigator.onLine) {
+            await sincronizarAhora(false);
+            if (estadoSync.error && locales.length === 0) {
+                mostrarAlerta('No se pudo conectar con la nube. Mostrando ejemplos.');
+            }
+        } else {
+            estadoSync.conectado = false;
+            mostrarAlerta(locales.length ? 'Sin internet: trabajando con tus datos guardados' : 'Sin internet: conéctate una vez para descargar tus datos');
+        }
+        renderizarListaBosquejos();
+        refrescarListas();
+        inicioCompleto = true;
+    }
+    let inicioCompleto = false;
+
+    window.addEventListener('online', () => {
+        estadoSync.conectado = true;
+        mostrarAlerta('Conexión recuperada: sincronizando…');
+        sincronizarAhora(false);
+    });
+    window.addEventListener('offline', () => {
+        estadoSync.conectado = false;
+        refrescarListas();
+    });
+
+    // Autoguardado mientras se escribe o se da formato
+    let timerAutoguardado = null;
+    document.addEventListener('input', () => {
+        if (vistaActivaActual !== 'vistaDetalleBosquejo' && vistaActivaActual !== 'vistaDetalleQA') return;
+        if (timerAutoguardado) clearTimeout(timerAutoguardado);
+        timerAutoguardado = setTimeout(guardarEstadoActual, 600);
+    });
+
+    // Respaldo periódico (cambios de imágenes, posición de lectura, etc.)
+    setInterval(() => {
+        if (vistaActivaActual === 'vistaDetalleBosquejo' || vistaActivaActual === 'vistaDetalleQA') guardarEstadoActual();
+    }, 15000);
+
+    // Guardar al cambiar de pestaña, minimizar o cerrar
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            guardarEstadoActual();
+            vaciarGuardados(true);
+        }
+    });
+    window.addEventListener('pagehide', () => {
+        guardarEstadoActual();
+        vaciarGuardados(true);
+    });
+
+    /* PESTAÑAS: los discursos se guardan con id que empieza por "d-" */
+    let pestanaBosquejos = 'bosquejos';
+    try {
+        const guardada = localStorage.getItem('bosquejos_pestana');
+        if (guardada === 'bosquejos' || guardada === 'discursos') pestanaBosquejos = guardada;
+    } catch (e) {}
+
+    function esDiscurso(doc) {
+        return String(doc.id).startsWith('d-');
+    }
+
+    function cambiarPestanaBosquejos(pestana) {
+        pestanaBosquejos = pestana;
+        try { localStorage.setItem('bosquejos_pestana', pestana); } catch (e) {}
+        renderizarListaBosquejos();
+    }
+
+    // Número del título ("191. ...", "Núm. 191 ...", "12 - ...") para ordenar
+    function numeroDeTitulo(titulo) {
+        const m = String(titulo || '').match(/\d+/);
+        return m ? parseInt(m[0], 10) : Infinity;
+    }
+
+    function ordenarPorNumero(lista) {
+        return lista
+            .map((doc, i) => ({ doc, i, n: numeroDeTitulo(doc.titulo) }))
+            .sort((a, b) => (a.n - b.n) || (a.i - b.i))
+            .map(x => x.doc);
+    }
+
+    function renderizarListaBosquejos() {
+        const container = document.getElementById('listaBosquejosContainer');
+        const enDiscursos = pestanaBosquejos === 'discursos';
+
+        document.querySelectorAll('.list-tab').forEach(tab => {
+            const activa = tab.dataset.pestana === pestanaBosquejos;
+            tab.classList.toggle('active', activa);
+            tab.setAttribute('aria-selected', activa ? 'true' : 'false');
+        });
+        const btnAdd = document.querySelector('#vistaDiscursos .icon-btn-add');
+        if (btnAdd) btnAdd.title = enDiscursos ? 'Nuevo Discurso' : 'Nuevo Bosquejo';
+
+        const lista = ordenarPorNumero(bosquejosData.filter(b => esDiscurso(b) === enDiscursos));
+        if (lista.length === 0) {
+            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-sub);">${enDiscursos ? 'No hay discursos creados.' : 'No hay bosquejos creados.'}</div>`;
+            return;
+        }
+        container.innerHTML = lista.map(b => `
+            <div class="discourse-item" onclick="abrirBosquejo('${b.id}')">
+                <div class="discourse-item-left">
+                    <div class="discourse-thumb"><span class="material-symbols-outlined">${esDiscurso(b) ? 'record_voice_over' : 'menu_book'}</span></div>
+                    <div>
+                        <div class="discourse-title-text">${escaparHTML(b.titulo)}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-sub);">${escaparHTML(textoSub(b))}</div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderizarListaQAs() {
+        const container = document.getElementById('listaQAsContainer');
+        if (qaData.length === 0) {
+            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-sub);">No hay cuestionarios creados.</div>`;
+            return;
+        }
+        container.innerHTML = qaData.map(q => `
+            <div class="discourse-item" onclick="abrirQA('${q.id}')">
+                <div class="discourse-item-left">
+                    <div class="discourse-thumb" style="background: #fff7ed; color: #f97316;"><span class="material-symbols-outlined">favorite</span></div>
+                    <div>
+                        <div class="discourse-title-text">${escaparHTML(q.titulo)}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-sub);">${escaparHTML(textoSub(q))}</div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    /* GESTIÓN DE IMÁGENES */
+    let imagenSeleccionadaActual = null;
+    const handlesActivos = new WeakSet();
+    let resizingActive = false;
+    let currentHandle = null;
+    let startX = 0, startWidth = 0;
+
+    document.addEventListener('click', (e) => {
+        const img = e.target.closest('img');
+        const cropToolbar = document.getElementById('imageCropToolbar');
+        const textToolbar = document.getElementById('floatingTextToolbar');
+
+        if (cropToolbar.contains(e.target)) return;
+
+        if (img && (img.closest('.editable-area') || img.closest('.reference-body-text') || img.closest('.qa-answer-input'))) {
+            e.stopPropagation();
+            envolverImagen(img);
+            return;
+        }
+
+        if (!e.target.closest('.image-wrapper') && !textToolbar.contains(e.target)) {
+            deseleccionarImagenActiva();
+        }
+    });
+
+    document.addEventListener('dblclick', (e) => {
+        const img = e.target.closest('img');
+        if (img && img.closest('.image-wrapper')) {
+            e.stopPropagation();
+            imagenSeleccionadaActual = img.closest('.image-wrapper');
+            mostrarBarraRecorte(imagenSeleccionadaActual, e);
+        }
+    });
+
+    // Los controles de tamaño son <span> (no <div>): un <div> dentro de un párrafo lo partía en dos
+    // al guardar/recargar. Además no se guardan: se crean al seleccionar la imagen.
+    function ponerControlesTamanio(wrapper) {
+        wrapper.querySelectorAll('.resize-handle').forEach(h => { if (!handlesActivos.has(h)) h.remove(); });
+        if (wrapper.querySelectorAll('.resize-handle').length === 4) return;
+        wrapper.querySelectorAll('.resize-handle').forEach(h => h.remove());
+        ['tl', 'tr', 'bl', 'br'].forEach(pos => {
+            const handle = document.createElement('span');
+            handle.className = `resize-handle handle-${pos}`;
+            handle.addEventListener('mousedown', (e) => iniciarRedimensionado(e, wrapper, pos));
+            handle.addEventListener('touchstart', (e) => iniciarRedimensionadoTacto(e, wrapper, pos));
+            handlesActivos.add(handle);
+            wrapper.insertBefore(handle, wrapper.firstChild);
+        });
+    }
+
+    function envolverImagen(img) {
+        if (img.parentElement.classList.contains('image-wrapper')) {
+            const wrapperExistente = img.parentElement;
+            ponerControlesTamanio(wrapperExistente);
+            seleccionarImagenWrapper(wrapperExistente);
+            return;
+        }
+
+        const wrapper = document.createElement('span');
+        wrapper.className = 'image-wrapper';
+        wrapper.contentEditable = 'false';
+        img.parentNode.insertBefore(wrapper, img);
+        wrapper.appendChild(img);
+        ponerControlesTamanio(wrapper);
+        seleccionarImagenWrapper(wrapper);
+    }
+
+    function seleccionarImagenWrapper(wrapper) {
+        deseleccionarImagenActiva();
+        imagenSeleccionadaActual = wrapper;
+        wrapper.classList.add('selected');
+    }
+
+    function deseleccionarImagenActiva() {
+        document.querySelectorAll('.image-wrapper.selected').forEach(w => w.classList.remove('selected'));
+        document.getElementById('imageCropToolbar').style.display = 'none';
+        imagenSeleccionadaActual = null;
+    }
+
+    function iniciarRedimensionado(e, wrapper, handlePos) {
+        e.preventDefault();
+        e.stopPropagation();
+        resizingActive = true;
+        currentHandle = handlePos;
+        startX = e.clientX;
+        startWidth = wrapper.querySelector('img').offsetWidth;
+
+        document.addEventListener('mousemove', enMovimientoRedimension);
+        document.addEventListener('mouseup', detenerRedimensionado);
+    }
+
+    function iniciarRedimensionadoTacto(e, wrapper, handlePos) {
+        e.stopPropagation();
+        resizingActive = true;
+        currentHandle = handlePos;
+        startX = e.touches[0].clientX;
+        startWidth = wrapper.querySelector('img').offsetWidth;
+
+        document.addEventListener('touchmove', enMovimientoRedimensionTacto);
+        document.addEventListener('touchend', detenerRedimensionadoTacto);
+    }
+
+    function enMovimientoRedimension(e) {
+        if (!resizingActive || !imagenSeleccionadaActual) return;
+        const img = imagenSeleccionadaActual.querySelector('img');
+        const deltaX = e.clientX - startX;
+        let nuevoAncho = currentHandle.includes('l') ? startWidth - deltaX : startWidth + deltaX;
+        if (nuevoAncho > 50 && nuevoAncho < window.innerWidth * 0.9) {
+            img.style.width = nuevoAncho + 'px';
+        }
+    }
+
+    function enMovimientoRedimensionTacto(e) {
+        if (!resizingActive || !imagenSeleccionadaActual) return;
+        const img = imagenSeleccionadaActual.querySelector('img');
+        const deltaX = e.touches[0].clientX - startX;
+        let nuevoAncho = currentHandle.includes('l') ? startWidth - deltaX : startWidth + deltaX;
+        if (nuevoAncho > 50 && nuevoAncho < window.innerWidth * 0.9) {
+            img.style.width = nuevoAncho + 'px';
+        }
+    }
+
+    function detenerRedimensionado() {
+        resizingActive = false;
+        document.removeEventListener('mousemove', enMovimientoRedimension);
+        document.removeEventListener('mouseup', detenerRedimensionado);
+    }
+
+    function detenerRedimensionadoTacto() {
+        resizingActive = false;
+        document.removeEventListener('touchmove', enMovimientoRedimensionTacto);
+        document.removeEventListener('touchend', detenerRedimensionadoTacto);
+    }
+
+    // Coloca una barra flotante encima de un elemento; si no cabe arriba, la pone debajo.
+    // Siempre queda completa dentro de la pantalla. Devuelve true si quedó arriba.
+    function posicionarBarraFlotante(barra, rect) {
+        barra.style.display = 'flex';
+        barra.style.left = '0px';
+        barra.style.top = '0px';
+        const margen = 8, separacion = 10;
+        const ancho = barra.offsetWidth, alto = barra.offsetHeight;
+        const vw = document.documentElement.clientWidth, vh = window.innerHeight;
+
+        let top;
+        const caeArriba = rect.top - alto - separacion >= margen;
+        if (caeArriba) {
+            top = rect.top - alto - separacion;
+        } else if (rect.bottom + separacion + alto <= vh - margen) {
+            top = rect.bottom + separacion;
+        } else {
+            top = margen;   // elemento muy alto: arriba de la pantalla
+        }
+        let left = rect.left + rect.width / 2 - ancho / 2;
+        left = Math.max(margen, Math.min(vw - ancho - margen, left));
+
+        barra.style.top = (top + window.scrollY) + 'px';
+        barra.style.left = (left + window.scrollX) + 'px';
+        return caeArriba;
+    }
+
+    function mostrarBarraRecorte(wrapper, e) {
+        const toolbar = document.getElementById('imageCropToolbar');
+        posicionarBarraFlotante(toolbar, wrapper.getBoundingClientRect());
+    }
+
+    function eliminarImagenSeleccionada() {
+        if (!imagenSeleccionadaActual) return;
+        const wrapper = imagenSeleccionadaActual;
+        deseleccionarImagenActiva();
+        wrapper.remove();
+        document.getElementById('imageCropToolbar').style.display = 'none';
+        guardarEstadoActual();
+        mostrarAlerta('Imagen eliminada');
+    }
+
+    function recortarImagenAccion(modo) {
+        if (!imagenSeleccionadaActual) return;
+        const img = imagenSeleccionadaActual.querySelector('img');
+        if (modo === 'cuadrado') {
+            img.style.aspectRatio = '1 / 1';
+            img.style.objectFit = 'cover';
+            mostrarAlerta('Imagen recortada a formato cuadrado');
+        } else if (modo === 'horizontal') {
+            img.style.aspectRatio = '16 / 9';
+            img.style.objectFit = 'cover';
+            mostrarAlerta('Imagen recortada a formato horizontal');
+        } else if (modo === 'reset') {
+            img.style.aspectRatio = 'auto';
+            img.style.objectFit = 'fill';
+            img.style.width = '100%';
+            mostrarAlerta('Imagen restaurada');
+        }
+        document.getElementById('imageCropToolbar').style.display = 'none';
+    }
+
+    let targetEditableElement = null;
+
+    document.addEventListener('contextmenu', (e) => {
+        const editableTarget = e.target.closest('[contenteditable="true"], .editable-area, .reference-body-text, .qa-answer-input');
+        if (editableTarget) {
+            e.preventDefault();
+            targetEditableElement = editableTarget;
+            // Dónde irá la imagen: el cursor actual si está en este cuadro; si no, el punto donde hiciste clic derecho
+            const sel = window.getSelection();
+            const rCursor = sel.rangeCount ? sel.getRangeAt(0) : null;
+            puntoInsercionImagen = (rCursor && editableTarget.contains(rCursor.startContainer))
+                ? rCursor.cloneRange()
+                : rangoEnPunto(e.clientX, e.clientY);
+
+            const menu = document.getElementById('cardContextMenu');
+            menu.style.top = Math.min(e.clientY, window.innerHeight - 70) + 'px';
+            menu.style.left = Math.min(e.clientX, window.innerWidth - 200) + 'px';
+            menu.classList.add('show');
+        }
+    });
+
+    window.addEventListener('click', () => {
+        const menu = document.getElementById('cardContextMenu');
+        if (menu) menu.classList.remove('show');
+        document.querySelectorAll('.ref-dropdown-menu').forEach(m => m.classList.remove('show'));
+        document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('show'));
+    });
+
+    function toggleRefDropdown(event, btn) {
+        event.stopPropagation();
+        document.querySelectorAll('.ref-dropdown-menu').forEach(m => {
+            if (m !== btn.nextElementSibling) m.classList.remove('show');
+        });
+        const dropdown = btn.nextElementSibling;
+        if (dropdown) dropdown.classList.toggle('show');
+    }
+
+    function toggleDropdownPanel(panelId, event) {
+        event.stopPropagation();
+        document.querySelectorAll('.dropdown-panel').forEach(p => {
+            if (p.id !== panelId) p.classList.remove('show');
+        });
+        const panel = document.getElementById(panelId);
+        if (!panel) return;
+        panel.classList.toggle('show');
+        if (panel.classList.contains('show')) {
+            // Abre hacia arriba si hay espacio; si no, hacia abajo (para que siempre se vea completo)
+            panel.classList.remove('abajo');
+            const r = panel.getBoundingClientRect();
+            if (r.top < 8) panel.classList.add('abajo');
+            // Que tampoco se salga por los lados
+            panel.style.marginLeft = '0px';
+            const r2 = panel.getBoundingClientRect();
+            const vw = document.documentElement.clientWidth;
+            if (r2.left < 8) panel.style.marginLeft = (8 - r2.left) + 'px';
+            else if (r2.right > vw - 8) panel.style.marginLeft = (vw - 8 - r2.right) + 'px';
+        }
+    }
+
+    function eliminarTarjetaReferencia(btn) {
+        const card = btn.closest('.reference-item-card');
+        if (card) {
+            const refId = card.getAttribute('data-ref-id') || card.id;
+            const mainEditor = vistaActivaActual === 'vistaDetalleBosquejo' 
+                ? document.getElementById('bosquejoEditorContent') 
+                : document.getElementById('qaEditorMainContent');
+
+            if (mainEditor && refId) {
+                const enlazados = mainEditor.querySelectorAll(`[data-refid="${refId}"]`);
+                enlazados.forEach(span => {
+                    const textoLimpio = span.textContent.replace('visibility', '').trim();
+                    const textNode = document.createTextNode(textoLimpio);
+                    span.parentNode.replaceChild(textNode, span);
+                });
+            }
+            card.remove();
+            asegurarRefActiva();
+            guardarEstadoActual();
+            mostrarAlerta('Referencia eliminada y desmarcada del texto');
+        }
+    }
+
+    function crearNuevoBosquejo() {
+        const esNuevoDiscurso = pestanaBosquejos === 'discursos';
+        const nuevoId = (esNuevoDiscurso ? 'd-' : 'b-') + Date.now();
+        const nuevo = {
+            id: nuevoId,
+            titulo: esNuevoDiscurso ? 'Nuevo Discurso' : 'Nuevo Bosquejo Personalizado',
+            sub: esNuevoDiscurso ? 'Discurso' : 'Creado recientemente',
+            scrollPos: 0,
+            contenido: `
+                <div class="reader-breadcrumb">${esNuevoDiscurso ? 'Discursos' : 'Bosquejos personalizados'}</div>
+                <h1>Nuevo Título del Discurso</h1>
+                <div class="reader-note" contenteditable="true">
+                    <strong>Nota:</strong> Escribe aquí tus notas...
+                </div>
+                <h2>Introducción (1 min.)</h2>
+                <p>Escribe aquí el contenido...</p>
+            `,
+            panelContenido: `
+                <div class="reference-item-card" data-ref-id="ref-init-${nuevoId}" id="ref-init-${nuevoId}">
+                    <div class="reference-card-header">
+                        <div class="reference-item-source editable-area" contenteditable="true">Punto clave</div>
+                        <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                        </button>
+                        <div class="ref-dropdown-menu">
+                            <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="reference-body-text editable-area" contenteditable="true">Añade información aquí...</div>
+                </div>
+            `
+        };
+        bosquejosData.push(nuevo);
+        programarGuardado(nuevo, 'bosquejo', true);
+        abrirBosquejo(nuevoId);
+        mostrarAlerta(esNuevoDiscurso ? '¡Discurso creado con éxito!' : '¡Bosquejo creado con éxito!');
+    }
+
+    function abrirBosquejo(id) {
+        guardarEstadoActual();
+        idBosquejoActual = id;
+        const b = bosquejosData.find(item => item.id === id);
+        if (b) {
+            document.getElementById('bosquejoEditorContent').innerHTML = b.contenido;
+            document.getElementById('activeDevelopmentView').innerHTML = b.panelContenido || '';
+            cambiarVista('vistaDetalleBosquejo', null);
+            asegurarRefActiva();
+        }
+    }
+
+    function crearNuevoCuestionarioQA() {
+        const nuevoId = 'qa-' + Date.now();
+        const nuevo = {
+            id: nuevoId,
+            titulo: 'Nuevo Cuestionario de Estudio',
+            sub: 'Preguntas y Respuestas',
+            scrollPos: 0,
+            contenido: `
+                <div class="reader-breadcrumb">Preguntas y Respuestas</div>
+                
+                <div class="qa-top-action-bar">
+                    <button class="three-dots-btn" onclick="toggleQADropdown(event)" title="Opciones">
+                        <span class="material-symbols-outlined">more_vert</span>
+                    </button>
+                    
+                    <div class="qa-dropdown-menu" id="qaDropdownMenu">
+                        <button class="qa-dropdown-item" onclick="agregarNuevoTemaQA()">
+                            <span class="material-symbols-outlined" style="font-size: 18px; color: #f97316;">label_important</span> Añadir Tema
+                        </button>
+                        <button class="qa-dropdown-item" onclick="agregarNuevaPreguntaQA()">
+                            <span class="material-symbols-outlined" style="font-size: 18px; color: #2563eb;">add_circle</span> Añadir Pregunta
+                        </button>
+                    </div>
+                </div>
+
+                <div class="qa-theme-container">
+                    <div class="qa-theme-label">TEMA</div>
+                    <div class="qa-theme-title" contenteditable="true">Escribe el tema principal aquí...</div>
+                </div>
+                <div class="qa-item-block">
+                    <div class="qa-question-title" contenteditable="true">1. ¿Escribe la primera pregunta?</div>
+                    <div class="qa-answer-input" contenteditable="true" placeholder="Escribe tu respuesta aquí..."></div>
+                </div>
+                <div id="dynamicQAList"></div>
+            `,
+            panelContenido: `
+                <div class="reference-item-card">
+                    <div class="reference-card-header">
+                        <div class="reference-item-source editable-area" contenteditable="true">Nota general</div>
+                        <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                        </button>
+                        <div class="ref-dropdown-menu">
+                            <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="reference-body-text editable-area" contenteditable="true">Añade notas de apoyo aquí...</div>
+                </div>
+            `
+        };
+        qaData.push(nuevo);
+        programarGuardado(nuevo, 'qa', true);
+        abrirQA(nuevoId);
+        mostrarAlerta('¡Cuestionario creado con éxito!');
+    }
+
+    function abrirQA(id) {
+        guardarEstadoActual();
+        idQAActual = id;
+        const q = qaData.find(item => item.id === id);
+        if (q) {
+            document.getElementById('qaEditorMainContent').innerHTML = q.contenido;
+            document.getElementById('qaActiveDevelopmentView').innerHTML = q.panelContenido || '';
+            cambiarVista('vistaDetalleQA', null);
+            asegurarRefActiva();
+        }
+    }
+
+    function toggleQADropdown(event) {
+        event.stopPropagation();
+        const menu = document.getElementById('qaDropdownMenu');
+        if (menu) menu.classList.toggle('show');
+    }
+
+    function toggleActivePanel() {
+        if (vistaActivaActual === 'vistaDetalleBosquejo') {
+            togglePanel();
+        } else if (vistaActivaActual === 'vistaDetalleQA') {
+            toggleQAPanel();
+        } else {
+            mostrarAlerta('Abre un documento para usar el panel lateral');
+        }
+    }
+
+    function togglePanel() {
+        const panelWrapper = document.getElementById('panelWrapper');
+        const backdrop = document.getElementById('panelBackdrop');
+        const icon = document.getElementById('toggleIcon');
+        const readerLayout = document.getElementById('readerLayout');
+
+        if (window.innerWidth < DESKTOP_BREAKPOINT) {
+            panelWrapper.classList.toggle('open');
+            backdrop.classList.toggle('open');
+            icon.innerText = panelWrapper.classList.contains('open') ? 'keyboard_arrow_right' : 'keyboard_arrow_left';
+        } else {
+            readerLayout.classList.toggle('panel-collapsed');
+            icon.innerText = readerLayout.classList.contains('panel-collapsed') ? 'keyboard_arrow_left' : 'keyboard_arrow_right';
+        }
+    }
+
+    function toggleQAPanel() {
+        const panelWrapper = document.getElementById('qaPanelWrapper');
+        const backdrop = document.getElementById('panelBackdrop');
+        const icon = document.getElementById('toggleIcon');
+        const qaLayout = document.getElementById('qaLayout');
+
+        if (window.innerWidth < DESKTOP_BREAKPOINT) {
+            panelWrapper.classList.toggle('open');
+            backdrop.classList.toggle('open');
+            icon.innerText = panelWrapper.classList.contains('open') ? 'keyboard_arrow_right' : 'keyboard_arrow_left';
+        } else {
+            qaLayout.classList.toggle('panel-collapsed');
+            icon.innerText = qaLayout.classList.contains('panel-collapsed') ? 'keyboard_arrow_left' : 'keyboard_arrow_right';
+        }
+    }
+
+    /* REFERENCIAS: solo una visible a la vez */
+    function contenedorReferencias() {
+        return document.getElementById(vistaActivaActual === 'vistaDetalleQA' ? 'qaActiveDevelopmentView' : 'activeDevelopmentView');
+    }
+    function editorPrincipal() {
+        return document.getElementById(vistaActivaActual === 'vistaDetalleQA' ? 'qaEditorMainContent' : 'bosquejoEditorContent');
+    }
+    function idDeTarjeta(card) {
+        return card.getAttribute('data-ref-id') || card.id;
+    }
+
+    function activarReferencia(id) {
+        const cont = contenedorReferencias();
+        if (!cont) return;
+        const tarjetas = [...cont.querySelectorAll('.reference-item-card')];
+        let elegida = tarjetas.find(c => idDeTarjeta(c) === id);
+        if (!elegida) elegida = tarjetas[0];
+        tarjetas.forEach(c => c.classList.toggle('ref-activa', c === elegida));
+        const editor = editorPrincipal();
+        if (editor) {
+            editor.querySelectorAll('.inline-reference').forEach(s => {
+                s.classList.toggle('ref-activa-texto', !!elegida && s.getAttribute('data-refid') === idDeTarjeta(elegida));
+            });
+        }
+        const titulo = document.getElementById(vistaActivaActual === 'vistaDetalleQA' ? 'qaPanelHeaderTitle' : 'panelHeaderTitle');
+        if (titulo && tarjetas.length > 1) {
+            titulo.dataset.base = titulo.dataset.base || titulo.innerText;
+            titulo.innerText = `${titulo.dataset.base} (${tarjetas.indexOf(elegida) + 1} de ${tarjetas.length})`;
+        } else if (titulo && titulo.dataset.base) {
+            titulo.innerText = titulo.dataset.base;
+        }
+    }
+
+    // Deja exactamente una referencia activa (la que ya lo estaba o la primera)
+    function asegurarRefActiva() {
+        const cont = contenedorReferencias();
+        if (!cont) return;
+        const activa = cont.querySelector('.reference-item-card.ref-activa');
+        activarReferencia(activa ? idDeTarjeta(activa) : null);
+    }
+
+    // Al pulsar Enter se crean párrafos (<p>) en el discurso y en las referencias, con el mismo interlineado
+    try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch (e) {}
+
+    // Al pegar texto de otras páginas se pega limpio, con la misma letra de la app
+    document.addEventListener('paste', (e) => {
+        const destino = e.target.closest && e.target.closest('[contenteditable="true"]');
+        if (!destino || !e.clipboardData) return;
+        const tieneImagen = [...e.clipboardData.items].some(i => i.kind === 'file' && i.type.startsWith('image/'));
+        if (tieneImagen) return;
+        const texto = e.clipboardData.getData('text/plain');
+        if (!texto) return;
+        e.preventDefault();
+        document.execCommand('insertText', false, texto);
+    });
+
+    // Tocar una referencia NO debe abrir el teclado: se evita que el editor reciba el foco
+    function evitarFocoEnReferencia(e) {
+        const ref = e.target && e.target.closest && e.target.closest('.inline-reference');
+        if (!ref) return;
+        e.preventDefault();
+        const activo = document.activeElement;
+        if (activo && activo.isContentEditable && activo.blur) activo.blur();
+    }
+    document.addEventListener('pointerdown', evitarFocoEnReferencia, true);
+    document.addEventListener('mousedown', evitarFocoEnReferencia, true);
+
+    // Tocar el texto referido abre su referencia
+    document.addEventListener('click', (e) => {
+        const ref = e.target.closest('.inline-reference');
+        if (!ref) return;
+        const seleccion = window.getSelection();
+        if (seleccion && !seleccion.isCollapsed && seleccion.toString().trim()) return;   // está seleccionando texto
+        e.preventDefault();
+        mostrarPuntoPanel(ref.getAttribute('data-refid'));
+    });
+
+    function mostrarPuntoPanel(id) {
+        // En celular y tableta: al abrir una referencia se cierra el teclado (solo se quiere leer)
+        if (window.innerWidth < DESKTOP_BREAKPOINT || window.matchMedia('(hover: none)').matches) {
+            const activo = document.activeElement;
+            if (activo && activo.isContentEditable && activo.blur) activo.blur();
+            window.getSelection().removeAllRanges();
+        }
+        const panelWrapper = document.getElementById(vistaActivaActual === 'vistaDetalleBosquejo' ? 'panelWrapper' : 'qaPanelWrapper');
+        const readerLayout = document.getElementById(vistaActivaActual === 'vistaDetalleBosquejo' ? 'readerLayout' : 'qaLayout');
+        const backdrop = document.getElementById('panelBackdrop');
+        const icon = document.getElementById('toggleIcon');
+
+        if (window.innerWidth < DESKTOP_BREAKPOINT) {
+            panelWrapper.classList.add('open');
+            backdrop.classList.add('open');
+            icon.innerText = 'keyboard_arrow_right';
+        } else {
+            if (readerLayout.classList.contains('panel-collapsed')) {
+                readerLayout.classList.remove('panel-collapsed');
+                icon.innerText = 'keyboard_arrow_right';
+            }
+        }
+
+        activarReferencia(id);
+        const tarjeta = document.getElementById(id);
+        if (tarjeta) {
+            const caja = tarjeta.closest('.reference-box');
+            if (caja) caja.scrollTop = 0;
+        }
+    }
+
+    let contadorPreguntasQA = 1;
+    function agregarNuevoTemaQA() {
+        const container = document.getElementById('dynamicQAList');
+        if(!container) return;
+        const divTema = document.createElement('div');
+        divTema.className = 'qa-theme-container';
+        divTema.innerHTML = `
+            <div class="qa-theme-label">TEMA</div>
+            <div class="qa-theme-title" contenteditable="true">Nuevo Tema o Sección...</div>
+        `;
+        container.appendChild(divTema);
+        mostrarAlerta('¡Tema añadido!');
+    }
+
+    function agregarNuevaPreguntaQA() {
+        const container = document.getElementById('dynamicQAList');
+        if(!container) return;
+        contadorPreguntasQA = document.querySelectorAll('#qaEditorMainContent .qa-item-block').length + 1;
+        const divBlock = document.createElement('div');
+        divBlock.className = 'qa-item-block';
+        divBlock.innerHTML = `
+            <div class="qa-question-title" contenteditable="true">${contadorPreguntasQA}. Escribe la nueva pregunta...</div>
+            <div class="qa-answer-input" contenteditable="true" placeholder="Escribe tu respuesta aquí..."></div>
+        `;
+        container.appendChild(divBlock);
+        mostrarAlerta('¡Pregunta añadida!');
+    }
+
+    function triggerGlobalImageUploadFromContext() {
+        document.getElementById('globalImageInput').click();
+    }
+
+    /* ---------- IMÁGENES: insertar donde está el cursor y mover sin duplicar ---------- */
+    let puntoInsercionImagen = null;
+    let imagenArrastrada = null;
+
+    function rangoEnPunto(x, y) {
+        if (document.caretRangeFromPoint) return document.caretRangeFromPoint(x, y);
+        if (document.caretPositionFromPoint) {
+            const pos = document.caretPositionFromPoint(x, y);
+            if (!pos) return null;
+            const r = document.createRange();
+            r.setStart(pos.offsetNode, pos.offset);
+            r.collapse(true);
+            return r;
+        }
+        return null;
+    }
+
+    // Devuelve un punto válido para insertar (dentro de un cuadro editable, nunca dentro de una etiqueta o de otra imagen)
+    function puntoValido(rango) {
+        if (!rango) return null;
+        const r = rango.cloneRange();
+        r.collapse(true);
+        let nodo = r.startContainer.nodeType === 3 ? r.startContainer.parentNode : r.startContainer;
+        const bloqueado = nodo.closest && nodo.closest('.inline-reference, .image-wrapper');
+        if (bloqueado) r.setStartAfter(bloqueado), r.collapse(true);
+        nodo = r.startContainer.nodeType === 3 ? r.startContainer.parentNode : r.startContainer;
+        const editable = nodo.closest && nodo.closest('[contenteditable="true"]');
+        if (!editable) return null;
+        const editor = editorPrincipal(), panel = contenedorReferencias();
+        if (!((editor && editor.contains(editable)) || (panel && panel.contains(editable)))) return null;
+        return r;
+    }
+
+    function insertarImagenEn(src, rango, respaldo) {
+        const img = document.createElement('img');
+        img.src = src;
+        const r = puntoValido(rango);
+        if (r) {
+            r.insertNode(img);
+        } else if (respaldo) {
+            respaldo.appendChild(img);
+        } else {
+            return null;
+        }
+        envolverImagen(img);
+        // Cursor justo después de la imagen, para seguir escribiendo
+        const wrapper = img.closest('.image-wrapper') || img;
+        const despues = document.createRange();
+        despues.setStartAfter(wrapper);
+        despues.collapse(true);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(despues);
+        guardarEstadoActual();
+        return wrapper;
+    }
+
+    function leerArchivoComoDataURL(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function handleGlobalImageUpload(event) {
+        const file = event.target.files[0];
+        event.target.value = '';
+        if (!file || !targetEditableElement) return;
+        const src = await leerArchivoComoDataURL(file);
+        insertarImagenEn(src, puntoInsercionImagen, targetEditableElement);
+        puntoInsercionImagen = null;
+        mostrarAlerta('¡Imagen insertada con éxito!');
+    }
+
+    // Pegar una imagen (Ctrl+V): se coloca donde está el cursor
+    document.addEventListener('paste', async (e) => {
+        if (!estaEditando() || !e.clipboardData) return;
+        const archivo = [...e.clipboardData.items].find(i => i.kind === 'file' && i.type.startsWith('image/'));
+        if (!archivo) return;
+        const sel = window.getSelection();
+        const rango = sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+        if (!puntoValido(rango)) return;
+        e.preventDefault();
+        const src = await leerArchivoComoDataURL(archivo.getAsFile());
+        insertarImagenEn(src, rango);
+    });
+
+    // Arrastrar una imagen: se MUEVE al punto donde la sueltas (sin crear copias)
+    document.addEventListener('dragstart', (e) => {
+        const img = e.target && e.target.closest && e.target.closest('img');
+        if (!img || !estaEditando()) return;
+        const editor = editorPrincipal(), panel = contenedorReferencias();
+        if (!((editor && editor.contains(img)) || (panel && panel.contains(img)))) return;
+        imagenArrastrada = img.closest('.image-wrapper') || img;
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', ''); } catch (err) {}
+        deseleccionarImagenActiva();
+    });
+    document.addEventListener('dragover', (e) => {
+        if (!estaEditando()) return;
+        if (imagenArrastrada || (e.dataTransfer && [...e.dataTransfer.types].includes('Files'))) {
+            if (puntoValido(rangoEnPunto(e.clientX, e.clientY))) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = imagenArrastrada ? 'move' : 'copy';
+            }
+        }
+    });
+    document.addEventListener('drop', async (e) => {
+        if (!estaEditando()) return;
+        const destino = puntoValido(rangoEnPunto(e.clientX, e.clientY));
+        if (imagenArrastrada) {
+            e.preventDefault();   // evita que el navegador pegue una copia
+            const img = imagenArrastrada;
+            imagenArrastrada = null;
+            if (!destino || img.contains(destino.startContainer)) return;
+            registrarCambio();
+            destino.insertNode(img);
+            seleccionarImagenWrapper(img.classList.contains('image-wrapper') ? img : (envolverImagen(img), img.closest('.image-wrapper')));
+            guardarEstadoActual();
+            return;
+        }
+        const archivos = e.dataTransfer ? [...e.dataTransfer.files].filter(f => f.type.startsWith('image/')) : [];
+        if (archivos.length && destino) {
+            e.preventDefault();
+            registrarCambio();
+            for (const f of archivos) insertarImagenEn(await leerArchivoComoDataURL(f), destino);
+        }
+    });
+    document.addEventListener('dragend', () => { imagenArrastrada = null; });
+
+    let rangoSeleccionado = null;
+    const toolbar = document.getElementById('floatingTextToolbar');
+
+    document.addEventListener('mouseup', (e) => {
+        if (toolbar.contains(e.target) || document.getElementById('cardContextMenu').contains(e.target)) return;
+        const seleccion = window.getSelection();
+        if (!seleccion.isCollapsed && seleccion.toString().trim().length > 0) {
+            rangoSeleccionado = seleccion.getRangeAt(0);
+            const rect = rangoSeleccionado.getBoundingClientRect();
+            document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('show'));
+            posicionarBarraFlotante(toolbar, rect);
+
+            let nodoPadre = rangoSeleccionado.commonAncestorContainer;
+            if (nodoPadre.nodeType === 3) nodoPadre = nodoPadre.parentNode;
+            targetEditableElement = nodoPadre.closest('[contenteditable="true"], .editable-area, .reference-body-text, .qa-answer-input');
+
+            const bloque = nodoPadre.closest('h1, h2, h3, p');
+            const selector = document.getElementById('headingSelector');
+            if (bloque && ['H1', 'H2', 'H3', 'P'].includes(bloque.tagName)) {
+                selector.value = bloque.tagName;
+            } else {
+                selector.value = 'P';
+            }
+        } else {
+            toolbar.style.display = 'none';
+        }
+    });
+
+    function aplicarFormatoSeleccion(comando, valor = null) {
+        document.execCommand(comando, false, valor);
+    }
+
+    function cambiarTipoTexto(tag) {
+        if (tag === 'P') {
+            document.execCommand('formatBlock', false, '<p>');
+        } else {
+            document.execCommand('formatBlock', false, '<' + tag + '>');
+        }
+    }
+
+    function aplicarColorTexto(colorHex) {
+        document.execCommand('styleWithCSS', false, true);
+        if (colorHex === 'inherit') {
+            document.execCommand('removeFormat', false, 'foreColor');
+        } else {
+            document.execCommand('foreColor', false, colorHex);
+        }
+        document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('show'));
+    }
+
+    function aplicarResaltado(colorHex) {
+        document.execCommand('styleWithCSS', false, true);
+        if (colorHex === 'transparent') {
+            document.execCommand('removeFormat', false, 'backColor');
+        } else {
+            document.execCommand('backColor', false, colorHex);
+        }
+        document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('show'));
+    }
+
+    function toggleNotaDesdeSeleccion() {
+        if (!rangoSeleccionado) return;
+        let nodoComun = rangoSeleccionado.commonAncestorContainer;
+        if (nodoComun.nodeType === 3) nodoComun = nodoComun.parentNode;
+
+        const notaExistente = nodoComun.closest('.reader-note');
+        if (notaExistente) {
+            const spanContenido = notaExistente.textContent.replace('Nota:', '').trim();
+            const textNode = document.createTextNode(spanContenido);
+            notaExistente.parentNode.replaceChild(textNode, notaExistente);
+            toolbar.style.display = 'none';
+            mostrarAlerta('Nota quitada con éxito');
+            return;
+        }
+
+        const textoSeleccionado = rangoSeleccionado.toString().trim();
+        if (!textoSeleccionado) return;
+
+        const divNota = document.createElement('div');
+        divNota.className = 'reader-note';
+        divNota.setAttribute('contenteditable', 'true');
+        divNota.innerHTML = `<strong>Nota:</strong> ${textoSeleccionado}`;
+
+        rangoSeleccionado.deleteContents();
+        rangoSeleccionado.insertNode(divNota);
+
+        toolbar.style.display = 'none';
+        mostrarAlerta('¡Nota creada con éxito!');
+    }
+
+    // Quita espacios al inicio y al final de la selección (para no etiquetar espacios ni letras de más)
+    function recortarEspaciosRango(r) {
+        while (r.startContainer.nodeType === 3 && r.startOffset < r.startContainer.length && /\s/.test(r.startContainer.data[r.startOffset]) && !r.collapsed) {
+            r.setStart(r.startContainer, r.startOffset + 1);
+        }
+        while (r.endContainer.nodeType === 3 && r.endOffset > 0 && /\s/.test(r.endContainer.data[r.endOffset - 1]) && !r.collapsed) {
+            r.setEnd(r.endContainer, r.endOffset - 1);
+        }
+        return r;
+    }
+
+    function bloqueDe(nodo, raiz) {
+        let n = nodo.nodeType === 3 ? nodo.parentNode : nodo;
+        while (n && n !== raiz) {
+            if (/^(P|H1|H2|H3|LI|DIV)$/.test(n.tagName)) return n;
+            n = n.parentNode;
+        }
+        return raiz;
+    }
+
+    // Usa la selección que hay AHORA en pantalla (no una vieja) y la valida
+    function obtenerRangoParaReferencia() {
+        const sel = window.getSelection();
+        // Si al pulsar el botón el navegador soltó la selección, se usa la última (se borra en cuanto escribes)
+        let r = (sel.rangeCount && !sel.isCollapsed) ? sel.getRangeAt(0) : (rangoSeleccionado && !rangoSeleccionado.collapsed ? rangoSeleccionado : null);
+        if (!r) return { error: 'Selecciona primero el texto que quieres referenciar' };
+        r = recortarEspaciosRango(r.cloneRange());
+        if (r.collapsed || !r.toString().trim()) return { error: 'Selecciona primero el texto que quieres referenciar' };
+        const editor = editorPrincipal();
+        if (!editor || !editor.contains(r.commonAncestorContainer)) return { error: 'Las referencias se crean sobre el texto del discurso' };
+        const dentroDeRef = (n) => (n.nodeType === 3 ? n.parentNode : n).closest('.inline-reference');
+        const yaTiene = dentroDeRef(r.startContainer) || dentroDeRef(r.endContainer) ||
+            [...editor.querySelectorAll('.inline-reference')].some(el => r.intersectsNode(el));
+        if (yaTiene) return { error: 'Ese texto ya tiene una referencia' };
+        if (bloqueDe(r.startContainer, editor) !== bloqueDe(r.endContainer, editor)) return { error: 'Selecciona texto dentro de un mismo párrafo' };
+        return { rango: r };
+    }
+
+    function crearReferenciaDesdeSeleccion() {
+        const { rango, error } = obtenerRangoParaReferencia();
+        if (error) { mostrarAlerta(error); return; }
+        const textoSeleccionado = rango.toString().trim();
+        const nuevaId = 'ref-' + Date.now();
+        const tituloRef = textoSeleccionado.length > 30 ? textoSeleccionado.substring(0, 30) + '...' : textoSeleccionado;
+
+        // El texto seleccionado se conserva completo; al tocarlo se abre su referencia
+        const spanEnlace = document.createElement('span');
+        spanEnlace.className = 'inline-reference';
+        spanEnlace.setAttribute('contenteditable', 'false');
+        spanEnlace.setAttribute('data-refid', nuevaId);
+        spanEnlace.appendChild(rango.extractContents());
+        const ojo = document.createElement('span');
+        ojo.className = 'material-symbols-outlined';
+        ojo.style.fontSize = '14px';
+        ojo.textContent = 'visibility';
+        spanEnlace.appendChild(ojo);
+        rango.insertNode(spanEnlace);
+        // Limpia nodos de texto vacíos que quedan al cortar
+        spanEnlace.parentNode && spanEnlace.parentNode.normalize();
+        window.getSelection().removeAllRanges();
+        rangoSeleccionado = null;
+
+        const panelContenido = document.getElementById(vistaActivaActual === 'vistaDetalleBosquejo' ? 'activeDevelopmentView' : 'qaActiveDevelopmentView');
+        if (panelContenido) {
+            const nuevaTarjeta = document.createElement('div');
+            nuevaTarjeta.className = 'reference-item-card';
+            nuevaTarjeta.id = nuevaId;
+            nuevaTarjeta.setAttribute('data-ref-id', nuevaId);
+            nuevaTarjeta.innerHTML = `
+                <div class="reference-card-header">
+                    <div class="reference-item-source editable-area" contenteditable="true">${escaparHTML(tituloRef)}</div>
+                    <button class="ref-options-btn" onclick="toggleRefDropdown(event, this)" title="Opciones">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">more_vert</span>
+                    </button>
+                    <div class="ref-dropdown-menu">
+                        <button class="ref-dropdown-item" onclick="eliminarTarjetaReferencia(this)">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">delete</span> Eliminar
+                        </button>
+                    </div>
+                </div>
+                <div class="reference-body-text editable-area" contenteditable="true">Escribe o pega aquí la información de la referencia...</div>
+            `;
+            panelContenido.prepend(nuevaTarjeta);
+        }
+
+        toolbar.style.display = 'none';
+        mostrarAlerta('¡Referencia creada con éxito!');
+        mostrarPuntoPanel(nuevaId);
+    }
+
+    /* =========================================================
+       DESHACER / REHACER PROPIO (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z)
+       El deshacer del navegador no conoce las referencias, notas e imágenes que crea la app
+       y al usarlo duplicaba o rompía etiquetas. Este historial guarda el estado completo
+       del discurso y de sus referencias, así que deshacer siempre deja todo coherente.
+       ========================================================= */
+    const historial = { atras: [], adelante: [], ultimoTipo: '', ultimoMomento: 0 };
+    const MAX_HISTORIAL = 150;
+
+    function reiniciarHistorial() {
+        historial.atras = [];
+        historial.adelante = [];
+        historial.ultimoTipo = '';
+        historial.ultimoMomento = 0;
+    }
+
+    // Posición del cursor como número de caracteres desde el inicio (sobrevive a reemplazar el HTML)
+    function offsetEnRaiz(raiz, nodo, offset) {
+        const r = document.createRange();
+        r.setStart(raiz, 0);
+        r.setEnd(nodo, offset);
+        return r.toString().length;
+    }
+    function puntoDesdeOffset(raiz, objetivo) {
+        const walker = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
+        let acumulado = 0, nodo, ultimo = null;
+        while ((nodo = walker.nextNode())) {
+            ultimo = nodo;
+            if (acumulado + nodo.length >= objetivo) return [nodo, objetivo - acumulado];
+            acumulado += nodo.length;
+        }
+        return ultimo ? [ultimo, ultimo.length] : [raiz, raiz.childNodes.length];
+    }
+
+    function guardarSeleccionHistorial() {
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return null;
+        const r = sel.getRangeAt(0);
+        const raices = [editorPrincipal(), contenedorReferencias()];
+        const i = raices.findIndex(x => x && x.contains(r.startContainer) && x.contains(r.endContainer));
+        if (i < 0) return null;
+        try {
+            return { raiz: i, ini: offsetEnRaiz(raices[i], r.startContainer, r.startOffset), fin: offsetEnRaiz(raices[i], r.endContainer, r.endOffset) };
+        } catch (e) { return null; }
+    }
+
+    function restaurarSeleccionHistorial(s) {
+        if (!s) return;
+        const raiz = [editorPrincipal(), contenedorReferencias()][s.raiz];
+        if (!raiz) return;
+        try {
+            const [n1, o1] = puntoDesdeOffset(raiz, s.ini);
+            const [n2, o2] = puntoDesdeOffset(raiz, s.fin);
+            const r = document.createRange();
+            r.setStart(n1, o1);
+            r.setEnd(n2, o2);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(r);
+            const editable = (n1.nodeType === 3 ? n1.parentNode : n1).closest('[contenteditable="true"]');
+            if (editable) editable.focus({ preventScroll: true });
+        } catch (e) {}
+    }
+
+    function fotoActual() {
+        const editor = editorPrincipal(), panel = contenedorReferencias();
+        if (!editor || !panel) return null;
+        const activa = panel.querySelector('.reference-item-card.ref-activa');
+        return {
+            editor: htmlParaGuardar(editor),
+            panel: htmlParaGuardar(panel),
+            refActiva: activa ? idDeTarjeta(activa) : null,
+            seleccion: guardarSeleccionHistorial()
+        };
+    }
+
+    // Guarda el estado ANTES de un cambio
+    function registrarCambio() {
+        if (!estaEditando()) return;
+        const foto = fotoActual();
+        if (!foto) return;
+        const previa = historial.atras[historial.atras.length - 1];
+        if (previa && previa.editor === foto.editor && previa.panel === foto.panel) return;
+        historial.atras.push(foto);
+        if (historial.atras.length > MAX_HISTORIAL) historial.atras.shift();
+        historial.adelante = [];
+    }
+
+    function aplicarFoto(foto) {
+        const editor = editorPrincipal(), panel = contenedorReferencias();
+        const y = window.scrollY;
+        editor.innerHTML = foto.editor;
+        panel.innerHTML = foto.panel;
+        deseleccionarImagenActiva();
+        activarReferencia(foto.refActiva);
+        restaurarSeleccionHistorial(foto.seleccion);
+        window.scrollTo({ top: y, behavior: 'instant' });
+        document.getElementById('floatingTextToolbar').style.display = 'none';
+        rangoSeleccionado = null;
+        historial.ultimoTipo = '';
+        guardarEstadoActual();
+    }
+
+    function deshacer() {
+        if (!historial.atras.length) { mostrarAlerta('No hay nada más que deshacer'); return; }
+        const actual = fotoActual();
+        let foto = historial.atras.pop();
+        // Salta estados idénticos al actual
+        while (foto && actual && foto.editor === actual.editor && foto.panel === actual.panel) foto = historial.atras.pop();
+        if (!foto) { mostrarAlerta('No hay nada más que deshacer'); return; }
+        if (actual) historial.adelante.push(actual);
+        aplicarFoto(foto);
+    }
+
+    function rehacer() {
+        if (!historial.adelante.length) return;
+        const actual = fotoActual();
+        if (actual) historial.atras.push(actual);
+        aplicarFoto(historial.adelante.pop());
+    }
+
+    // Al escribir: un punto de deshacer por cada "tanda" (pausa de 1 s, o cambio entre escribir/borrar/Enter)
+    document.addEventListener('beforeinput', (e) => {
+        if (!estaEditando()) return;
+        const dentro = e.target && e.target.closest && e.target.closest('#bosquejoEditorContent, #activeDevelopmentView, #qaEditorMainContent, #qaActiveDevelopmentView');
+        if (!dentro) return;
+        if (e.inputType === 'historyUndo') { e.preventDefault(); deshacer(); return; }
+        if (e.inputType === 'historyRedo') { e.preventDefault(); rehacer(); return; }
+        const tipo = e.inputType.startsWith('delete') ? 'borrar' : (e.inputType === 'insertParagraph' || e.inputType === 'insertLineBreak') ? 'enter' : e.inputType.startsWith('format') ? 'formato' : 'escribir';
+        const ahora = Date.now();
+        if (tipo !== historial.ultimoTipo || ahora - historial.ultimoMomento > 1000 || tipo === 'enter' || tipo === 'formato') {
+            registrarCambio();
+        }
+        historial.ultimoTipo = tipo;
+        historial.ultimoMomento = ahora;
+        // Al escribir, la selección guardada para la barra ya no es válida
+        rangoSeleccionado = null;
+        document.getElementById('floatingTextToolbar').style.display = 'none';
+    }, true);
+
+    document.addEventListener('keydown', (e) => {
+        if (!estaEditando() || !(e.ctrlKey || e.metaKey) || e.altKey) return;
+        const k = e.key.toLowerCase();
+        if (k === 'z' && !e.shiftKey) { e.preventDefault(); deshacer(); }
+        else if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); rehacer(); }
+    }, true);
+
+    // Las acciones de la app (referencias, notas, formato, imágenes, temas...) también se pueden deshacer
+    [
+        'crearReferenciaDesdeSeleccion', 'eliminarTarjetaReferencia', 'toggleNotaDesdeSeleccion',
+        'aplicarFormatoSeleccion', 'cambiarTipoTexto', 'aplicarColorTexto', 'aplicarResaltado',
+        'eliminarImagenSeleccionada', 'recortarImagenAccion', 'handleGlobalImageUpload',
+        'agregarNuevoTemaQA', 'agregarNuevaPreguntaQA', 'iniciarRedimensionado', 'iniciarRedimensionadoTacto'
+    ].forEach(nombre => {
+        const original = window[nombre];
+        if (typeof original !== 'function') return;
+        window[nombre] = function (...args) {
+            registrarCambio();
+            historial.ultimoTipo = '';
+            return original.apply(this, args);
+        };
+    });
+    // El texto pegado también es un paso que se puede deshacer
+    document.addEventListener('paste', () => { registrarCambio(); historial.ultimoTipo = ''; }, true);
+
+    // Al abrir otro documento, el historial empieza de cero
+    ['abrirBosquejo', 'abrirQA'].forEach(nombre => {
+        const original = window[nombre];
+        window[nombre] = function (...args) {
+            const r = original.apply(this, args);
+            reiniciarHistorial();
+            return r;
+        };
+    });
+
+    /* MENÚ Y BOTÓN FLOTANTE: responden al PRIMER toque.
+       Antes, si estabas escribiendo, el primer toque solo cerraba el teclado (la pantalla se movía
+       y el toque se perdía). Ahora la acción ocurre al apoyar el dedo, antes de que nada se mueva. */
+    document.querySelectorAll('.nav-item, .floating-panel-toggle').forEach(el => {
+        const accion = el.onclick;
+        if (typeof accion !== 'function') return;
+        el.onclick = null;
+        el.removeAttribute('onclick');
+        let ultimoToque = 0;
+        el.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'mouse' || !e.isPrimary) return;
+            e.preventDefault();             // no quita el foco ni mueve la pantalla antes de tiempo
+            ultimoToque = Date.now();
+            if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+            accion.call(el, e);
+        });
+        el.addEventListener('click', (e) => {
+            if (Date.now() - ultimoToque < 800) return;   // ya se ejecutó con el toque
+            accion.call(el, e);
+        });
+    });
+
+    /* ACTUALIZACIÓN AUTOMÁTICA DE LA APP
+       Si hay una versión nueva, se instala sola. Si estás dentro de un documento, espera a que vuelvas a la lista
+       para no interrumpirte. */
+    let actualizacionPendiente = false;
+    let actualizandoAuto = false;
+
+    function estaEditando() {
+        return vistaActivaActual === 'vistaDetalleBosquejo' || vistaActivaActual === 'vistaDetalleQA';
+    }
+
+    async function aplicarActualizacionAutomatica() {
+        if (actualizandoAuto) return;
+        actualizandoAuto = true;
+        mostrarAlerta('Instalando la versión nueva de la app…');
+        try { await aplicarActualizacion(); } finally { actualizandoAuto = false; }
+    }
+
+    async function revisarActualizacionAutomatica() {
+        if (APP_VERSION === 'dev' || actualizandoAuto || !navigator.onLine) return;
+        if (!(await buscarActualizacion(false))) return;
+        // Protección: si ya se intentó instalar esta versión hace poco y no cambió, no se reintenta en bucle
+        try {
+            const intento = JSON.parse(localStorage.getItem('bosquejos_intento_actualizacion') || 'null');
+            if (intento && intento.version === infoActualizacion.version && Date.now() - intento.fecha < 15 * 60 * 1000) return;
+            localStorage.setItem('bosquejos_intento_actualizacion', JSON.stringify({ version: infoActualizacion.version, fecha: Date.now() }));
+        } catch (e) {}
+        if (estaEditando()) {
+            if (!actualizacionPendiente) mostrarAlerta('Hay una versión nueva: se instalará al volver a la lista');
+            actualizacionPendiente = true;
+        } else {
+            aplicarActualizacionAutomatica();
+        }
+    }
+
+    // Al volver a una lista, se instala la actualización que estaba esperando
+    const cambiarVistaOriginal = cambiarVista;
+    cambiarVista = function (idVista, elementoMenu) {
+        cambiarVistaOriginal(idVista, elementoMenu);
+        if (actualizacionPendiente && !estaEditando()) {
+            actualizacionPendiente = false;
+            setTimeout(aplicarActualizacionAutomatica, 300);
+        }
+    };
+
+    iniciarApp().then(() => {
+        setTimeout(revisarActualizacionAutomatica, 2000);
+    });
+    setInterval(revisarActualizacionAutomatica, 5 * 60 * 1000);
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') revisarActualizacionAutomatica();
+    });
+
+    // Instalación como app: registra el service worker (solo en https o localhost; la app nativa no lo necesita)
+    if (!esAppNativa() && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch(err => console.error('Service worker:', err));
+        });
+    }
+</script>
+
+</body>
+</html>
