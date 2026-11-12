@@ -2241,7 +2241,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.12.0249';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.12.0254';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
@@ -2374,7 +2374,7 @@
                 if (!updater) throw new Error('Actualizador no disponible');
                 if (!infoActualizacion || !infoActualizacion.zip) await buscarActualizacion(false);
                 estado.innerText = 'Descargando la versión nueva…';
-                const bundle = await updater.download({ url: URL_PUBLICADA + infoActualizacion.zip, version: infoActualizacion.version });
+                const bundle = await updater.download({ url: URL_PUBLICADA + infoActualizacion.zip + '?v=' + encodeURIComponent(infoActualizacion.version), version: infoActualizacion.version });
                 estado.innerText = 'Instalando…';
                 await updater.set(bundle);   // reinicia la app con la versión nueva
                 return;
@@ -2461,6 +2461,10 @@
     function htmlParaGuardar(el) {
         const copia = el.cloneNode(true);
         copia.querySelectorAll('.image-wrapper.selected').forEach(w => w.classList.remove('selected'));
+        // Qué referencia se está mirando es algo de cada pantalla, no del documento
+        copia.querySelectorAll('.ref-activa').forEach(e => e.classList.remove('ref-activa'));
+        copia.querySelectorAll('.ref-activa-texto').forEach(e => e.classList.remove('ref-activa-texto'));
+        copia.querySelectorAll('[class=""]').forEach(e => e.removeAttribute('class'));
         return copia.innerHTML;
     }
 
@@ -2606,15 +2610,124 @@
         return resp.json();
     }
 
+    const fechaConocida = {};   // id -> updated_at de la última versión conocida (de la nube o enviada por aquí)
+
     async function enviarFilas(filas, keepalive = false) {
+        const ahora = new Date().toISOString();
         const resp = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLA}?on_conflict=id`, {
             method: 'POST',
             headers: { ...sbHeaders, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-            body: JSON.stringify(filas.map(f => ({ ...f, updated_at: new Date().toISOString() }))),
+            body: JSON.stringify(filas.map(f => ({ ...f, updated_at: ahora }))),
             keepalive
         });
         if (!resp.ok) throw new Error('Supabase ' + resp.status + ': ' + await resp.text());
+        filas.forEach(f => { fechaConocida[f.id] = ahora; });
     }
+
+    /* ---------- Cambios en vivo: lo que se edita en otro dispositivo aparece aquí en segundos ---------- */
+    let ultimaEdicionLocal = 0;
+    let sondeando = false;
+    ['input', 'keydown', 'paste', 'drop'].forEach(ev => document.addEventListener(ev, (e) => {
+        if (e.target && e.target.closest && e.target.closest('[contenteditable="true"], .editable-area')) ultimaEdicionLocal = Date.now();
+    }, true));
+
+    function mismaFecha(a, b) {
+        return !!a && !!b && new Date(a).getTime() === new Date(b).getTime();
+    }
+
+    function idAbierto() {
+        if (vistaActivaActual === 'vistaDetalleBosquejo') return idBosquejoActual;
+        if (vistaActivaActual === 'vistaDetalleQA') return idQAActual;
+        return null;
+    }
+
+    // Aplica una fila que cambió en la nube. Devuelve false si hay que reintentar más tarde.
+    function aplicarCambioRemoto(fila) {
+        const nuevo = filaADoc(fila);
+        const existente = buscarDoc(fila.id);
+        const abierto = idAbierto() === fila.id;
+
+        if (abierto) {
+            // Si estás escribiendo justo ahora, no se toca tu pantalla (se reintenta en unos segundos)
+            if (Date.now() - ultimaEdicionLocal < 4000 || pendientesGuardar[fila.id]) return false;
+            const editor = editorPrincipal();
+            const panel = contenedorReferencias();
+            const cambioContenido = !existente || existente.contenido !== nuevo.contenido;
+            const cambioPanel = !existente || existente.panelContenido !== nuevo.panelContenido;
+            if (cambioContenido || cambioPanel) {
+                const activa = panel && panel.querySelector('.reference-item-card.ref-activa');
+                const idActiva = activa ? idDeTarjeta(activa) : null;
+                const y = window.scrollY;
+                if (cambioContenido && editor) editor.innerHTML = nuevo.contenido;
+                if (cambioPanel && panel) panel.innerHTML = nuevo.panelContenido || '';
+                activarReferencia(idActiva);
+                window.scrollTo({ top: y, behavior: 'instant' });
+            }
+            if (existente) nuevo.scrollPos = existente.scrollPos;   // tu posición de lectura se respeta
+        }
+
+        if (existente) {
+            Object.assign(existente, nuevo);
+        } else {
+            (fila.tipo === 'qa' ? qaData : bosquejosData).push(nuevo);
+        }
+        fechaConocida[fila.id] = fila.updated_at;
+        ultimoGuardado[fila.id] = JSON.stringify(docAFila(existente || nuevo, fila.tipo));
+        idbPoner('docs', fila);
+        return true;
+    }
+
+    async function sondearCambios() {
+        if (!inicioCompleto || sondeando || enviando || !navigator.onLine || document.visibilityState !== 'visible') return;
+        sondeando = true;
+        try {
+            const resp = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLA}?select=id,updated_at`, { headers: sbHeaders, cache: 'no-store' });
+            if (!resp.ok) return;
+            const lista = await resp.json();
+            const remotos = new Set(lista.map(r => r.id));
+            const cambiados = lista.filter(r => !mismaFecha(fechaConocida[r.id], r.updated_at) && !pendientesGuardar[r.id]).map(r => r.id);
+
+            let hubo = false;
+            if (cambiados.length) {
+                const ids = cambiados.map(id => `"${id}"`).join(',');
+                const r2 = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLA}?select=*&id=in.(${encodeURIComponent(ids)})`, { headers: sbHeaders, cache: 'no-store' });
+                if (r2.ok) {
+                    for (const fila of await r2.json()) {
+                        if (pendientesGuardar[fila.id]) continue;
+                        if (aplicarCambioRemoto(fila)) hubo = true;
+                    }
+                }
+            }
+
+            // Documentos borrados en otro lugar (solo los que ya estaban en la nube y no tienen cambios pendientes)
+            const borrados = [...bosquejosData, ...qaData].filter(d => !remotos.has(d.id) && fechaConocida[d.id] && !pendientesGuardar[d.id]);
+            if (borrados.length) {
+                const abierto = idAbierto();
+                borrados.forEach(d => { delete fechaConocida[d.id]; delete ultimoGuardado[d.id]; idbBorrar('docs', d.id); });
+                const ids = new Set(borrados.map(d => d.id));
+                bosquejosData = bosquejosData.filter(d => !ids.has(d.id));
+                qaData = qaData.filter(d => !ids.has(d.id));
+                if (abierto && ids.has(abierto)) {
+                    cambiarVista(vistaActivaActual === 'vistaDetalleQA' ? 'vistaQAList' : 'vistaDiscursos', null);
+                    mostrarAlerta('Este documento se eliminó en otro dispositivo');
+                }
+                hubo = true;
+            }
+
+            if (hubo) {
+                estadoSync.ultimaSync = new Date().toISOString();
+                refrescarListas();
+            }
+        } catch (err) {
+            // Sin conexión momentánea: se intentará en el siguiente ciclo
+        } finally {
+            sondeando = false;
+        }
+    }
+
+    setInterval(sondearCambios, 3000);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') sondearCambios(); });
+    window.addEventListener('focus', () => sondearCambios());
 
     function refrescarListas() {
         if (vistaActivaActual === 'vistaDiscursos') renderizarListaBosquejos();
@@ -2636,7 +2749,7 @@
         idbPoner('docs', { ...filaConFecha(fila, ahora), created_at: doc.createdAt });
         idbPoner('pendientes', fila);
         if (timerGuardado) clearTimeout(timerGuardado);
-        timerGuardado = setTimeout(vaciarGuardados, inmediato ? 0 : 800);
+        timerGuardado = setTimeout(vaciarGuardados, inmediato ? 0 : 300);
         if (typeof actualizarPanelSync === 'function') actualizarPanelSync();
     }
 
@@ -2698,7 +2811,10 @@
         // Si hay un documento abierto, se guarda primero lo que está en pantalla
         const abierto = (vistaActivaActual === 'vistaDetalleBosquejo' && idBosquejoActual) || (vistaActivaActual === 'vistaDetalleQA' && idQAActual);
         aplicarFilas(combinadas);
-        remotas.forEach(f => { ultimoGuardado[f.id] = JSON.stringify(docAFila(filaADoc(f), f.tipo)); });
+        remotas.forEach(f => {
+            ultimoGuardado[f.id] = JSON.stringify(docAFila(filaADoc(f), f.tipo));
+            fechaConocida[f.id] = f.updated_at;
+        });
         await idbReemplazarTodo('docs', combinadas);
         if (abierto) guardarEstadoActual();
         estadoSync.conectado = true;
@@ -2752,7 +2868,9 @@
         }
         renderizarListaBosquejos();
         refrescarListas();
+        inicioCompleto = true;
     }
+    let inicioCompleto = false;
 
     window.addEventListener('online', () => {
         estadoSync.conectado = true;
@@ -2769,7 +2887,7 @@
     document.addEventListener('input', () => {
         if (vistaActivaActual !== 'vistaDetalleBosquejo' && vistaActivaActual !== 'vistaDetalleQA') return;
         if (timerAutoguardado) clearTimeout(timerAutoguardado);
-        timerAutoguardado = setTimeout(guardarEstadoActual, 1000);
+        timerAutoguardado = setTimeout(guardarEstadoActual, 600);
     });
 
     // Respaldo periódico (cambios de imágenes, posición de lectura, etc.)
@@ -3592,12 +3710,56 @@
         mostrarPuntoPanel(nuevaId);
     }
 
+    /* ACTUALIZACIÓN AUTOMÁTICA DE LA APP
+       Si hay una versión nueva, se instala sola. Si estás dentro de un documento, espera a que vuelvas a la lista
+       para no interrumpirte. */
+    let actualizacionPendiente = false;
+    let actualizandoAuto = false;
+
+    function estaEditando() {
+        return vistaActivaActual === 'vistaDetalleBosquejo' || vistaActivaActual === 'vistaDetalleQA';
+    }
+
+    async function aplicarActualizacionAutomatica() {
+        if (actualizandoAuto) return;
+        actualizandoAuto = true;
+        mostrarAlerta('Instalando la versión nueva de la app…');
+        try { await aplicarActualizacion(); } finally { actualizandoAuto = false; }
+    }
+
+    async function revisarActualizacionAutomatica() {
+        if (APP_VERSION === 'dev' || actualizandoAuto || !navigator.onLine) return;
+        if (!(await buscarActualizacion(false))) return;
+        // Protección: si ya se intentó instalar esta versión hace poco y no cambió, no se reintenta en bucle
+        try {
+            const intento = JSON.parse(localStorage.getItem('bosquejos_intento_actualizacion') || 'null');
+            if (intento && intento.version === infoActualizacion.version && Date.now() - intento.fecha < 15 * 60 * 1000) return;
+            localStorage.setItem('bosquejos_intento_actualizacion', JSON.stringify({ version: infoActualizacion.version, fecha: Date.now() }));
+        } catch (e) {}
+        if (estaEditando()) {
+            if (!actualizacionPendiente) mostrarAlerta('Hay una versión nueva: se instalará al volver a la lista');
+            actualizacionPendiente = true;
+        } else {
+            aplicarActualizacionAutomatica();
+        }
+    }
+
+    // Al volver a una lista, se instala la actualización que estaba esperando
+    const cambiarVistaOriginal = cambiarVista;
+    cambiarVista = function (idVista, elementoMenu) {
+        cambiarVistaOriginal(idVista, elementoMenu);
+        if (actualizacionPendiente && !estaEditando()) {
+            actualizacionPendiente = false;
+            setTimeout(aplicarActualizacionAutomatica, 300);
+        }
+    };
+
     iniciarApp().then(() => {
-        // Aviso discreto si hay una versión nueva publicada
-        setTimeout(async () => {
-            if (APP_VERSION === 'dev') return;
-            if (await buscarActualizacion(false)) mostrarAlerta('Hay una actualización disponible en Configuración');
-        }, 3000);
+        setTimeout(revisarActualizacionAutomatica, 2000);
+    });
+    setInterval(revisarActualizacionAutomatica, 5 * 60 * 1000);
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') revisarActualizacionAutomatica();
     });
 
     // Instalación como app: registra el service worker (solo en https o localhost; la app nativa no lo necesita)
