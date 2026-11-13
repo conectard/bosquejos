@@ -2266,7 +2266,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.12.0328';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.12.2116';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
@@ -2668,14 +2668,14 @@
     }
 
     // Aplica una fila que cambió en la nube. Devuelve false si hay que reintentar más tarde.
-    function aplicarCambioRemoto(fila) {
+    function aplicarCambioRemoto(fila, forzar = false) {
         const nuevo = filaADoc(fila);
         const existente = buscarDoc(fila.id);
         const abierto = idAbierto() === fila.id;
 
         if (abierto) {
             // Si estás escribiendo justo ahora, no se toca tu pantalla (se reintenta en unos segundos)
-            if (Date.now() - ultimaEdicionLocal < 4000 || pendientesGuardar[fila.id]) return false;
+            if (!forzar && (Date.now() - ultimaEdicionLocal < 4000 || pendientesGuardar[fila.id])) return false;
             const editor = editorPrincipal();
             const panel = contenedorReferencias();
             const cambioContenido = !existente || existente.contenido !== nuevo.contenido;
@@ -2699,7 +2699,7 @@
             (fila.tipo === 'qa' ? qaData : bosquejosData).push(nuevo);
         }
         fechaConocida[fila.id] = fila.updated_at;
-        ultimoGuardado[fila.id] = JSON.stringify(docAFila(existente || nuevo, fila.tipo));
+        ultimoGuardado[fila.id] = huella(docAFila(existente || nuevo, fila.tipo));
         idbPoner('docs', fila);
         return true;
     }
@@ -2762,41 +2762,84 @@
         if (typeof actualizarPanelSync === 'function') actualizarPanelSync();
     }
 
+    /* PROTECCIÓN CONTRA PISAR CAMBIOS
+       Cada cambio recuerda sobre qué versión de la nube se hizo ("base"). Si al subirlo la nube ya tiene
+       otra versión (porque se editó en otro dispositivo o pestaña), NO se sobrescribe: lo de aquí se guarda
+       como una copia aparte y se carga la versión de la nube. Así nunca se pierde nada.
+       Además, mover la página (scroll) ya no sube el documento: solo los cambios reales de contenido. */
+    const baseDe = {};   // id -> updated_at de la nube sobre la que se hizo el cambio pendiente
+    function huella(fila) { return JSON.stringify({ ...fila, scroll_pos: 0 }); }
+
     // Marca un documento para guardarse: primero en el dispositivo (al instante) y luego en la nube
     function programarGuardado(doc, tipo, inmediato = false) {
         if (!doc) return;
         const fila = docAFila(doc, tipo);
-        const snapshot = JSON.stringify(fila);
+        const snapshot = huella(fila);
         if (ultimoGuardado[fila.id] === snapshot && !pendientesGuardar[fila.id]) return;
-        if (pendientesGuardar[fila.id] && JSON.stringify(pendientesGuardar[fila.id]) === snapshot) return;
+        if (pendientesGuardar[fila.id] && huella(pendientesGuardar[fila.id]) === snapshot) return;
+        if (!pendientesGuardar[fila.id]) baseDe[fila.id] = fechaConocida[fila.id] || null;
         pendientesGuardar[fila.id] = fila;
         const ahora = new Date().toISOString();
         doc.updatedAt = ahora;
         if (!doc.createdAt) doc.createdAt = ahora;
         idbPoner('docs', { ...filaConFecha(fila, ahora), created_at: doc.createdAt });
-        idbPoner('pendientes', fila);
+        idbPoner('pendientes', { ...fila, _base: baseDe[fila.id] });
         if (timerGuardado) clearTimeout(timerGuardado);
         timerGuardado = setTimeout(vaciarGuardados, inmediato ? 0 : 300);
         if (typeof actualizarPanelSync === 'function') actualizarPanelSync();
     }
 
+    function filaComoCopia(f) {
+        const sufijo = ' (copia en conflicto ' + new Date().toLocaleString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ')';
+        return {
+            ...f,
+            id: f.id + '-copia-' + Date.now().toString(36),
+            titulo: (f.titulo || '') + sufijo,
+            contenido: /<h1>[\s\S]*?<\/h1>/.test(f.contenido)
+                ? f.contenido.replace(/<h1>([\s\S]*?)<\/h1>/, (m, t) => `<h1>${t}${sufijo}</h1>`)
+                : f.contenido
+        };
+    }
+
+    async function fechasEnNube(ids) {
+        if (!ids.length) return {};
+        const lista = ids.map(id => `"${id}"`).join(',');
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLA}?select=id,updated_at&id=in.(${encodeURIComponent(lista)})`, { headers: sbHeaders, cache: 'no-store' });
+        if (!r.ok) throw new Error('Supabase ' + r.status);
+        return Object.fromEntries((await r.json()).map(x => [x.id, x.updated_at]));
+    }
+
     async function vaciarGuardados(keepalive = false) {
         timerGuardado = null;
+        // Al cerrar o recargar no se sube a ciegas: queda guardado en el dispositivo y se revisa al volver a abrir
+        if (keepalive === true) return;
         if (enviando) { timerGuardado = setTimeout(vaciarGuardados, 1000); return; }
-        const filas = Object.values(pendientesGuardar);
+        let filas = Object.values(pendientesGuardar);
         if (filas.length === 0) return;
         if (!navigator.onLine) { estadoSync.conectado = false; refrescarListas(); return; }
         enviando = true;
         try {
-            await enviarFilas(filas, keepalive);
+            // 1. ¿Alguien cambió estos documentos en la nube desde que se empezó a editar aquí?
+            const remotas = await fechasEnNube(filas.filter(f => baseDe[f.id]).map(f => f.id));
+            const conflictos = filas.filter(f => baseDe[f.id] && remotas[f.id] && !mismaFecha(remotas[f.id], baseDe[f.id]));
+            const copias = conflictos.map(filaComoCopia);
+            const aSubir = [...filas.filter(f => !conflictos.includes(f)), ...copias];
+
+            await enviarFilas(aSubir);
+
             for (const f of filas) {
-                ultimoGuardado[f.id] = JSON.stringify(f);
+                const esConflicto = conflictos.includes(f);
+                if (!esConflicto) ultimoGuardado[f.id] = huella(f);
                 // Solo se quita de pendientes si no hubo cambios nuevos mientras se enviaba
-                if (pendientesGuardar[f.id] && JSON.stringify(pendientesGuardar[f.id]) === JSON.stringify(f)) {
+                if (pendientesGuardar[f.id] && huella(pendientesGuardar[f.id]) === huella(f)) {
                     delete pendientesGuardar[f.id];
+                    delete baseDe[f.id];
                     idbBorrar('pendientes', f.id);
+                } else if (!esConflicto) {
+                    baseDe[f.id] = fechaConocida[f.id];
                 }
             }
+            if (conflictos.length) await resolverConflictos(conflictos, copias);
             estadoSync.conectado = true;
             estadoSync.ultimaSync = new Date().toISOString();
             estadoSync.error = null;
@@ -2815,16 +2858,49 @@
         }
     }
 
+    // La versión de la nube se queda en el documento original; la de aquí ya quedó como copia
+    async function resolverConflictos(conflictos, copias) {
+        copias.forEach((c, i) => {
+            const nuevo = filaADoc({ ...c, updated_at: fechaConocida[c.id], created_at: new Date().toISOString() });
+            (conflictos[i].tipo === 'qa' ? qaData : bosquejosData).push(nuevo);
+            ultimoGuardado[c.id] = huella(c);
+            idbPoner('docs', { ...c, updated_at: fechaConocida[c.id], created_at: nuevo.createdAt || new Date().toISOString() });
+        });
+        try {
+            const ids = conflictos.map(f => `"${f.id}"`).join(',');
+            const r = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLA}?select=*&id=in.(${encodeURIComponent(ids)})`, { headers: sbHeaders, cache: 'no-store' });
+            if (r.ok) (await r.json()).forEach(fila => aplicarCambioRemoto(fila, true));
+        } catch (e) {}
+        mostrarAlerta(conflictos.length === 1
+            ? 'Este documento cambió en otro dispositivo. Tu versión se guardó aparte como «copia en conflicto».'
+            : `${conflictos.length} documentos cambiaron en otro dispositivo. Tus versiones se guardaron como copias.`);
+        refrescarListas();
+    }
+
     function aplicarFilas(filas) {
         bosquejosData = filas.filter(f => f.tipo === 'bosquejo').map(filaADoc);
         qaData = filas.filter(f => f.tipo === 'qa').map(filaADoc);
     }
 
-    // Combina la nube con el dispositivo: lo pendiente (editado sin conexión) tiene prioridad
+    // Combina la nube con el dispositivo. Lo pendiente (editado sin conexión) se sube, salvo que la nube
+    // haya cambiado mientras tanto: en ese caso se guarda como copia y no se pisa la versión de la nube.
     async function sincronizarConNube() {
         if (!navigator.onLine) throw new Error('Sin conexión a internet');
         const remotas = await cargarDesdeSupabase();
         const porId = new Map(remotas.map(f => [f.id, f]));
+        for (const p of Object.values(pendientesGuardar)) {
+            const remota = porId.get(p.id);
+            if (remota && baseDe[p.id] && !mismaFecha(remota.updated_at, baseDe[p.id])) {
+                const copia = filaComoCopia(p);
+                delete pendientesGuardar[p.id];
+                delete baseDe[p.id];
+                idbBorrar('pendientes', p.id);
+                pendientesGuardar[copia.id] = copia;
+                baseDe[copia.id] = null;
+                idbPoner('pendientes', { ...copia, _base: null });
+                mostrarAlerta('Un documento cambió en otro dispositivo. Tu versión se guardó aparte como «copia en conflicto».');
+            }
+        }
         Object.values(pendientesGuardar).forEach(p => {
             const previo = porId.get(p.id);
             const local = buscarDoc(p.id);
@@ -2839,7 +2915,7 @@
         const abierto = (vistaActivaActual === 'vistaDetalleBosquejo' && idBosquejoActual) || (vistaActivaActual === 'vistaDetalleQA' && idQAActual);
         aplicarFilas(combinadas);
         remotas.forEach(f => {
-            ultimoGuardado[f.id] = JSON.stringify(docAFila(filaADoc(f), f.tipo));
+            ultimoGuardado[f.id] = huella(docAFila(filaADoc(f), f.tipo));
             fechaConocida[f.id] = f.updated_at;
         });
         await idbReemplazarTodo('docs', combinadas);
@@ -2875,10 +2951,19 @@
 
         // 1. Lo guardado en el dispositivo aparece al instante (funciona sin internet)
         const [locales, pendientes] = await Promise.all([idbTodos('docs'), idbTodos('pendientes')]);
-        pendientes.forEach(p => { pendientesGuardar[p.id] = p; });
+        pendientes.forEach(p => {
+            const { _base, ...fila } = p;
+            pendientesGuardar[fila.id] = fila;
+            // Pendientes guardados por versiones anteriores de la app no traen base: se toma la fecha local conocida
+            baseDe[fila.id] = _base !== undefined ? _base : null;
+        });
         if (locales.length > 0) {
             aplicarFilas(locales.sort((a, b) => String(a.created_at || '').localeCompare(String(b.created_at || ''))));
-            locales.forEach(f => { if (!pendientesGuardar[f.id]) ultimoGuardado[f.id] = JSON.stringify(docAFila(filaADoc(f), f.tipo)); });
+            locales.forEach(f => {
+                if (!pendientesGuardar[f.id]) ultimoGuardado[f.id] = huella(docAFila(filaADoc(f), f.tipo));
+                // Si un pendiente antiguo no traía base, se usa la fecha de la copia local (la última versión que vio)
+                if (pendientesGuardar[f.id] && baseDe[f.id] === null && f.updated_at) baseDe[f.id] = f.updated_at;
+            });
         }
         refrescarListas();
         renderizarListaBosquejos();
