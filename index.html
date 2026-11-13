@@ -612,6 +612,33 @@
         .historial-lista { border-right: none; border-bottom: 1px solid var(--border-light); }
     }
 
+    /* Aviso cuando se usa una copia de prueba (localhost) */
+    .aviso-copia-prueba {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 7500;
+        background: #fef3c7;
+        color: #78350f;
+        border-bottom: 1px solid #fcd34d;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .aviso-copia-prueba a {
+        background: #78350f;
+        color: #ffffff;
+        padding: 4px 12px;
+        border-radius: 14px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
     /* PESTAÑAS BOSQUEJOS / DISCURSOS */
     .list-tabs {
         display: flex;
@@ -2480,7 +2507,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.13.0820';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.13.1703';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
@@ -2488,6 +2515,12 @@
     function esAppNativa() {
         return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
     }
+    // ¿Se está usando una copia que no es la oficial (por ejemplo la de prueba en localhost)?
+    function esCopiaNoOficial() {
+        if (esAppNativa() || location.protocol === 'file:') return false;
+        return !location.href.startsWith(URL_PUBLICADA);
+    }
+
     function esAppInstalada() {
         return esAppNativa() || window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     }
@@ -2618,11 +2651,18 @@
                 await updater.set(bundle);   // reinicia la app con la versión nueva
                 return;
             }
+            // Copia de prueba (localhost u otra dirección): la actualización está en la dirección oficial
+            if (esCopiaNoOficial()) {
+                estado.innerText = 'Esta es una copia de prueba. Abriendo la app oficial…';
+                setTimeout(() => { location.href = URL_PUBLICADA; }, 800);
+                return;
+            }
             estado.innerText = 'Descargando la versión nueva…';
             if ('serviceWorker' in navigator) {
                 const reg = await navigator.serviceWorker.getRegistration();
                 if (reg) {
-                    await reg.update();
+                    // Si el navegador no puede revisar el service worker, se recarga igual: la página nueva llega por la red
+                    try { await reg.update(); } catch (e) { console.warn('reg.update:', e); }
                     const nuevo = reg.installing || reg.waiting;
                     if (nuevo) {
                         await new Promise(resolve => {
@@ -4814,6 +4854,15 @@
             setTimeout(aplicarActualizacionAutomatica, 300);
         }
     };
+
+    // Aviso fijo si se está usando una copia de prueba en vez de la app oficial
+    if (esCopiaNoOficial() && APP_VERSION !== 'dev') {
+        const aviso = document.createElement('div');
+        aviso.className = 'aviso-copia-prueba';
+        aviso.innerHTML = `<span>Estás usando una <b>copia de prueba</b>, que no se actualiza.</span>
+            <a href="${URL_PUBLICADA}">Abrir la app oficial</a>`;
+        document.body.appendChild(aviso);
+    }
 
     iniciarApp().then(() => {
         setTimeout(revisarActualizacionAutomatica, 2000);
