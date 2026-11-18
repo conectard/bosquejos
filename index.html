@@ -871,6 +871,9 @@
         text-align: left;
         transition: background 0.15s;
     }
+    .card-context-item[hidden] {
+        display: none;
+    }
     .card-context-item:hover {
         background: #f8fafc;
         color: var(--theme-purple);
@@ -2055,6 +2058,12 @@
     <button class="card-context-item" onclick="triggerGlobalImageUploadFromContext()">
         <span class="material-symbols-outlined" style="font-size: 18px; color: #16a34a;">image</span> Insertar Imagen
     </button>
+    <button class="card-context-item" id="ctxEliminarTema" onclick="eliminarBloqueQA('tema')" style="color: #dc2626;" hidden>
+        <span class="material-symbols-outlined" style="font-size: 18px;">delete</span> Eliminar tema
+    </button>
+    <button class="card-context-item" id="ctxEliminarPregunta" onclick="eliminarBloqueQA('pregunta')" style="color: #dc2626;" hidden>
+        <span class="material-symbols-outlined" style="font-size: 18px;">delete</span> Eliminar pregunta
+    </button>
 </div>
 
 <!-- BARRA FLOTANTE PARA RECORTAR IMAGEN (DOBLE CLIC) -->
@@ -2637,7 +2646,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.18.1708';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.18.1721';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
@@ -3737,12 +3746,47 @@
                 ? rCursor.cloneRange()
                 : rangoEnPunto(e.clientX, e.clientY);
 
+            // En Preguntas y Respuestas: opción de eliminar el tema o la pregunta sobre la que se hizo clic derecho
+            const enQA = e.target.closest('#qaEditorMainContent');
+            temaObjetivo = enQA ? e.target.closest('.qa-theme-container') : null;
+            preguntaObjetivo = enQA ? e.target.closest('.qa-item-block') : null;
+            document.getElementById('ctxEliminarTema').hidden = !temaObjetivo;
+            document.getElementById('ctxEliminarPregunta').hidden = !preguntaObjetivo;
+
             const menu = document.getElementById('cardContextMenu');
-            menu.style.top = Math.min(e.clientY, window.innerHeight - 70) + 'px';
-            menu.style.left = Math.min(e.clientX, window.innerWidth - 200) + 'px';
             menu.classList.add('show');
+            const alto = menu.offsetHeight || 70;
+            menu.style.top = Math.max(8, Math.min(e.clientY, window.innerHeight - alto - 8)) + 'px';
+            menu.style.left = Math.max(8, Math.min(e.clientX, window.innerWidth - 200)) + 'px';
         }
     });
+
+    let temaObjetivo = null;
+    let preguntaObjetivo = null;
+
+    // Elimina un TEMA o una PREGUNTA del cuestionario (se puede deshacer con Ctrl+Z)
+    function eliminarBloqueQA(tipo) {
+        const bloque = tipo === 'tema' ? temaObjetivo : preguntaObjetivo;
+        document.getElementById('cardContextMenu').classList.remove('show');
+        if (!bloque || !bloque.isConnected) return;
+        const editor = document.getElementById('qaEditorMainContent');
+        if (tipo === 'tema' && editor.querySelectorAll('.qa-theme-container').length <= 1) {
+            if (!confirm('Es el único tema del cuestionario. ¿Eliminarlo de todos modos?')) return;
+        }
+        registrarCambio();
+        historial.ultimoTipo = '';
+        bloque.remove();
+        // Renumera las preguntas que quedan ("1. ...", "2. ...")
+        if (tipo === 'pregunta') {
+            editor.querySelectorAll('.qa-item-block .qa-question-title').forEach((t, i) => {
+                const m = t.textContent.match(/^\s*\d+\s*[.)-]\s*/);
+                if (m) t.textContent = `${i + 1}. ` + t.textContent.slice(m[0].length);
+            });
+        }
+        temaObjetivo = preguntaObjetivo = null;
+        guardarEstadoActual();
+        mostrarAlerta(tipo === 'tema' ? 'Tema eliminado (Ctrl+Z para deshacer)' : 'Pregunta eliminada (Ctrl+Z para deshacer)');
+    }
 
     window.addEventListener('click', () => {
         const menu = document.getElementById('cardContextMenu');
