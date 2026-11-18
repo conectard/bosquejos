@@ -612,6 +612,83 @@
         .historial-lista { border-right: none; border-bottom: 1px solid var(--border-light); }
     }
 
+    /* Tarjetas de las listas: botón ⋮ y ventana de edición */
+    .discourse-item-textos {
+        min-width: 0;
+    }
+    .tarjeta-menu-btn {
+        background: none;
+        border: none;
+        color: #94a3b8;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        touch-action: manipulation;
+    }
+    .tarjeta-menu-btn:hover {
+        background: #f1f5f9;
+        color: var(--text-main);
+    }
+    .discourse-item.menu-abierto {
+        background: #f5f3ff;
+    }
+    .editar-ventana {
+        background: #ffffff;
+        border-radius: var(--radius-xl);
+        width: 100%;
+        max-width: 480px;
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+    }
+    .editar-campo {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-sub);
+    }
+    .editar-campo input {
+        font-size: 1rem;
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        outline: none;
+        color: var(--text-main);
+    }
+    .editar-campo input:focus {
+        border-color: var(--theme-purple);
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+    }
+    .papelera-lista {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .papelera-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        border: 1px solid var(--border-light);
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+    .papelera-item small {
+        display: block;
+        color: var(--text-sub);
+        font-size: 0.72rem;
+    }
+
     /* Aviso cuando se usa una copia de prueba (localhost) */
     .aviso-copia-prueba {
         position: fixed;
@@ -2097,7 +2174,13 @@
             </button>
         </div>
 
-        <div class="discourse-list-container" id="listaQAsContainer"></div>
+        <div class="discourse-list-container">
+            <div class="list-tabs" role="tablist" id="pestanasQA">
+                <button class="list-tab active" role="tab" data-pestana="vm" onclick="cambiarPestanaQA('vm')">Vida y Ministerio</button>
+                <button class="list-tab" role="tab" data-pestana="atalaya" onclick="cambiarPestanaQA('atalaya')">Atalaya</button>
+            </div>
+            <div id="listaQAsContainer"></div>
+        </div>
     </div>
 
     <!-- VISTA: CONFIGURACIÓN -->
@@ -2215,6 +2298,21 @@
                         </button>
                         <input type="file" id="inputRestaurarCopia" accept=".json,application/json" style="display:none" onchange="restaurarCopiaCompleta(event)">
                     </div>
+                </div>
+            </div>
+
+            <!-- Papelera -->
+            <div class="settings-item" id="ajustePapelera">
+                <button class="settings-head" onclick="toggleAjuste('ajustePapelera')">
+                    <span class="settings-icon" style="background: #f1f5f9; color: #475569;"><span class="material-symbols-outlined">delete</span></span>
+                    <span class="settings-text">
+                        <span class="settings-title">Papelera</span>
+                        <span class="settings-desc" id="descPapelera">Documentos eliminados que puedes recuperar</span>
+                    </span>
+                    <span class="material-symbols-outlined settings-chevron">expand_more</span>
+                </button>
+                <div class="settings-body">
+                    <div id="listaPapelera" class="papelera-lista"></div>
                 </div>
             </div>
 
@@ -2341,6 +2439,38 @@
         </div>
     </div>
 
+</div>
+
+<!-- MENÚ DE LAS TARJETAS (clic derecho / mantener pulsado / ⋮) -->
+<div class="card-context-menu" id="menuTarjeta">
+    <button class="card-context-item" onclick="accionTarjeta('abrir')">
+        <span class="material-symbols-outlined" style="font-size: 18px;">open_in_new</span> Abrir
+    </button>
+    <button class="card-context-item" onclick="accionTarjeta('editar')">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: #2563eb;">edit</span> Editar título
+    </button>
+    <button class="card-context-item" onclick="accionTarjeta('eliminar')" style="color: #dc2626;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">delete</span> Eliminar
+    </button>
+</div>
+
+<!-- VENTANA: EDITAR TARJETA -->
+<div class="historial-fondo" id="editarFondo" onclick="cerrarEditarTarjeta()">
+    <div class="editar-ventana" onclick="event.stopPropagation()">
+        <div class="historial-titulo">Editar</div>
+        <label class="editar-campo">
+            <span>Título</span>
+            <input type="text" id="editarTitulo" autocomplete="off">
+        </label>
+        <label class="editar-campo">
+            <span>Subtítulo</span>
+            <input type="text" id="editarSub" autocomplete="off" placeholder="Ej.: Bosquejo S-34">
+        </label>
+        <div class="settings-actions" style="justify-content: flex-end;">
+            <button class="settings-btn" onclick="cerrarEditarTarjeta()">Cancelar</button>
+            <button class="settings-btn primary" onclick="guardarEdicionTarjeta()"><span class="material-symbols-outlined">check</span> Guardar</button>
+        </div>
+    </div>
 </div>
 
 <!-- VENTANA: HISTORIAL DE VERSIONES (copias de seguridad de un documento) -->
@@ -2507,7 +2637,7 @@
     /* =========================================================
        CONFIGURACIÓN: opciones, actualización e instalación
        ========================================================= */
-    const APP_VERSION = '2026.11.13.1703';   // el script de publicación pone aquí la versión real
+    const APP_VERSION = '2026.11.18.1708';   // el script de publicación pone aquí la versión real
     const URL_PUBLICADA = 'https://conectard.github.io/bosquejos/';
     let infoActualizacion = null;
     let eventoInstalacion = null;
@@ -2861,7 +2991,7 @@
     }
 
     function docAFila(doc, tipo) {
-        return {
+        const fila = {
             id: doc.id,
             tipo: tipo,
             titulo: doc.titulo || '',
@@ -2870,10 +3000,13 @@
             panel_contenido: doc.panelContenido || '',
             scroll_pos: Math.round(doc.scrollPos || 0)
         };
+        // Papelera: solo se envía si la base de datos ya tiene la columna "eliminado"
+        if (doc.eliminado !== undefined) fila.eliminado = doc.eliminado;
+        return fila;
     }
 
     function filaADoc(fila) {
-        return {
+        const doc = {
             id: fila.id,
             titulo: fila.titulo,
             sub: fila.sub,
@@ -2883,6 +3016,8 @@
             updatedAt: fila.updated_at,
             createdAt: fila.created_at
         };
+        if ('eliminado' in fila) doc.eliminado = fila.eliminado || null;
+        return doc;
     }
 
     function buscarDoc(id) {
@@ -3321,7 +3456,7 @@
         const container = document.getElementById('listaBosquejosContainer');
         const enDiscursos = pestanaBosquejos === 'discursos';
 
-        document.querySelectorAll('.list-tab').forEach(tab => {
+        document.querySelectorAll('#vistaDiscursos .list-tab').forEach(tab => {
             const activa = tab.dataset.pestana === pestanaBosquejos;
             tab.classList.toggle('active', activa);
             tab.setAttribute('aria-selected', activa ? 'true' : 'false');
@@ -3329,41 +3464,67 @@
         const btnAdd = document.querySelector('#vistaDiscursos .icon-btn-add');
         if (btnAdd) btnAdd.title = enDiscursos ? 'Nuevo Discurso' : 'Nuevo Bosquejo';
 
-        const lista = ordenarPorNumero(bosquejosData.filter(b => esDiscurso(b) === enDiscursos));
+        const lista = ordenarPorNumero(bosquejosData.filter(b => !b.eliminado && esDiscurso(b) === enDiscursos));
         if (lista.length === 0) {
             container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-sub);">${enDiscursos ? 'No hay discursos creados.' : 'No hay bosquejos creados.'}</div>`;
             return;
         }
-        container.innerHTML = lista.map(b => `
-            <div class="discourse-item" onclick="abrirBosquejo('${b.id}')">
+        container.innerHTML = lista.map(b => tarjetaDocumento(b, 'abrirBosquejo', esDiscurso(b) ? 'record_voice_over' : 'menu_book', '')).join('');
+    }
+
+    // Tarjeta de la lista: clic = abrir; clic derecho, mantener pulsado o ⋮ = editar / eliminar
+    function tarjetaDocumento(d, abrir, icono, estiloIcono) {
+        return `
+            <div class="discourse-item" data-id="${escaparHTML(d.id)}" onclick="${abrir}('${d.id}')">
                 <div class="discourse-item-left">
-                    <div class="discourse-thumb"><span class="material-symbols-outlined">${esDiscurso(b) ? 'record_voice_over' : 'menu_book'}</span></div>
-                    <div>
-                        <div class="discourse-title-text">${escaparHTML(b.titulo)}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-sub);">${escaparHTML(textoSub(b))}</div>
+                    <div class="discourse-thumb" style="${estiloIcono}"><span class="material-symbols-outlined">${icono}</span></div>
+                    <div class="discourse-item-textos">
+                        <div class="discourse-title-text">${escaparHTML(d.titulo)}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-sub);">${escaparHTML(textoSub(d))}</div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+                <button class="tarjeta-menu-btn" title="Opciones" onclick="abrirMenuTarjeta(event, '${d.id}')">
+                    <span class="material-symbols-outlined">more_vert</span>
+                </button>
+            </div>`;
+    }
+
+    /* PESTAÑAS DE PREGUNTAS Y RESPUESTAS: Vida y Ministerio (id "vm-") y Atalaya (los demás) */
+    let pestanaQA = 'vm';
+    try {
+        const g = localStorage.getItem('bosquejos_pestana_qa');
+        if (g === 'vm' || g === 'atalaya') pestanaQA = g;
+    } catch (e) {}
+
+    function esVidaMinisterio(doc) {
+        return String(doc.id).startsWith('vm-');
+    }
+
+    function cambiarPestanaQA(pestana) {
+        pestanaQA = pestana;
+        try { localStorage.setItem('bosquejos_pestana_qa', pestana); } catch (e) {}
+        renderizarListaQAs();
     }
 
     function renderizarListaQAs() {
         const container = document.getElementById('listaQAsContainer');
-        if (qaData.length === 0) {
-            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-sub);">No hay cuestionarios creados.</div>`;
+        const enVM = pestanaQA === 'vm';
+        document.querySelectorAll('#pestanasQA .list-tab').forEach(tab => {
+            const activa = tab.dataset.pestana === pestanaQA;
+            tab.classList.toggle('active', activa);
+            tab.setAttribute('aria-selected', activa ? 'true' : 'false');
+        });
+        const btnAdd = document.querySelector('#vistaQAList .icon-btn-add');
+        if (btnAdd) btnAdd.title = enVM ? 'Nuevo cuestionario de Vida y Ministerio' : 'Nuevo cuestionario de La Atalaya';
+
+        const lista = ordenarPorNumero(qaData.filter(q => !q.eliminado && esVidaMinisterio(q) === enVM));
+        if (lista.length === 0) {
+            container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-sub);">${enVM ? 'No hay cuestionarios de Vida y Ministerio.' : 'No hay cuestionarios de La Atalaya.'}</div>`;
             return;
         }
-        container.innerHTML = qaData.map(q => `
-            <div class="discourse-item" onclick="abrirQA('${q.id}')">
-                <div class="discourse-item-left">
-                    <div class="discourse-thumb" style="background: #fff7ed; color: #f97316;"><span class="material-symbols-outlined">favorite</span></div>
-                    <div>
-                        <div class="discourse-title-text">${escaparHTML(q.titulo)}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-sub);">${escaparHTML(textoSub(q))}</div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
+        container.innerHTML = lista.map(q => tarjetaDocumento(q, 'abrirQA',
+            esVidaMinisterio(q) ? 'groups' : 'auto_stories',
+            esVidaMinisterio(q) ? 'background: #eef2ff; color: #4f46e5;' : 'background: #fff7ed; color: #f97316;')).join('');
     }
 
     /* GESTIÓN DE IMÁGENES */
@@ -3697,14 +3858,16 @@
     }
 
     function crearNuevoCuestionarioQA() {
-        const nuevoId = 'qa-' + Date.now();
+        const enVM = pestanaQA === 'vm';
+        const seccion = enVM ? 'Vida y Ministerio' : 'La Atalaya';
+        const nuevoId = (enVM ? 'vm-' : 'qa-') + Date.now();
         const nuevo = {
             id: nuevoId,
             titulo: 'Nuevo Cuestionario de Estudio',
-            sub: 'Preguntas y Respuestas',
+            sub: seccion,
             scrollPos: 0,
             contenido: `
-                <div class="reader-breadcrumb">Preguntas y Respuestas</div>
+                <div class="reader-breadcrumb">${seccion}</div>
                 
                 <div class="qa-top-action-bar">
                     <button class="three-dots-btn" onclick="toggleQADropdown(event)" title="Opciones">
@@ -3751,7 +3914,7 @@
         qaData.push(nuevo);
         programarGuardado(nuevo, 'qa', true);
         abrirQA(nuevoId);
-        mostrarAlerta('¡Cuestionario creado con éxito!');
+        mostrarAlerta(`¡Cuestionario de ${seccion} creado!`);
     }
 
     function abrirQA(id) {
@@ -4788,6 +4951,175 @@
         };
     });
     setTimeout(limpiarVersionesAntiguas, 20000);
+
+    /* =========================================================
+       TARJETAS DE LAS LISTAS: clic derecho (o mantener pulsado, o ⋮) -> Abrir / Editar / Eliminar
+       Eliminar NO borra: manda a la Papelera (Configuración), desde donde se puede restaurar.
+       ========================================================= */
+    let tarjetaMenuId = null;
+    let columnaEliminadoOk = null;
+
+    function tipoDe(id) {
+        return qaData.some(d => d.id === id) ? 'qa' : 'bosquejo';
+    }
+
+    function cerrarMenuTarjeta() {
+        document.getElementById('menuTarjeta').classList.remove('show');
+        document.querySelectorAll('.discourse-item.menu-abierto').forEach(e => e.classList.remove('menu-abierto'));
+    }
+
+    function abrirMenuTarjeta(event, id) {
+        event.preventDefault();
+        event.stopPropagation();
+        tarjetaMenuId = id;
+        const menu = document.getElementById('menuTarjeta');
+        document.querySelectorAll('.discourse-item.menu-abierto').forEach(e => e.classList.remove('menu-abierto'));
+        const tarjeta = document.querySelector(`.discourse-item[data-id="${CSS.escape(id)}"]`);
+        if (tarjeta) tarjeta.classList.add('menu-abierto');
+        let x = event.clientX, y = event.clientY;
+        if (!x && !y && event.currentTarget && event.currentTarget.getBoundingClientRect) {
+            const r = event.currentTarget.getBoundingClientRect();
+            x = r.right; y = r.bottom;
+        }
+        menu.classList.add('show');
+        const w = menu.offsetWidth, h = menu.offsetHeight;
+        menu.style.left = Math.max(8, Math.min(x - (event.type === 'contextmenu' ? 0 : w), window.innerWidth - w - 8)) + 'px';
+        menu.style.top = Math.max(8, Math.min(y, window.innerHeight - h - 8)) + 'px';
+    }
+
+    // Clic derecho (computadora) o mantener pulsado (tableta / celular) sobre una tarjeta
+    document.addEventListener('contextmenu', (e) => {
+        const tarjeta = e.target.closest && e.target.closest('.discourse-item[data-id]');
+        if (!tarjeta) return;
+        abrirMenuTarjeta(e, tarjeta.dataset.id);
+    }, true);
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest || !e.target.closest('#menuTarjeta')) cerrarMenuTarjeta();
+    });
+    window.addEventListener('scroll', cerrarMenuTarjeta, { passive: true });
+
+    function accionTarjeta(accion) {
+        const id = tarjetaMenuId;
+        cerrarMenuTarjeta();
+        if (!id) return;
+        if (accion === 'abrir') (tipoDe(id) === 'qa' ? abrirQA : abrirBosquejo)(id);
+        if (accion === 'editar') abrirEditarTarjeta(id);
+        if (accion === 'eliminar') eliminarDocumento(id);
+    }
+
+    /* ---------- Editar título y subtítulo ---------- */
+    let editandoId = null;
+    function abrirEditarTarjeta(id) {
+        const doc = buscarDoc(id);
+        if (!doc) return;
+        editandoId = id;
+        document.getElementById('editarTitulo').value = doc.titulo || '';
+        document.getElementById('editarSub').value = doc.sub || '';
+        document.getElementById('editarFondo').classList.add('show');
+        setTimeout(() => document.getElementById('editarTitulo').focus(), 50);
+    }
+    function cerrarEditarTarjeta() {
+        document.getElementById('editarFondo').classList.remove('show');
+        editandoId = null;
+    }
+    function guardarEdicionTarjeta() {
+        const doc = editandoId && buscarDoc(editandoId);
+        if (!doc) return cerrarEditarTarjeta();
+        const tipo = tipoDe(doc.id);
+        const titulo = document.getElementById('editarTitulo').value.trim();
+        const sub = document.getElementById('editarSub').value.trim();
+        if (!titulo) { mostrarAlerta('El título no puede quedar vacío'); return; }
+        // El título también se cambia dentro del documento (es de donde la lista lo toma al guardar)
+        const tmp = document.createElement('div');
+        tmp.innerHTML = doc.contenido || '';
+        const nodoTitulo = tmp.querySelector(tipo === 'qa' ? '.qa-theme-title' : 'h1');
+        if (nodoTitulo) nodoTitulo.textContent = titulo;
+        doc.contenido = tmp.innerHTML;
+        doc.titulo = titulo;
+        doc.sub = sub;
+        programarGuardado(doc, tipo, true);
+        cerrarEditarTarjeta();
+        refrescarListas();
+        mostrarAlerta('Cambios guardados');
+    }
+    document.addEventListener('keydown', (e) => {
+        if (!document.getElementById('editarFondo').classList.contains('show')) return;
+        if (e.key === 'Enter') { e.preventDefault(); guardarEdicionTarjeta(); }
+        if (e.key === 'Escape') cerrarEditarTarjeta();
+    });
+
+    /* ---------- Eliminar (a la Papelera) y restaurar ---------- */
+    async function columnaEliminadoDisponible() {
+        if (columnaEliminadoOk) return true;
+        try {
+            const r = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLA}?select=eliminado&limit=1`, { headers: sbHeaders, cache: 'no-store' });
+            columnaEliminadoOk = r.ok;
+        } catch (e) { return false; }
+        return columnaEliminadoOk;
+    }
+
+    async function eliminarDocumento(id) {
+        const doc = buscarDoc(id);
+        if (!doc) return;
+        if (!(await columnaEliminadoDisponible())) {
+            alert('Para poder eliminar (con papelera para recuperar) falta un paso:\n\nEjecuta el archivo «supabase_actualizacion.sql» en Supabase → SQL Editor.');
+            return;
+        }
+        if (!confirm(`¿Eliminar «${doc.titulo}»?\n\nIrá a la Papelera (Configuración → Papelera), desde donde puedes restaurarlo.`)) return;
+        const tipo = tipoDe(id);
+        await guardarVersion(docAFila(doc, tipo), 'Antes de eliminar', true);
+        if (idAbierto() === id) cambiarVista(tipo === 'qa' ? 'vistaQAList' : 'vistaDiscursos', null);
+        doc.eliminado = new Date().toISOString();
+        programarGuardado(doc, tipo, true);
+        refrescarListas();
+        renderizarPapelera();
+        mostrarAlerta('Enviado a la Papelera');
+    }
+
+    function restaurarDePapelera(id) {
+        const doc = buscarDoc(id);
+        if (!doc) return;
+        doc.eliminado = null;
+        programarGuardado(doc, tipoDe(id), true);
+        refrescarListas();
+        renderizarPapelera();
+        mostrarAlerta(`«${doc.titulo}» restaurado`);
+    }
+
+    function renderizarPapelera() {
+        const cont = document.getElementById('listaPapelera');
+        if (!cont) return;
+        const borrados = [...bosquejosData, ...qaData].filter(d => d.eliminado).sort((a, b) => String(b.eliminado).localeCompare(String(a.eliminado)));
+        document.getElementById('descPapelera').innerText = borrados.length ? `${borrados.length} documento(s) eliminado(s)` : 'Vacía';
+        if (!borrados.length) {
+            cont.innerHTML = '<div class="settings-status">No hay documentos eliminados.</div>';
+            return;
+        }
+        cont.innerHTML = borrados.map(d => `
+            <div class="papelera-item">
+                <div><b>${escaparHTML(d.titulo)}</b><small>Eliminado ${escaparHTML(formatearFecha(d.eliminado))}</small></div>
+                <button class="settings-btn" onclick="restaurarDePapelera('${d.id}')"><span class="material-symbols-outlined">restore_from_trash</span> Restaurar</button>
+            </div>`).join('');
+    }
+
+    const toggleAjusteConPapelera = toggleAjuste;
+    toggleAjuste = function (id) {
+        toggleAjusteConPapelera(id);
+        if (id === 'ajustePapelera') renderizarPapelera();
+    };
+
+    // Si el documento abierto se elimina desde otro dispositivo, se vuelve a la lista
+    const refrescarListasOriginal = refrescarListas;
+    refrescarListas = function () {
+        refrescarListasOriginal();
+        const id = idAbierto();
+        const doc = id && buscarDoc(id);
+        if (doc && doc.eliminado) {
+            cambiarVista(vistaActivaActual === 'vistaDetalleQA' ? 'vistaQAList' : 'vistaDiscursos', null);
+            mostrarAlerta('Este documento se eliminó (está en la Papelera)');
+        }
+        if (vistaActivaActual === 'vistaConfiguracion') renderizarPapelera();
+    };
 
     /* MENÚ Y BOTÓN FLOTANTE: responden al PRIMER toque.
        Antes, si estabas escribiendo, el primer toque solo cerraba el teclado (la pantalla se movía
